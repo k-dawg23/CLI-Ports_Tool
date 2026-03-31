@@ -4,6 +4,8 @@
 
 The project also now includes a single-page end-user site at [index.html](/home/kdawg/AI-BootCamp/CLI-Ports_Tool/index.html) that shows the product, features, shortcuts, commands, stack, and getting-started flow in one place.
 
+For full end-user documentation, see [USER_MANUAL.md](/home/kdawg/AI-BootCamp/CLI-Ports_Tool/USER_MANUAL.md).
+
 ## Features
 
 - Interactive TUI when you run `ports`

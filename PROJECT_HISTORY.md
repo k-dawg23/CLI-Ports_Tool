@@ -5,6 +5,7 @@
 - Added a single-page end-user HTML site for the project.
 - The page includes a styled running `ports` example, usage guidance, features, keyboard shortcuts, CLI commands, how it works, the tech stack, and getting-started steps.
 - Updated the README to point users to the new page.
+- Added a dedicated `USER_MANUAL.md` covering every command, keyboard shortcut, and feature in detail.
 
 ## v1.0.7 - 2026-03-31
 
