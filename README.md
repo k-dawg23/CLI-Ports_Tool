@@ -6,6 +6,7 @@
 
 - Interactive TUI when you run `ports`
 - Filter modes for all ports, dev ports, and node-focused processes
+- Sort modes for port, memory, uptime, and project name
 - Static table output with `ports list`
 - Port inspection with `ports check <port>`
 - Quick termination with `ports kill <port>`
@@ -42,6 +43,7 @@ ports kill 3000
 
 - `↑` / `↓` move selection
 - `f` cycle filters between all ports, dev ports, and node only
+- `s` cycle sorting between port, memory, uptime, and project name
 - `r` refresh immediately
 - `K` stop the selected process with SIGTERM, then SIGKILL after 1 second if needed
 - `o` open `http://localhost:PORT` in the default browser
@@ -57,4 +59,4 @@ ports kill 3000
 
 ## Version
 
-Current release: `v1.0.2`
+Current release: `v1.0.3`

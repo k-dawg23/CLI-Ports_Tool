@@ -6,16 +6,19 @@ import { getListeningPorts, killPortProcess, openPortInBrowser, openProjectInEdi
 import type { PortProcess } from "./types.js";
 
 const REFRESH_INTERVAL_MS = 3000;
-const APP_VERSION = "1.0.2";
+const APP_VERSION = "1.0.3";
 const FILTER_MODES = ["all", "dev", "node"] as const;
+const SORT_MODES = ["port", "memory", "uptime", "project"] as const;
 
 type FilterMode = (typeof FILTER_MODES)[number];
+type SortMode = (typeof SORT_MODES)[number];
 
 export function PortsApp() {
   const { exit } = useApp();
   const [processes, setProcesses] = useState<PortProcess[]>([]);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [filterMode, setFilterMode] = useState<FilterMode>("all");
+  const [sortMode, setSortMode] = useState<SortMode>("port");
   const [statusMessage, setStatusMessage] = useState("Loading listening ports...");
   const [errorMessage, setErrorMessage] = useState<string | undefined>();
   const [isRefreshing, setIsRefreshing] = useState(true);
@@ -74,11 +77,17 @@ export function PortsApp() {
     };
   }, []);
 
-  const visibleProcesses = processes.filter((process) => matchesFilter(process, filterMode));
+  const visibleProcesses = sortProcesses(
+    processes.filter((process) => matchesFilter(process, filterMode)),
+    sortMode
+  );
   const selected = visibleProcesses[selectedIndex];
 
   useInput((input, key) => {
-    const currentVisible = processes.filter((process) => matchesFilter(process, filterMode));
+    const currentVisible = sortProcesses(
+      processes.filter((process) => matchesFilter(process, filterMode)),
+      sortMode
+    );
     const currentSelected = currentVisible[selectedIndex];
 
     if (key.upArrow) {
@@ -96,6 +105,16 @@ export function PortsApp() {
         const next = FILTER_MODES[(FILTER_MODES.indexOf(current) + 1) % FILTER_MODES.length]!;
         setSelectedIndex(0);
         setStatusMessage(`Filter set to ${getFilterLabel(next)}.`);
+        setErrorMessage(undefined);
+        return next;
+      });
+      return;
+    }
+
+    if (input === "s") {
+      setSortMode((current) => {
+        const next = SORT_MODES[(SORT_MODES.indexOf(current) + 1) % SORT_MODES.length]!;
+        setStatusMessage(`Sort set to ${getSortLabel(next)}.`);
         setErrorMessage(undefined);
         return next;
       });
@@ -176,7 +195,9 @@ export function PortsApp() {
 
   return (
     <Box flexDirection="column" paddingX={1}>
-      <Text color="cyanBright">ports v{APP_VERSION}  <Text color="yellowBright">[{getFilterLabel(filterMode)}]</Text></Text>
+      <Text color="cyanBright">
+        ports v{APP_VERSION}  <Text color="yellowBright">[{getFilterLabel(filterMode)}]</Text> <Text color="greenBright">[{getSortLabel(sortMode)}]</Text>
+      </Text>
       <Text color={errorMessage ? "redBright" : "gray"}>
         {errorMessage ?? `${statusMessage}${isRefreshing ? " Refreshing..." : ""}`}
       </Text>
@@ -252,6 +273,7 @@ function ShortcutBar() {
     <Box borderStyle="round" borderColor="gray" paddingX={1} gap={2}>
       <Shortcut color="whiteBright" keyLabel="↑/↓" label="Move" />
       <Shortcut color="yellowBright" keyLabel="f" label="Filter" />
+      <Shortcut color="greenBright" keyLabel="s" label="Sort" />
       <Shortcut color="greenBright" keyLabel="K" label="Kill" />
       <Shortcut color="cyanBright" keyLabel="o" label="Open URL" />
       <Shortcut color="blueBright" keyLabel="e" label="Open in Code" />
@@ -281,6 +303,22 @@ function matchesFilter(process: PortProcess, filterMode: FilterMode): boolean {
   }
 }
 
+function sortProcesses(processes: PortProcess[], sortMode: SortMode): PortProcess[] {
+  return [...processes].sort((left, right) => {
+    switch (sortMode) {
+      case "memory":
+        return compareNumbersDesc(left.memoryKb ?? 0, right.memoryKb ?? 0) || compareNumbersAsc(left.port, right.port);
+      case "uptime":
+        return compareNumbersDesc(parseElapsedToSeconds(left.uptime), parseElapsedToSeconds(right.uptime)) || compareNumbersAsc(left.port, right.port);
+      case "project":
+        return left.projectName.localeCompare(right.projectName) || compareNumbersAsc(left.port, right.port);
+      case "port":
+      default:
+        return compareNumbersAsc(left.port, right.port);
+    }
+  });
+}
+
 function isNodeLikeCommand(command: string): boolean {
   const normalized = command.toLowerCase();
   return normalized.includes("node") || normalized.includes("deno") || normalized.includes("bun");
@@ -296,4 +334,54 @@ function getFilterLabel(filterMode: FilterMode): string {
     default:
       return "all ports";
   }
+}
+
+function getSortLabel(sortMode: SortMode): string {
+  switch (sortMode) {
+    case "memory":
+      return "memory desc";
+    case "uptime":
+      return "uptime desc";
+    case "project":
+      return "project a-z";
+    case "port":
+    default:
+      return "port asc";
+  }
+}
+
+function parseElapsedToSeconds(elapsed?: string): number {
+  if (!elapsed) {
+    return 0;
+  }
+
+  const trimmed = elapsed.trim();
+  const daySplit = trimmed.split("-");
+  const dayCount = daySplit.length === 2 ? Number.parseInt(daySplit[0] ?? "0", 10) : 0;
+  const timePart = daySplit.length === 2 ? daySplit[1]! : daySplit[0]!;
+  const parts = timePart.split(":").map((part) => Number.parseInt(part, 10));
+
+  if (parts.some((part) => Number.isNaN(part))) {
+    return 0;
+  }
+
+  if (parts.length === 3) {
+    const [hours, minutes, seconds] = parts;
+    return dayCount * 86400 + hours! * 3600 + minutes! * 60 + seconds!;
+  }
+
+  if (parts.length === 2) {
+    const [minutes, seconds] = parts;
+    return dayCount * 86400 + minutes! * 60 + seconds!;
+  }
+
+  return dayCount * 86400;
+}
+
+function compareNumbersAsc(left: number, right: number): number {
+  return left - right;
+}
+
+function compareNumbersDesc(left: number, right: number): number {
+  return right - left;
 }
