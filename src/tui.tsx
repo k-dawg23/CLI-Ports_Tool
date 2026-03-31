@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Box, Text, useApp, useInput } from "ink";
 import chalk from "chalk";
-import { colorFramework, colorMemory, formatMemory, isNodeLikeCommand, shouldDimProcess } from "./format.js";
+import { colorFramework, colorMemory, formatMemory, isNodeLikeCommand, padAnsiEndVisible, padEndVisible, shouldDimProcess, TABLE_HEADERS, TABLE_WIDTHS, truncateVisible } from "./format.js";
 import { getListeningPorts, killPortProcess, openPortInBrowser, openProjectInEditor } from "./ports.js";
 import type { PortProcess } from "./types.js";
 
 const REFRESH_INTERVAL_MS = 3000;
-const APP_VERSION = "1.0.5";
+const APP_VERSION = "1.0.7";
 const FILTER_MODES = ["all", "dev", "node"] as const;
 const SORT_MODES = ["port", "memory", "uptime", "project"] as const;
 
@@ -299,12 +299,10 @@ export function PortsApp() {
 }
 
 function HeaderRow() {
-  const columns = ["PORT", "PROJECT", "FRAMEWORK", "PID", "MEM", "UPTIME", "COMMAND"];
-  const widths = [6, 22, 12, 8, 10, 12, 20];
-
   return (
     <Text bold>
-      {columns.map((column, index) => column.padEnd(widths[index]!, " ")).join(" ")}
+      {" "}
+      {TABLE_HEADERS.map((column, index) => padEndVisible(column, TABLE_WIDTHS[index]!)).join(" ")}
     </Text>
   );
 }
@@ -312,24 +310,27 @@ function HeaderRow() {
 function PortRow({ process, selected }: { process: PortProcess; selected: boolean }) {
   const isDimmed = shouldDimProcess(process);
   const styleCell = (value: string) => (isDimmed && !selected ? chalk.dim(value) : value);
-  const frameworkCell = trim(process.framework, 12).padEnd(12, " ");
-  const visibleFramework = isDimmed && !selected ? styleCell(frameworkCell) : colorFramework(trim(process.framework, 12)).padEnd(12, " ");
+  const portCell = padEndVisible(String(process.port), TABLE_WIDTHS[0]);
+  const projectCell = padEndVisible(process.projectName, TABLE_WIDTHS[1]);
+  const frameworkValue = truncateVisible(process.framework, TABLE_WIDTHS[2]);
+  const frameworkCell = isDimmed && !selected ? styleCell(frameworkValue) : colorFramework(frameworkValue);
+  const visibleFramework = padAnsiEndVisible(frameworkCell, TABLE_WIDTHS[2]);
+  const pidCell = padEndVisible(String(process.pid), TABLE_WIDTHS[3]);
+  const memoryCell = padAnsiEndVisible(colorMemory(process.memoryKb), TABLE_WIDTHS[4]);
+  const uptimeCell = padEndVisible(process.uptime ?? "-", TABLE_WIDTHS[5]);
+  const commandCell = padEndVisible(process.command, TABLE_WIDTHS[6]);
 
   return (
     <Text inverse={selected}>
-      {styleCell(`${selected ? ">" : " "}${String(process.port).padEnd(6, " ")} `)}
-      {styleCell(`${trim(process.projectName, 22).padEnd(22, " ")} `)}
+      {styleCell(`${selected ? ">" : " "}${portCell} `)}
+      {styleCell(`${projectCell} `)}
       {visibleFramework}
-      {styleCell(` ${String(process.pid).padEnd(8, " ")} `)}
-      {colorMemory(process.memoryKb).padEnd(10, " ")}
-      {styleCell(` ${(process.uptime ?? "-").padEnd(12, " ")} `)}
-      {styleCell(trim(process.command, 20).padEnd(20, " "))}
+      {styleCell(` ${pidCell} `)}
+      {memoryCell}
+      {styleCell(` ${uptimeCell} `)}
+      {styleCell(commandCell)}
     </Text>
   );
-}
-
-function trim(value: string, length: number): string {
-  return value.length > length ? `${value.slice(0, length - 1)}…` : value;
 }
 
 function ShortcutBar() {
@@ -361,7 +362,7 @@ function matchesFilter(process: PortProcess, filterMode: FilterMode): boolean {
     case "dev":
       return process.port >= 3000 && process.port <= 9999;
     case "node":
-      return process.framework !== "Unknown" || isNodeLikeCommand(process.command);
+      return process.framework !== "-" || isNodeLikeCommand(process.command);
     case "all":
     default:
       return true;

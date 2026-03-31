@@ -164,7 +164,7 @@ async function enrichRecord(record: LsofRecord): Promise<PortProcess | undefined
   return {
     port: record.port,
     pid: record.pid,
-    command: record.command,
+    command: getDisplayCommand(stats?.command, stats?.args) ?? record.command,
     cwd,
     memoryKb: stats?.memoryKb,
     uptime: stats?.uptime,
@@ -191,22 +191,80 @@ async function getWorkingDirectory(pid: number): Promise<string | undefined> {
   return cwd ? path.resolve(cwd) : undefined;
 }
 
-async function getProcessStats(pid: number): Promise<{ memoryKb?: number; uptime?: string } | undefined> {
-  const output = await runCommandOrUndefined(["ps", "-o", "rss=,etime=", "-p", String(pid)]);
+async function getProcessStats(pid: number): Promise<{ command?: string; args?: string; memoryKb?: number; uptime?: string } | undefined> {
+  const output = await runCommandOrUndefined(["ps", "-o", "comm=,args=,rss=,etime=", "-p", String(pid)]);
   if (!output) {
     return undefined;
   }
 
   const trimmed = output.trim();
-  const match = trimmed.match(/^(\d+)\s+(.+)$/);
+  const match = trimmed.match(/^(\S+)\s+(.+)\s+(\d+)\s+([0-9:-]+)$/);
   if (!match) {
     return undefined;
   }
 
   return {
-    memoryKb: Number(match[1]),
-    uptime: match[2].trim()
+    command: match[1].trim(),
+    args: match[2].trim(),
+    memoryKb: Number(match[3]),
+    uptime: match[4].trim()
   };
+}
+
+function getDisplayCommand(command?: string, args?: string): string | undefined {
+  const normalizedCommand = command?.trim();
+  if (!normalizedCommand) {
+    return undefined;
+  }
+
+  if (normalizedCommand !== "MainThread") {
+    return normalizedCommand;
+  }
+
+  const fallback = getMainThreadFallback(args);
+  return fallback ?? normalizedCommand;
+}
+
+function getMainThreadFallback(args?: string): string | undefined {
+  if (!args) {
+    return undefined;
+  }
+
+  const tokens = args
+    .trim()
+    .split(/\s+/)
+    .map((token) => token.replace(/^['"]|['"]$/g, ""))
+    .filter(Boolean);
+
+  for (const token of tokens) {
+    const candidate = token.split("/").pop() ?? token;
+    if (!candidate || candidate === "MainThread") {
+      continue;
+    }
+
+    if (looksUseful(candidate)) {
+      return candidate;
+    }
+  }
+
+  const firstToken = tokens[0];
+  if (!firstToken) {
+    return undefined;
+  }
+
+  return firstToken.split("/").pop() ?? firstToken;
+}
+
+function looksUseful(token: string): boolean {
+  if (token.startsWith("-")) {
+    return false;
+  }
+
+  if (token.includes("=")) {
+    return false;
+  }
+
+  return true;
 }
 
 async function isProcessAlive(pid: number): Promise<boolean> {
