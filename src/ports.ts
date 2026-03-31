@@ -32,17 +32,89 @@ export async function killPortProcess(port: number): Promise<{ success: boolean;
     };
   }
 
-  const result = await runCommandWithExitCode(["kill", "-15", String(process.pid)]);
-  if (result.exitCode !== 0) {
+  const termResult = await runCommandWithExitCode(["kill", "-15", String(process.pid)]);
+  if (termResult.exitCode !== 0) {
     return {
       success: false,
       message: `Failed to kill PID ${process.pid} on port ${port}.`
     };
   }
 
+  await wait(1000);
+
+  if (!(await isProcessAlive(process.pid))) {
+    return {
+      success: true,
+      message: `Stopped PID ${process.pid} on port ${port} with SIGTERM.`
+    };
+  }
+
+  const killResult = await runCommandWithExitCode(["kill", "-9", String(process.pid)]);
+  if (killResult.exitCode !== 0) {
+    return {
+      success: false,
+      message: `SIGTERM was sent to PID ${process.pid}, but SIGKILL failed and the process is still alive.`
+    };
+  }
+
   return {
     success: true,
-    message: `Sent SIGTERM to PID ${process.pid} on port ${port}.`
+    message: `Stopped stubborn PID ${process.pid} on port ${port} with SIGKILL after waiting 1s for SIGTERM.`
+  };
+}
+
+export async function openPortInBrowser(port: number): Promise<{ success: boolean; message: string }> {
+  const process = await getPortDetails(port);
+  if (!process) {
+    return {
+      success: false,
+      message: `Port ${port} is free.`
+    };
+  }
+
+  const url = `http://localhost:${port}`;
+  const command = getBrowserOpenCommand(url);
+  const result = await runCommandWithExitCode(command);
+  if (result.exitCode !== 0) {
+    return {
+      success: false,
+      message: `Failed to open ${url} in your default browser.`
+    };
+  }
+
+  return {
+    success: true,
+    message: `Opened ${url} in your default browser.`
+  };
+}
+
+export async function openProjectInEditor(port: number): Promise<{ success: boolean; message: string }> {
+  const process = await getPortDetails(port);
+  if (!process) {
+    return {
+      success: false,
+      message: `Port ${port} is free.`
+    };
+  }
+
+  if (!process.cwd) {
+    return {
+      success: false,
+      message: `No working directory was detected for PID ${process.pid}.`
+    };
+  }
+
+  const result = await runCommandWithExitCode(["code", process.cwd]);
+  if (result.exitCode !== 0) {
+    return {
+      success: false,
+      message: "VS Code could not be launched. Make sure the `code` command is installed."
+    };
+  }
+
+  return {
+    success: true,
+    message: `Opened ${process.cwd} in VS Code.`
   };
 }
 
@@ -135,4 +207,27 @@ async function getProcessStats(pid: number): Promise<{ memoryKb?: number; uptime
     memoryKb: Number(match[1]),
     uptime: match[2].trim()
   };
+}
+
+async function isProcessAlive(pid: number): Promise<boolean> {
+  const result = await runCommandWithExitCode(["kill", "-0", String(pid)]);
+  return result.exitCode === 0;
+}
+
+function getBrowserOpenCommand(url: string): string[] {
+  if (process.platform === "darwin") {
+    return ["open", url];
+  }
+
+  if (process.platform === "win32") {
+    return ["cmd", "/c", "start", "", url];
+  }
+
+  return ["xdg-open", url];
+}
+
+function wait(durationMs: number): Promise<void> {
+  return new Promise((resolve) => {
+    setTimeout(resolve, durationMs);
+  });
 }

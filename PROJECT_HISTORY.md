@@ -1,5 +1,21 @@
 # Project History
 
+## v1.0.2 - 2026-03-31
+
+- Added TUI filter modes for `all ports`, `dev ports`, and `node only`.
+- Added the `f` shortcut to cycle filters and show the active filter in the TUI header.
+- Reset selection to the first visible row whenever the filter changes.
+- Added `[f]` to the shortcut bar and updated the README for the new filtering workflow.
+
+## v1.0.1 - 2026-03-31
+
+- Changed the TUI kill shortcut from lowercase `k` to uppercase `K`.
+- Enhanced kill behavior to send SIGTERM first, wait 1 second, and then send SIGKILL if the process is still alive.
+- Added `o` to open `http://localhost:PORT` in the default browser.
+- Added `e` to open the detected project directory in VS Code.
+- Replaced the plain-text shortcut hint with a bottom shortcut bar using colored square-bracket key labels.
+- Updated the README for the new TUI shortcuts and bumped the documented release to `v1.0.1`.
+
 ## v1.0.0 - 2026-03-31
 
 - Created the `ports` TypeScript CLI project in `CLI-Ports_Tool`.
