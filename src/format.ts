@@ -6,15 +6,20 @@ export function renderTable(processes: PortProcess[]): string {
     return chalk.yellow("No listening TCP ports found.");
   }
 
-  const rows = processes.map((process) => [
-    String(process.port),
-    process.projectName,
-    colorFramework(process.framework),
-    String(process.pid),
-    formatMemory(process.memoryKb),
-    process.uptime ?? "-",
-    process.command
-  ]);
+  const rows = processes.map((process) => {
+    const isDimmed = shouldDimProcess(process);
+    const dim = isDimmed ? chalk.dim : identity;
+
+    return [
+      dim(String(process.port)),
+      dim(process.projectName),
+      isDimmed ? dim(process.framework) : colorFramework(process.framework),
+      dim(String(process.pid)),
+      colorMemory(process.memoryKb),
+      dim(process.uptime ?? "-"),
+      dim(process.command)
+    ];
+  });
 
   const headers = ["PORT", "PROJECT", "FRAMEWORK", "PID", "MEM", "UPTIME", "COMMAND"];
   const widths = headers.map((header, index) =>
@@ -61,6 +66,23 @@ export function formatMemory(memoryKb?: number): string {
   return `${(memoryKb / 1024).toFixed(1)} MB`;
 }
 
+export function colorMemory(memoryKb?: number): string {
+  const formatted = formatMemory(memoryKb);
+  if (!memoryKb || Number.isNaN(memoryKb)) {
+    return formatted;
+  }
+
+  if (memoryKb >= 500 * 1024) {
+    return chalk.red(formatted);
+  }
+
+  if (memoryKb >= 200 * 1024) {
+    return chalk.hex("#ff8c00")(formatted);
+  }
+
+  return formatted;
+}
+
 export function colorFramework(framework: string): string {
   switch (framework) {
     case "Next.js":
@@ -82,10 +104,27 @@ export function colorFramework(framework: string): string {
   }
 }
 
+export function shouldDimProcess(process: PortProcess): boolean {
+  return !isDevProcess(process);
+}
+
+export function isDevProcess(process: PortProcess): boolean {
+  return process.framework !== "Unknown" || isNodeLikeCommand(process.command);
+}
+
+export function isNodeLikeCommand(command: string): boolean {
+  const normalized = command.toLowerCase();
+  return normalized.includes("node") || normalized.includes("deno") || normalized.includes("bun");
+}
+
 function pad(value: string, width: number): string {
   const visibleLength = stripAnsi(value).length;
   const gap = Math.max(0, width - visibleLength);
   return `${value}${" ".repeat(gap)}`;
+}
+
+function identity(value: string): string {
+  return value;
 }
 
 function stripAnsi(value: string): string {

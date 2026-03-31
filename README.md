@@ -7,6 +7,8 @@
 - Interactive TUI when you run `ports`
 - Filter modes for all ports, dev ports, and node-focused processes
 - Sort modes for port, memory, uptime, and project name
+- Inline TUI search by project name, command, or port
+- Visual emphasis that dims system processes and highlights high memory use
 - Static table output with `ports list`
 - Port inspection with `ports check <port>`
 - Quick termination with `ports kill <port>`
@@ -44,6 +46,7 @@ ports kill 3000
 - `↑` / `↓` move selection
 - `f` cycle filters between all ports, dev ports, and node only
 - `s` cycle sorting between port, memory, uptime, and project name
+- `/` open the search bar; typing filters live, `Enter` locks it in, `Escape` clears it
 - `r` refresh immediately
 - `K` stop the selected process with SIGTERM, then SIGKILL after 1 second if needed
 - `o` open `http://localhost:PORT` in the default browser
@@ -57,6 +60,13 @@ ports kill 3000
 - `ps -o rss=,etime= -p <pid>` provides memory and uptime
 - The tool walks upward from each process working directory to locate `package.json`
 
+## Visual Styling
+
+- Dev processes stay at normal brightness when they are `node`, `deno`, `bun`, or have a recognized framework
+- System-style processes are dimmed in both the TUI and `ports list`
+- Memory values over `200 MB` are highlighted in orange
+- Memory values over `500 MB` are highlighted in red
+
 ## Version
 
-Current release: `v1.0.3`
+Current release: `v1.0.5`
