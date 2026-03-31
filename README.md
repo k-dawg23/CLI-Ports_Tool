@@ -10,6 +10,7 @@
 - Inline TUI search by project name, command, or port
 - Visual emphasis that dims system processes and highlights high memory use
 - Static table output with `ports list`
+- JSON output for `ports list --json`
 - Port inspection with `ports check <port>`
 - Quick termination with `ports kill <port>`
 - TUI shortcuts for browser launch and opening the project in VS Code
@@ -37,9 +38,20 @@ If `ports` is run in a non-interactive shell, it automatically falls back to the
 ```bash
 ports
 ports list
+ports list --json
 ports check 3000
 ports kill 3000
 ```
+
+`ports list --json` returns an array of objects with:
+
+- `port`
+- `pid`
+- `command`
+- `projectName`
+- `framework`
+- `memoryKB`
+- `uptime`
 
 ## TUI Shortcuts
 
@@ -69,4 +81,4 @@ ports kill 3000
 
 ## Version
 
-Current release: `v1.0.5`
+Current release: `v1.0.6`
