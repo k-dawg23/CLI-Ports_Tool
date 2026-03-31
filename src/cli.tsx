@@ -6,9 +6,10 @@ import chalk from "chalk";
 import { renderPortDetails, renderTable } from "./format.js";
 import { getListeningPorts, getPortDetails, killPortProcess } from "./ports.js";
 import { PortsApp } from "./tui.js";
+import type { PortProcess } from "./types.js";
 
 const program = new Command();
-const APP_VERSION = "1.0.5";
+const APP_VERSION = "1.0.6";
 
 program
   .name("ports")
@@ -18,8 +19,14 @@ program
 program
   .command("list")
   .description("Print a static table of all listening ports.")
-  .action(async () => {
+  .option("--json", "Output listening ports as a JSON array.")
+  .action(async (options: { json?: boolean }) => {
     const processes = await getListeningPorts();
+    if (options.json) {
+      console.log(JSON.stringify(processes.map(toJsonEntry), null, 2));
+      return;
+    }
+
     console.log(renderTable(processes));
   });
 
@@ -56,6 +63,18 @@ function parsePort(value: string): number {
   }
 
   return port;
+}
+
+function toJsonEntry(process: PortProcess) {
+  return {
+    port: process.port,
+    pid: process.pid,
+    command: process.command,
+    projectName: process.projectName,
+    framework: process.framework,
+    memoryKB: process.memoryKb ?? null,
+    uptime: process.uptime ?? null
+  };
 }
 
 async function main(): Promise<void> {

@@ -1,5 +1,11 @@
 # Project History
 
+## v1.0.6 - 2026-03-31
+
+- Added `--json` to `ports list` for machine-readable output.
+- The JSON output returns `port`, `pid`, `command`, `projectName`, `framework`, `memoryKB`, and `uptime` for each listening process.
+- Updated the README to document the new scripting-friendly output mode.
+
 ## v1.0.5 - 2026-03-31
 
 - Dimmed non-dev processes in both the TUI and `ports list` so dev servers stand out more clearly.
