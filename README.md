@@ -11,6 +11,7 @@
 - Visual emphasis that dims system processes and highlights high memory use
 - Static table output with `ports list`
 - JSON output for `ports list --json`
+- Cleaner framework fallback and command names in the UI
 - Port inspection with `ports check <port>`
 - Quick termination with `ports kill <port>`
 - TUI shortcuts for browser launch and opening the project in VS Code
@@ -79,6 +80,12 @@ ports kill 3000
 - Memory values over `200 MB` are highlighted in orange
 - Memory values over `500 MB` are highlighted in red
 
+## Display Notes
+
+- Framework shows `-` when no framework is detected or it is not relevant
+- Command uses the `ps` `comm` value, which is usually more useful than the truncated `lsof` command label
+- The TUI columns are aligned to fixed widths so values sit cleanly under their headings
+
 ## Version
 
-Current release: `v1.0.6`
+Current release: `v1.0.7`

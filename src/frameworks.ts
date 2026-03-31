@@ -12,7 +12,7 @@ const FRAMEWORK_CHECKS: Array<[Framework, string[]]> = [
 
 export function detectFramework(packageJson: unknown): Framework {
   if (!packageJson || typeof packageJson !== "object") {
-    return "Unknown";
+    return "-";
   }
 
   const dependencies = collectDependencyNames(packageJson as Record<string, unknown>);
@@ -23,7 +23,7 @@ export function detectFramework(packageJson: unknown): Framework {
     }
   }
 
-  return "Unknown";
+  return "-";
 }
 
 function collectDependencyNames(packageJson: Record<string, unknown>): Set<string> {

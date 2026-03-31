@@ -9,7 +9,7 @@ export async function getPackageContext(cwd?: string): Promise<PackageContext> {
   if (!cwd) {
     return {
       projectName: "-",
-      framework: "Unknown"
+      framework: "-"
     };
   }
 
@@ -17,7 +17,7 @@ export async function getPackageContext(cwd?: string): Promise<PackageContext> {
   if (!packageJsonPath) {
     return {
       projectName: path.basename(cwd),
-      framework: "Unknown"
+      framework: "-"
     };
   }
 
@@ -40,7 +40,7 @@ export async function getPackageContext(cwd?: string): Promise<PackageContext> {
     return {
       packageJsonPath,
       projectName: path.basename(path.dirname(packageJsonPath)),
-      framework: "Unknown"
+      framework: "-"
     };
   }
 }

@@ -6,7 +6,7 @@ export type Framework =
   | "Nuxt"
   | "SvelteKit"
   | "Angular"
-  | "Unknown";
+  | "-";
 
 export interface PackageContext {
   packageJsonPath?: string;

@@ -1,5 +1,12 @@
 # Project History
 
+## v1.0.7 - 2026-03-31
+
+- Replaced the framework fallback value `Unknown` with `-`.
+- Switched the command display to use the `ps` `comm` value so unhelpful truncated labels like `MainThrea` are avoided when possible.
+- Tightened the TUI column layout so values align more evenly under each heading.
+- Updated the README for the improved display behavior.
+
 ## v1.0.6 - 2026-03-31
 
 - Added `--json` to `ports list` for machine-readable output.

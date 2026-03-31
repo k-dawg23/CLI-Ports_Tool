@@ -1,6 +1,9 @@
 import chalk from "chalk";
 import type { PortProcess } from "./types.js";
 
+export const TABLE_HEADERS = ["PORT", "PROJECT", "FRAMEWORK", "PID", "MEM", "UPTIME", "COMMAND"] as const;
+export const TABLE_WIDTHS = [6, 22, 12, 8, 10, 12, 20] as const;
+
 export function renderTable(processes: PortProcess[]): string {
   if (processes.length === 0) {
     return chalk.yellow("No listening TCP ports found.");
@@ -11,27 +14,22 @@ export function renderTable(processes: PortProcess[]): string {
     const dim = isDimmed ? chalk.dim : identity;
 
     return [
-      dim(String(process.port)),
-      dim(process.projectName),
+      dim(padEndVisible(String(process.port), TABLE_WIDTHS[0])),
+      dim(padEndVisible(process.projectName, TABLE_WIDTHS[1])),
       isDimmed ? dim(process.framework) : colorFramework(process.framework),
-      dim(String(process.pid)),
+      dim(padEndVisible(String(process.pid), TABLE_WIDTHS[3])),
       colorMemory(process.memoryKb),
-      dim(process.uptime ?? "-"),
-      dim(process.command)
+      dim(padEndVisible(process.uptime ?? "-", TABLE_WIDTHS[5])),
+      dim(padEndVisible(process.command, TABLE_WIDTHS[6]))
     ];
   });
 
-  const headers = ["PORT", "PROJECT", "FRAMEWORK", "PID", "MEM", "UPTIME", "COMMAND"];
-  const widths = headers.map((header, index) =>
-    Math.max(header.length, ...rows.map((row) => stripAnsi(row[index] ?? "").length))
-  );
-
-  const headerLine = headers
-    .map((header, index) => chalk.bold(pad(header, widths[index]!)))
+  const headerLine = TABLE_HEADERS
+    .map((header, index) => chalk.bold(padEndVisible(header, TABLE_WIDTHS[index]!)))
     .join("  ");
 
   const body = rows
-    .map((row) => row.map((value, index) => pad(value, widths[index]!)).join("  "))
+    .map((row) => row.map((value, index) => padAnsiCell(value, TABLE_WIDTHS[index]!)).join("  "))
     .join("\n");
 
   return `${headerLine}\n${body}`;
@@ -100,7 +98,7 @@ export function colorFramework(framework: string): string {
     case "Angular":
       return chalk.hex("#dd0031")(framework);
     default:
-      return chalk.gray(framework);
+      return framework;
   }
 }
 
@@ -109,7 +107,7 @@ export function shouldDimProcess(process: PortProcess): boolean {
 }
 
 export function isDevProcess(process: PortProcess): boolean {
-  return process.framework !== "Unknown" || isNodeLikeCommand(process.command);
+  return process.framework !== "-" || isNodeLikeCommand(process.command);
 }
 
 export function isNodeLikeCommand(command: string): boolean {
@@ -117,10 +115,27 @@ export function isNodeLikeCommand(command: string): boolean {
   return normalized.includes("node") || normalized.includes("deno") || normalized.includes("bun");
 }
 
-function pad(value: string, width: number): string {
+function padAnsiCell(value: string, width: number): string {
   const visibleLength = stripAnsi(value).length;
   const gap = Math.max(0, width - visibleLength);
   return `${value}${" ".repeat(gap)}`;
+}
+
+export function padAnsiEndVisible(value: string, width: number): string {
+  return padAnsiCell(value, width);
+}
+
+export function truncateVisible(value: string, width: number): string {
+  if (value.length <= width) {
+    return value;
+  }
+
+  return `${value.slice(0, width - 1)}…`;
+}
+
+export function padEndVisible(value: string, width: number): string {
+  const truncated = truncateVisible(value, width);
+  return `${truncated}${" ".repeat(Math.max(0, width - truncated.length))}`;
 }
 
 function identity(value: string): string {
