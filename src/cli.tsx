@@ -8,7 +8,7 @@ import { getListeningPorts, getPortDetails, killPortProcess } from "./ports.js";
 import { PortsApp } from "./tui.js";
 
 const program = new Command();
-const APP_VERSION = "1.0.2";
+const APP_VERSION = "1.0.3";
 
 program
   .name("ports")

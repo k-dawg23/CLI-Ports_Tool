@@ -1,5 +1,12 @@
 # Project History
 
+## v1.0.3 - 2026-03-31
+
+- Added TUI sort modes for port ascending, memory descending, uptime descending, and project name alphabetical.
+- Added the `s` shortcut to cycle sort modes and show the active sort in the TUI header.
+- Implemented elapsed-time parsing so uptime sorting compares total seconds instead of raw strings.
+- Added `[s]` to the shortcut bar and updated the README for the new sorting workflow.
+
 ## v1.0.2 - 2026-03-31
 
 - Added TUI filter modes for `all ports`, `dev ports`, and `node only`.
