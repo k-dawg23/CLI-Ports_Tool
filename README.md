@@ -5,9 +5,11 @@
 ## Features
 
 - Interactive TUI when you run `ports`
+- Filter modes for all ports, dev ports, and node-focused processes
 - Static table output with `ports list`
 - Port inspection with `ports check <port>`
 - Quick termination with `ports kill <port>`
+- TUI shortcuts for browser launch and opening the project in VS Code
 - Project detection by walking up to the nearest `package.json`
 - Framework detection for Next.js, Astro, Vite, Remix, Nuxt, SvelteKit, and Angular
 
@@ -39,8 +41,11 @@ ports kill 3000
 ## TUI Shortcuts
 
 - `↑` / `↓` move selection
+- `f` cycle filters between all ports, dev ports, and node only
 - `r` refresh immediately
-- `k` kill the selected process
+- `K` stop the selected process with SIGTERM, then SIGKILL after 1 second if needed
+- `o` open `http://localhost:PORT` in the default browser
+- `e` open the detected project directory in VS Code
 - `q` quit
 
 ## How It Works
@@ -52,4 +57,4 @@ ports kill 3000
 
 ## Version
 
-Initial release: `v1.0.0`
+Current release: `v1.0.2`

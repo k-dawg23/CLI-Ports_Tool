@@ -8,11 +8,12 @@ import { getListeningPorts, getPortDetails, killPortProcess } from "./ports.js";
 import { PortsApp } from "./tui.js";
 
 const program = new Command();
+const APP_VERSION = "1.0.2";
 
 program
   .name("ports")
   .description("Inspect and manage listening ports on your machine.")
-  .version("1.0.0");
+  .version(APP_VERSION);
 
 program
   .command("list")

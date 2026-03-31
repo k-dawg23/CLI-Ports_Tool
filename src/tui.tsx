@@ -2,23 +2,44 @@ import React, { useEffect, useState } from "react";
 import { Box, Text, useApp, useInput } from "ink";
 import chalk from "chalk";
 import { colorFramework, formatMemory } from "./format.js";
-import { getListeningPorts, killPortProcess } from "./ports.js";
+import { getListeningPorts, killPortProcess, openPortInBrowser, openProjectInEditor } from "./ports.js";
 import type { PortProcess } from "./types.js";
 
 const REFRESH_INTERVAL_MS = 3000;
+const APP_VERSION = "1.0.2";
+const FILTER_MODES = ["all", "dev", "node"] as const;
+
+type FilterMode = (typeof FILTER_MODES)[number];
 
 export function PortsApp() {
   const { exit } = useApp();
   const [processes, setProcesses] = useState<PortProcess[]>([]);
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [filterMode, setFilterMode] = useState<FilterMode>("all");
   const [statusMessage, setStatusMessage] = useState("Loading listening ports...");
   const [errorMessage, setErrorMessage] = useState<string | undefined>();
   const [isRefreshing, setIsRefreshing] = useState(true);
 
+  const refreshProcesses = async (message?: string) => {
+    setIsRefreshing(true);
+
+    try {
+      const next = await getListeningPorts();
+      setProcesses(next);
+      setSelectedIndex((current) => Math.max(0, Math.min(current, Math.max(0, next.length - 1))));
+      setStatusMessage(message ?? `Tracking ${next.length} listening port${next.length === 1 ? "" : "s"}. Auto-refresh every 3s.`);
+      setErrorMessage(undefined);
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : "Failed to refresh ports.");
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
   useEffect(() => {
     let active = true;
 
-    const refresh = async () => {
+    const refresh = async (message?: string) => {
       setIsRefreshing(true);
       try {
         const next = await getListeningPorts();
@@ -28,7 +49,7 @@ export function PortsApp() {
 
         setProcesses(next);
         setSelectedIndex((current) => Math.max(0, Math.min(current, Math.max(0, next.length - 1))));
-        setStatusMessage(`Tracking ${next.length} listening port${next.length === 1 ? "" : "s"}. Auto-refresh every 3s.`);
+        setStatusMessage(message ?? `Tracking ${next.length} listening port${next.length === 1 ? "" : "s"}. Auto-refresh every 3s.`);
         setErrorMessage(undefined);
       } catch (error) {
         if (!active) {
@@ -53,14 +74,31 @@ export function PortsApp() {
     };
   }, []);
 
+  const visibleProcesses = processes.filter((process) => matchesFilter(process, filterMode));
+  const selected = visibleProcesses[selectedIndex];
+
   useInput((input, key) => {
+    const currentVisible = processes.filter((process) => matchesFilter(process, filterMode));
+    const currentSelected = currentVisible[selectedIndex];
+
     if (key.upArrow) {
       setSelectedIndex((current) => Math.max(0, current - 1));
       return;
     }
 
     if (key.downArrow) {
-      setSelectedIndex((current) => Math.min(processes.length - 1, current + 1));
+      setSelectedIndex((current) => Math.min(currentVisible.length - 1, current + 1));
+      return;
+    }
+
+    if (input === "f") {
+      setFilterMode((current) => {
+        const next = FILTER_MODES[(FILTER_MODES.indexOf(current) + 1) % FILTER_MODES.length]!;
+        setSelectedIndex(0);
+        setStatusMessage(`Filter set to ${getFilterLabel(next)}.`);
+        setErrorMessage(undefined);
+        return next;
+      });
       return;
     }
 
@@ -71,57 +109,83 @@ export function PortsApp() {
 
     if (input === "r") {
       setStatusMessage("Refreshing now...");
-      setIsRefreshing(true);
-      void getListeningPorts()
-        .then((next) => {
-          setProcesses(next);
-          setSelectedIndex((current) => Math.max(0, Math.min(current, Math.max(0, next.length - 1))));
-          setStatusMessage(`Tracking ${next.length} listening port${next.length === 1 ? "" : "s"}. Auto-refresh every 3s.`);
-          setErrorMessage(undefined);
-        })
-        .catch((error) => {
-          setErrorMessage(error instanceof Error ? error.message : "Failed to refresh ports.");
-        })
-        .finally(() => {
-          setIsRefreshing(false);
-        });
+      void refreshProcesses("Refreshed listening ports.");
       return;
     }
 
-    if (input === "k") {
-      const selected = processes[selectedIndex];
-      if (!selected) {
+    if (input === "K") {
+      if (!currentSelected) {
         return;
       }
 
-      setStatusMessage(`Killing PID ${selected.pid} on port ${selected.port}...`);
-      void killPortProcess(selected.port)
+      setStatusMessage(`Stopping PID ${currentSelected.pid} on port ${currentSelected.port}...`);
+      void killPortProcess(currentSelected.port)
         .then(async (result) => {
-          setStatusMessage(result.message);
-          const next = await getListeningPorts();
-          setProcesses(next);
-          setSelectedIndex((current) => Math.max(0, Math.min(current, Math.max(0, next.length - 1))));
+          await refreshProcesses(result.message);
         })
         .catch((error) => {
           setErrorMessage(error instanceof Error ? error.message : "Failed to kill process.");
         });
+      return;
+    }
+
+    if (input === "o") {
+      if (!currentSelected) {
+        return;
+      }
+
+      setStatusMessage(`Opening localhost:${currentSelected.port} in your browser...`);
+      void openPortInBrowser(currentSelected.port)
+        .then((result) => {
+          if (result.success) {
+            setStatusMessage(result.message);
+            setErrorMessage(undefined);
+            return;
+          }
+
+          setErrorMessage(result.message);
+        })
+        .catch((error) => {
+          setErrorMessage(error instanceof Error ? error.message : "Failed to open the browser.");
+        });
+      return;
+    }
+
+    if (input === "e") {
+      if (!currentSelected) {
+        return;
+      }
+
+      setStatusMessage(`Opening ${currentSelected.projectName} in VS Code...`);
+      void openProjectInEditor(currentSelected.port)
+        .then((result) => {
+          if (result.success) {
+            setStatusMessage(result.message);
+            setErrorMessage(undefined);
+            return;
+          }
+
+          setErrorMessage(result.message);
+        })
+        .catch((error) => {
+          setErrorMessage(error instanceof Error ? error.message : "Failed to open VS Code.");
+        });
+      return;
     }
   });
 
-  const selected = processes[selectedIndex];
-
   return (
     <Box flexDirection="column" paddingX={1}>
-      <Text color="cyanBright">ports v1.0.0</Text>
+      <Text color="cyanBright">ports v{APP_VERSION}  <Text color="yellowBright">[{getFilterLabel(filterMode)}]</Text></Text>
       <Text color={errorMessage ? "redBright" : "gray"}>
         {errorMessage ?? `${statusMessage}${isRefreshing ? " Refreshing..." : ""}`}
       </Text>
       <Box marginTop={1} flexDirection="column">
         <HeaderRow />
-        {processes.length === 0 ? (
-          <Text color="yellow">No listening TCP ports found.</Text>
+        {visibleProcesses.length === 0 ? (
+          <Text color="yellow">No ports match the current filter.</Text>
         ) : (
-          processes.map((process, index) => (
+          visibleProcesses.map((process, index) => (
             <PortRow
               key={`${process.pid}-${process.port}`}
               process={process}
@@ -143,7 +207,7 @@ export function PortsApp() {
         )}
       </Box>
       <Box marginTop={1}>
-        <Text dimColor>Keys: ↑/↓ move  r refresh  k kill selected port  q quit</Text>
+        <ShortcutBar />
       </Box>
     </Box>
   );
@@ -181,4 +245,55 @@ function PortRow({ process, selected }: { process: PortProcess; selected: boolea
 
 function trim(value: string, length: number): string {
   return value.length > length ? `${value.slice(0, length - 1)}…` : value;
+}
+
+function ShortcutBar() {
+  return (
+    <Box borderStyle="round" borderColor="gray" paddingX={1} gap={2}>
+      <Shortcut color="whiteBright" keyLabel="↑/↓" label="Move" />
+      <Shortcut color="yellowBright" keyLabel="f" label="Filter" />
+      <Shortcut color="greenBright" keyLabel="K" label="Kill" />
+      <Shortcut color="cyanBright" keyLabel="o" label="Open URL" />
+      <Shortcut color="blueBright" keyLabel="e" label="Open in Code" />
+      <Shortcut color="yellow" keyLabel="r" label="Refresh" />
+      <Shortcut color="magentaBright" keyLabel="q" label="Quit" />
+    </Box>
+  );
+}
+
+function Shortcut({ color, keyLabel, label }: { color: string; keyLabel: string; label: string }) {
+  return (
+    <Text>
+      <Text color={color}>[{keyLabel}]</Text> <Text dimColor>{label}</Text>
+    </Text>
+  );
+}
+
+function matchesFilter(process: PortProcess, filterMode: FilterMode): boolean {
+  switch (filterMode) {
+    case "dev":
+      return process.port >= 3000 && process.port <= 9999;
+    case "node":
+      return process.framework !== "Unknown" || isNodeLikeCommand(process.command);
+    case "all":
+    default:
+      return true;
+  }
+}
+
+function isNodeLikeCommand(command: string): boolean {
+  const normalized = command.toLowerCase();
+  return normalized.includes("node") || normalized.includes("deno") || normalized.includes("bun");
+}
+
+function getFilterLabel(filterMode: FilterMode): string {
+  switch (filterMode) {
+    case "dev":
+      return "dev ports";
+    case "node":
+      return "node only";
+    case "all":
+    default:
+      return "all ports";
+  }
 }
