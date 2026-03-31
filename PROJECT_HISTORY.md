@@ -1,5 +1,21 @@
 # Project History
 
+## v1.0.5 - 2026-03-31
+
+- Dimmed non-dev processes in both the TUI and `ports list` so dev servers stand out more clearly.
+- Kept `node`, `deno`, `bun`, and recognized framework processes at normal brightness.
+- Highlighted memory values above `200 MB` in orange and above `500 MB` in red.
+- Applied the memory emphasis only to the memory value, not the rest of the row.
+- Updated the README for the new visual styling behavior.
+
+## v1.0.4 - 2026-03-31
+
+- Added inline TUI search with `/` to filter by project name, command, or port number.
+- Added a bottom search bar that updates results while typing.
+- Made `Enter` lock in the current search and `Escape` cancel and clear it.
+- Disabled the other TUI shortcuts while the search bar is active.
+- Added `[/]` to the shortcut bar and updated the README for the new search workflow.
+
 ## v1.0.3 - 2026-03-31
 
 - Added TUI sort modes for port ascending, memory descending, uptime descending, and project name alphabetical.

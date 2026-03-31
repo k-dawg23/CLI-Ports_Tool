@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Box, Text, useApp, useInput } from "ink";
 import chalk from "chalk";
-import { colorFramework, formatMemory } from "./format.js";
+import { colorFramework, colorMemory, formatMemory, isNodeLikeCommand, shouldDimProcess } from "./format.js";
 import { getListeningPorts, killPortProcess, openPortInBrowser, openProjectInEditor } from "./ports.js";
 import type { PortProcess } from "./types.js";
 
 const REFRESH_INTERVAL_MS = 3000;
-const APP_VERSION = "1.0.3";
+const APP_VERSION = "1.0.5";
 const FILTER_MODES = ["all", "dev", "node"] as const;
 const SORT_MODES = ["port", "memory", "uptime", "project"] as const;
 
@@ -19,6 +19,9 @@ export function PortsApp() {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [filterMode, setFilterMode] = useState<FilterMode>("all");
   const [sortMode, setSortMode] = useState<SortMode>("port");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchDraft, setSearchDraft] = useState("");
+  const [isSearchActive, setIsSearchActive] = useState(false);
   const [statusMessage, setStatusMessage] = useState("Loading listening ports...");
   const [errorMessage, setErrorMessage] = useState<string | undefined>();
   const [isRefreshing, setIsRefreshing] = useState(true);
@@ -77,15 +80,58 @@ export function PortsApp() {
     };
   }, []);
 
+  const activeSearchQuery = isSearchActive ? searchDraft : searchQuery;
   const visibleProcesses = sortProcesses(
-    processes.filter((process) => matchesFilter(process, filterMode)),
+    processes
+      .filter((process) => matchesFilter(process, filterMode))
+      .filter((process) => matchesSearch(process, activeSearchQuery)),
     sortMode
   );
   const selected = visibleProcesses[selectedIndex];
 
+  useEffect(() => {
+    setSelectedIndex((current) => Math.max(0, Math.min(current, Math.max(0, visibleProcesses.length - 1))));
+  }, [visibleProcesses.length]);
+
   useInput((input, key) => {
+    if (isSearchActive) {
+      if (key.escape) {
+        setIsSearchActive(false);
+        setSearchDraft("");
+        setSearchQuery("");
+        setSelectedIndex(0);
+        setStatusMessage("Search cleared.");
+        setErrorMessage(undefined);
+        return;
+      }
+
+      if (key.return) {
+        setIsSearchActive(false);
+        setSearchQuery(searchDraft);
+        setSelectedIndex(0);
+        setStatusMessage(searchDraft.trim() ? `Search locked: ${searchDraft}` : "Search cleared.");
+        setErrorMessage(undefined);
+        return;
+      }
+
+      if (key.backspace || key.delete) {
+        setSearchDraft((current) => current.slice(0, -1));
+        setSelectedIndex(0);
+        return;
+      }
+
+      if (input && !key.ctrl && !key.meta) {
+        setSearchDraft((current) => current + input);
+        setSelectedIndex(0);
+      }
+
+      return;
+    }
+
     const currentVisible = sortProcesses(
-      processes.filter((process) => matchesFilter(process, filterMode)),
+      processes
+        .filter((process) => matchesFilter(process, filterMode))
+        .filter((process) => matchesSearch(process, activeSearchQuery)),
       sortMode
     );
     const currentSelected = currentVisible[selectedIndex];
@@ -97,6 +143,15 @@ export function PortsApp() {
 
     if (key.downArrow) {
       setSelectedIndex((current) => Math.min(currentVisible.length - 1, current + 1));
+      return;
+    }
+
+    if (input === "/") {
+      setIsSearchActive(true);
+      setSearchDraft(searchQuery);
+      setSelectedIndex(0);
+      setStatusMessage("Search by project, command, or port.");
+      setErrorMessage(undefined);
       return;
     }
 
@@ -230,6 +285,15 @@ export function PortsApp() {
       <Box marginTop={1}>
         <ShortcutBar />
       </Box>
+      {isSearchActive ? (
+        <Box marginTop={1} borderStyle="round" borderColor="cyanBright" paddingX={1}>
+          <Text>
+            <Text color="cyanBright">/</Text> {searchDraft}
+            <Text dimColor>{searchDraft ? "" : " search project, command, or port"}</Text>
+            <Text dimColor>  Enter lock  Esc clear</Text>
+          </Text>
+        </Box>
+      ) : null}
     </Box>
   );
 }
@@ -246,20 +310,20 @@ function HeaderRow() {
 }
 
 function PortRow({ process, selected }: { process: PortProcess; selected: boolean }) {
-  const cells = [
-    String(process.port).padEnd(6, " "),
-    trim(process.projectName, 22).padEnd(22, " "),
-    trim(process.framework, 12).padEnd(12, " "),
-    String(process.pid).padEnd(8, " "),
-    formatMemory(process.memoryKb).padEnd(10, " "),
-    (process.uptime ?? "-").padEnd(12, " "),
-    trim(process.command, 20).padEnd(20, " ")
-  ];
+  const isDimmed = shouldDimProcess(process);
+  const styleCell = (value: string) => (isDimmed && !selected ? chalk.dim(value) : value);
+  const frameworkCell = trim(process.framework, 12).padEnd(12, " ");
+  const visibleFramework = isDimmed && !selected ? styleCell(frameworkCell) : colorFramework(trim(process.framework, 12)).padEnd(12, " ");
 
   return (
     <Text inverse={selected}>
-      {selected ? ">" : " "}
-      {cells[0]} {cells[1]} {colorFramework(cells[2].trim()).padEnd(12, " ")} {cells[3]} {cells[4]} {cells[5]} {cells[6]}
+      {styleCell(`${selected ? ">" : " "}${String(process.port).padEnd(6, " ")} `)}
+      {styleCell(`${trim(process.projectName, 22).padEnd(22, " ")} `)}
+      {visibleFramework}
+      {styleCell(` ${String(process.pid).padEnd(8, " ")} `)}
+      {colorMemory(process.memoryKb).padEnd(10, " ")}
+      {styleCell(` ${(process.uptime ?? "-").padEnd(12, " ")} `)}
+      {styleCell(trim(process.command, 20).padEnd(20, " "))}
     </Text>
   );
 }
@@ -272,6 +336,7 @@ function ShortcutBar() {
   return (
     <Box borderStyle="round" borderColor="gray" paddingX={1} gap={2}>
       <Shortcut color="whiteBright" keyLabel="↑/↓" label="Move" />
+      <Shortcut color="cyanBright" keyLabel="/" label="Search" />
       <Shortcut color="yellowBright" keyLabel="f" label="Filter" />
       <Shortcut color="greenBright" keyLabel="s" label="Sort" />
       <Shortcut color="greenBright" keyLabel="K" label="Kill" />
@@ -303,6 +368,19 @@ function matchesFilter(process: PortProcess, filterMode: FilterMode): boolean {
   }
 }
 
+function matchesSearch(process: PortProcess, query: string): boolean {
+  const normalizedQuery = query.trim().toLowerCase();
+  if (!normalizedQuery) {
+    return true;
+  }
+
+  return (
+    process.projectName.toLowerCase().includes(normalizedQuery) ||
+    process.command.toLowerCase().includes(normalizedQuery) ||
+    String(process.port).includes(normalizedQuery)
+  );
+}
+
 function sortProcesses(processes: PortProcess[], sortMode: SortMode): PortProcess[] {
   return [...processes].sort((left, right) => {
     switch (sortMode) {
@@ -317,11 +395,6 @@ function sortProcesses(processes: PortProcess[], sortMode: SortMode): PortProces
         return compareNumbersAsc(left.port, right.port);
     }
   });
-}
-
-function isNodeLikeCommand(command: string): boolean {
-  const normalized = command.toLowerCase();
-  return normalized.includes("node") || normalized.includes("deno") || normalized.includes("bun");
 }
 
 function getFilterLabel(filterMode: FilterMode): string {
