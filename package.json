@@ -1,0 +1,43 @@
+{
+  "name": "ports",
+  "version": "1.0.0",
+  "description": "Developer-friendly CLI and TUI for inspecting listening ports.",
+  "type": "module",
+  "bin": {
+    "ports": "./dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "PROJECT_HISTORY.md",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup src/cli.tsx --format esm --dts --clean",
+    "dev": "tsx src/cli.tsx",
+    "start": "node dist/cli.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "cli",
+    "ports",
+    "tui",
+    "developer-tools"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "chalk": "^5.4.1",
+    "commander": "^14.0.0",
+    "execa": "^9.5.2",
+    "ink": "^5.2.1",
+    "react": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.6.0",
+    "@types/react": "^18.3.12",
+    "tsup": "^8.3.5",
+    "tsx": "^4.19.2",
+    "typescript": "^5.9.2"
+  }
+}
