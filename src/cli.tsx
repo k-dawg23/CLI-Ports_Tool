@@ -9,7 +9,7 @@ import { PortsApp } from "./tui.js";
 import type { PortProcess } from "./types.js";
 
 const program = new Command();
-const APP_VERSION = "1.0.7";
+const APP_VERSION = "1.1.0";
 
 program
   .name("ports")

@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ports v1.1.0</title>
+    <style>
+      :root {
+        --bg: #f4efe6;
+        --bg-strong: #efe5d6;
+        --panel: rgba(255, 250, 240, 0.88);
+        --panel-strong: #fff8ee;
+        --text: #1e1b16;
+        --muted: #665b4d;
+        --accent: #0b6e4f;
+        --accent-soft: #d8efe7;
+        --accent-2: #b6481d;
+        --accent-3: #0d5ea8;
+        --border: rgba(44, 33, 18, 0.12);
+        --shadow: 0 20px 60px rgba(62, 44, 22, 0.12);
+        --terminal: #171717;
+        --terminal-text: #ece7db;
+        --terminal-dim: #90877b;
+        --terminal-green: #6dd4a7;
+        --terminal-yellow: #f5c96d;
+        --terminal-orange: #ff9b53;
+        --terminal-red: #ff6b6b;
+        --terminal-blue: #63b4ff;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(circle at top left, rgba(11, 110, 79, 0.14), transparent 30%),
+          radial-gradient(circle at top right, rgba(182, 72, 29, 0.16), transparent 34%),
+          linear-gradient(180deg, #f8f4ec 0%, var(--bg) 100%);
+      }
+
+      .page {
+        width: min(1180px, calc(100vw - 2rem));
+        margin: 0 auto;
+        padding: 2rem 0 4rem;
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: 1.15fr 0.95fr;
+        gap: 1.5rem;
+        align-items: stretch;
+      }
+
+      .hero-copy,
+      .terminal-card,
+      .section,
+      .stack-grid article,
+      .shortcut-grid article {
+        background: var(--panel);
+        backdrop-filter: blur(14px);
+        border: 1px solid var(--border);
+        border-radius: 28px;
+        box-shadow: var(--shadow);
+      }
+
+      .hero-copy {
+        padding: 2.25rem;
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.55rem;
+        padding: 0.45rem 0.8rem;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: var(--accent);
+        font-size: 0.82rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+
+      h1,
+      h2,
+      h3 {
+        margin: 0;
+        font-family: "IBM Plex Serif", "Georgia", serif;
+        line-height: 1.05;
+      }
+
+      h1 {
+        margin-top: 1rem;
+        font-size: clamp(2.8rem, 6vw, 5.2rem);
+      }
+
+      .lead {
+        margin: 1rem 0 0;
+        max-width: 48rem;
+        color: var(--muted);
+        font-size: 1.05rem;
+        line-height: 1.65;
+      }
+
+      .cta-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.85rem;
+        margin-top: 1.6rem;
+      }
+
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        border-radius: 999px;
+        padding: 0.75rem 1rem;
+        background: var(--panel-strong);
+        border: 1px solid var(--border);
+        font-weight: 700;
+      }
+
+      .chip code {
+        font-family: "IBM Plex Mono", monospace;
+        color: var(--accent-2);
+      }
+
+      .terminal-card {
+        padding: 1rem;
+        background: linear-gradient(180deg, #242322 0%, var(--terminal) 100%);
+        color: var(--terminal-text);
+        overflow: hidden;
+      }
+
+      .terminal-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.35rem 0.35rem 0.85rem;
+      }
+
+      .dots {
+        display: flex;
+        gap: 0.45rem;
+      }
+
+      .dot {
+        width: 0.72rem;
+        height: 0.72rem;
+        border-radius: 999px;
+      }
+
+      .dot:nth-child(1) { background: #ff6b6b; }
+      .dot:nth-child(2) { background: #f6c56a; }
+      .dot:nth-child(3) { background: #66d39b; }
+
+      .terminal-shell {
+        border-radius: 22px;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        background: rgba(0, 0, 0, 0.26);
+        padding: 1rem;
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.83rem;
+        line-height: 1.55;
+        overflow-x: auto;
+      }
+
+      .terminal-line {
+        white-space: pre;
+      }
+
+      .term-dim { color: var(--terminal-dim); }
+      .term-green { color: var(--terminal-green); }
+      .term-yellow { color: var(--terminal-yellow); }
+      .term-orange { color: var(--terminal-orange); }
+      .term-red { color: var(--terminal-red); }
+      .term-blue { color: var(--terminal-blue); }
+
+      .sections {
+        display: grid;
+        gap: 1.2rem;
+        margin-top: 1.2rem;
+      }
+
+      .section {
+        padding: 1.6rem;
+      }
+
+      .section h2 {
+        font-size: 2rem;
+        margin-bottom: 0.9rem;
+      }
+
+      .section p,
+      .section li {
+        color: var(--muted);
+        line-height: 1.7;
+      }
+
+      .feature-grid,
+      .stack-grid,
+      .shortcut-grid,
+      .command-grid {
+        display: grid;
+        gap: 1rem;
+      }
+
+      .feature-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .stack-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      .shortcut-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      .command-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .feature-grid article,
+      .command-grid article {
+        padding: 1.1rem 1.15rem;
+        border-radius: 22px;
+        background: var(--panel-strong);
+        border: 1px solid var(--border);
+      }
+
+      .stack-grid article,
+      .shortcut-grid article {
+        padding: 1rem;
+      }
+
+      .section code,
+      .terminal-top code {
+        font-family: "IBM Plex Mono", monospace;
+      }
+
+      .command-card code,
+      .install-block code {
+        display: block;
+        padding: 0.85rem 1rem;
+        border-radius: 18px;
+        background: #1d1a15;
+        color: #fff2da;
+        overflow-x: auto;
+      }
+
+      .shortcut-key {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 2.2rem;
+        padding: 0.4rem 0.55rem;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: var(--accent);
+        font-family: "IBM Plex Mono", monospace;
+        font-weight: 700;
+      }
+
+      .footer-note {
+        margin-top: 1rem;
+        color: var(--muted);
+        text-align: center;
+        font-size: 0.95rem;
+      }
+
+      @media (max-width: 980px) {
+        .hero,
+        .feature-grid,
+        .stack-grid,
+        .shortcut-grid,
+        .command-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <section class="hero">
+        <div class="hero-copy">
+          <div class="eyebrow">ports v1.1.0</div>
+          <h1>See what is running on your machine’s ports, fast.</h1>
+          <p class="lead">
+            <code>ports</code> gives developers a live terminal UI and quick CLI commands for
+            inspecting listeners, spotting the project behind them, identifying the framework,
+            and acting immediately without hopping across half a dozen system commands.
+          </p>
+          <div class="cta-row">
+            <div class="chip"><code>ports</code> opens the interactive TUI</div>
+            <div class="chip"><code>ports list --json</code> feeds scripts and tooling</div>
+          </div>
+        </div>
+
+        <div class="terminal-card">
+          <div class="terminal-top">
+            <div class="dots">
+              <span class="dot"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+            </div>
+            <code>~/dev/ports</code>
+          </div>
+          <div class="terminal-shell" aria-label="Example ports terminal interface">
+            <div class="terminal-line term-blue">ports v1.1.0  [all ports] [port asc]</div>
+            <div class="terminal-line term-dim">Tracking 5 listening ports. Auto-refresh every 3s.</div>
+            <div class="terminal-line"> </div>
+            <div class="terminal-line"> PORT   PROJECT                FRAMEWORK    PID      MEM        UPTIME       COMMAND</div>
+            <div class="terminal-line term-green">&gt;3000   web-app                Next.js      18421    312.4 MB   02:18:44     node</div>
+            <div class="terminal-line term-green"> 4321   astro-docs             Astro        18803    146.8 MB   00:44:10     node</div>
+            <div class="terminal-line term-green"> 5173   vite-dashboard         Vite         19022    229.1 MB   01:12:59     node</div>
+            <div class="terminal-line term-dim"> 5432   postgres               -            1127     82.5 MB    2-03:17:48   postgres</div>
+            <div class="terminal-line term-dim"> 11434  ollama                 -            2281     <span class="term-red">654.7 MB</span>   1-09:52:11   ollama</div>
+            <div class="terminal-line"> </div>
+            <div class="terminal-line term-dim">╭────────────────────────────────────────────────────────────────────────────╮</div>
+            <div class="terminal-line term-dim">│ Selected                                                                   │</div>
+            <div class="terminal-line term-dim">│ Port 3000 · web-app · PID 18421                                            │</div>
+            <div class="terminal-line term-dim">│ Framework Next.js · Mem 312.4 MB · Uptime 02:18:44                         │</div>
+            <div class="terminal-line term-dim">│ /Users/dev/projects/web-app                                                │</div>
+            <div class="terminal-line term-dim">╰────────────────────────────────────────────────────────────────────────────╯</div>
+            <div class="terminal-line"> </div>
+            <div class="terminal-line term-dim">[↑/↓] Move  [/] Search  [f] Filter  [s] Sort  [K] Kill  [o] Open URL  [e] Open in Code  [r] Refresh  [q] Quit</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="sections">
+        <section class="section">
+          <h2>Features</h2>
+          <div class="feature-grid">
+            <article>
+              <h3>Live TUI</h3>
+              <p>Open <code>ports</code> with no arguments for a live table of listeners that refreshes every 3 seconds.</p>
+            </article>
+            <article>
+              <h3>Project Awareness</h3>
+              <p>Walks upward to <code>package.json</code> to identify the project name and detect frameworks like Next.js, Astro, Vite, Remix, Nuxt, SvelteKit, and Angular.</p>
+            </article>
+            <article>
+              <h3>Useful Signals</h3>
+              <p>Shows port, project, framework, PID, memory, uptime, and command, while visually dimming system processes so dev servers stand out.</p>
+            </article>
+            <article>
+              <h3>Fast Actions</h3>
+              <p>Kill a listener, open its localhost URL, or jump directly into the detected project folder in VS Code from the TUI.</p>
+            </article>
+            <article>
+              <h3>Filters, Sorting, Search</h3>
+              <p>Focus on dev ports, node-like processes, high-memory listeners, long-running services, or a specific project or port instantly.</p>
+            </article>
+            <article>
+              <h3>Script Friendly</h3>
+              <p>Use <code>ports list --json</code> to pipe the data into your own scripts, shell workflows, dashboards, or tooling.</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="section">
+          <h2>How To Use It</h2>
+          <div class="command-grid">
+            <article class="command-card">
+              <h3>Interactive TUI</h3>
+              <code>ports</code>
+              <p>Launch the live terminal interface with refresh, filtering, sorting, search, and keyboard actions.</p>
+            </article>
+            <article class="command-card">
+              <h3>Static Table</h3>
+              <code>ports list</code>
+              <p>Print the listening ports table once and exit.</p>
+            </article>
+            <article class="command-card">
+              <h3>JSON Output</h3>
+              <code>ports list --json</code>
+              <p>Return a JSON array of port records with <code>port</code>, <code>pid</code>, <code>command</code>, <code>projectName</code>, <code>framework</code>, <code>memoryKB</code>, and <code>uptime</code>.</p>
+            </article>
+            <article class="command-card">
+              <h3>Inspect One Port</h3>
+              <code>ports check 3000</code>
+              <p>See detailed information about a single port, or confirm that it is free.</p>
+            </article>
+            <article class="command-card">
+              <h3>Stop A Listener</h3>
+              <code>ports kill 3000</code>
+              <p>Send SIGTERM first, wait 1 second, and escalate to SIGKILL if the process refuses to exit.</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="section">
+          <h2>Keyboard Shortcuts</h2>
+          <div class="shortcut-grid">
+            <article><div class="shortcut-key">↑/↓</div><p>Move through the current list</p></article>
+            <article><div class="shortcut-key">/</div><p>Open search and filter by project, command, or port</p></article>
+            <article><div class="shortcut-key">f</div><p>Cycle filters: all ports, dev ports, node only</p></article>
+            <article><div class="shortcut-key">s</div><p>Cycle sort modes: port, memory, uptime, project</p></article>
+            <article><div class="shortcut-key">K</div><p>Kill the selected process</p></article>
+            <article><div class="shortcut-key">o</div><p>Open <code>http://localhost:PORT</code> in your browser</p></article>
+            <article><div class="shortcut-key">e</div><p>Open the detected project folder in VS Code</p></article>
+            <article><div class="shortcut-key">r</div><p>Refresh immediately</p></article>
+          </div>
+        </section>
+
+        <section class="section">
+          <h2>How It Works</h2>
+          <ul>
+            <li><code>lsof -iTCP -sTCP:LISTEN -P -n</code> finds all listening TCP ports.</li>
+            <li><code>lsof -a -p &lt;pid&gt; -d cwd -Fn</code> finds each process working directory.</li>
+            <li><code>ps -o comm=,args=,rss=,etime= -p &lt;pid&gt;</code> supplies the command label, memory, and uptime.</li>
+            <li>The tool walks upward from the working directory until it finds <code>package.json</code>.</li>
+            <li>Dependencies are inspected to detect frameworks and improve the context shown in the UI.</li>
+          </ul>
+        </section>
+
+        <section class="section">
+          <h2>Tech Stack</h2>
+          <div class="stack-grid">
+            <article><h3>TypeScript</h3><p>Core implementation and type safety.</p></article>
+            <article><h3>Commander.js</h3><p>CLI argument parsing and subcommands.</p></article>
+            <article><h3>Ink</h3><p>React-powered terminal UI.</p></article>
+            <article><h3>chalk</h3><p>Color and visual emphasis in terminal output.</p></article>
+            <article><h3>execa</h3><p>Reliable execution of system commands.</p></article>
+            <article><h3>tsup</h3><p>Fast TypeScript bundling for the CLI binary.</p></article>
+            <article><h3>lsof</h3><p>Listening port and cwd discovery.</p></article>
+            <article><h3>ps</h3><p>Command, memory, and elapsed-time enrichment.</p></article>
+          </div>
+        </section>
+
+        <section class="section install-block">
+          <h2>Get Started</h2>
+          <code>npm install
+npm run build
+npm link
+ports</code>
+          <p>
+            After <code>npm link</code>, you can run <code>ports</code> from anywhere on your machine.
+            In non-interactive shells it automatically falls back to a static list view.
+          </p>
+        </section>
+      </section>
+
+      <p class="footer-note">ports v1.1.0 · a developer-first view of what is actually listening on your machine.</p>
+    </main>
+  </body>
+</html>

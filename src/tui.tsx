@@ -6,7 +6,7 @@ import { getListeningPorts, killPortProcess, openPortInBrowser, openProjectInEdi
 import type { PortProcess } from "./types.js";
 
 const REFRESH_INTERVAL_MS = 3000;
-const APP_VERSION = "1.0.7";
+const APP_VERSION = "1.1.0";
 const FILTER_MODES = ["all", "dev", "node"] as const;
 const SORT_MODES = ["port", "memory", "uptime", "project"] as const;
 

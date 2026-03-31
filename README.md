@@ -2,6 +2,8 @@
 
 `ports` is a developer-first CLI and terminal UI for seeing what is listening on your machine right now.
 
+The project also now includes a single-page end-user site at [index.html](/home/kdawg/AI-BootCamp/CLI-Ports_Tool/index.html) that shows the product, features, shortcuts, commands, stack, and getting-started flow in one place.
+
 ## Features
 
 - Interactive TUI when you run `ports`
@@ -88,4 +90,4 @@ ports kill 3000
 
 ## Version
 
-Current release: `v1.0.7`
+Current release: `v1.1.0`

@@ -1,5 +1,11 @@
 # Project History
 
+## v1.1.0 - 2026-03-31
+
+- Added a single-page end-user HTML site for the project.
+- The page includes a styled running `ports` example, usage guidance, features, keyboard shortcuts, CLI commands, how it works, the tech stack, and getting-started steps.
+- Updated the README to point users to the new page.
+
 ## v1.0.7 - 2026-03-31
 
 - Replaced the framework fallback value `Unknown` with `-`.
