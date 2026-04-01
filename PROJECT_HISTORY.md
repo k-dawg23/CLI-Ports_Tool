@@ -13,6 +13,12 @@
   - `VISUAL`
   - `EDITOR`
   - detected `code`
+- Tuned Windows refresh performance in several follow-up passes:
+  - batched process enrichment work instead of repeatedly querying per PID
+  - switched the live refresh path toward a lighter `Get-NetTCPConnection` plus `Get-Process` snapshot
+  - limited heavier `Win32_Process` lookups to missing metadata such as command line and executable path
+  - cached stable per-PID enrichment like cwd, project name, framework, and fallback command between refreshes
+- Verified that the Windows version became noticeably more responsive and usable after those changes, while still acknowledging that the PowerShell-based implementation remains somewhat heavier than the macOS/Linux path.
 - Generalized the editor-opening UX so it is no longer documented as VS Code only.
 - Updated the README, user manual, landing page, and version strings for the `v2.0.0` cross-platform release.
 

@@ -6,6 +6,8 @@
 
 As of `v2.0.0`, the same package works on macOS, Linux, and Windows. The interface stays the same across platforms, while the process-discovery backend changes automatically behind the scenes.
 
+The Windows version has been optimized to keep the tool comfortably usable for everyday development, but its refresh path is still somewhat heavier than the macOS/Linux version because it relies more on PowerShell-based system queries.
+
 ## Installation
 
 From the project directory:
@@ -361,6 +363,8 @@ On Windows, `ports` uses PowerShell built-ins:
 - `Get-CimInstance Win32_Process`
 
 Windows working-directory detection is best effort. When the exact cwd is not available, `ports` tries to derive a useful project path from the executable path or command line.
+
+In practice, the Windows backend is feature-complete and usable, but it may refresh a little less lightly than the macOS/Linux backend because the underlying process inspection is more expensive.
 
 ## Tech Stack
 
