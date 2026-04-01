@@ -85,6 +85,8 @@ ports kill 3000
 
 The CLI, TUI, JSON output, filters, sorting, search, and project/framework detection all stay the same across platforms.
 
+On Windows, `ports` has been tuned to keep the live experience practical, but it still does more work through PowerShell than the macOS/Linux backend does through native Unix tools. In day-to-day use that means Windows may feel a little heavier during refreshes, even though the feature set is the same.
+
 ## Editor Selection
 
 When you press `e` in the TUI, `ports` chooses the editor command using this precedence:
