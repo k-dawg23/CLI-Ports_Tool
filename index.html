@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ports v1.1.0</title>
+    <title>ports v2.0.0</title>
     <style>
       :root {
         --bg: #f4efe6;
@@ -283,12 +283,12 @@
     <main class="page">
       <section class="hero">
         <div class="hero-copy">
-          <div class="eyebrow">ports v1.1.0</div>
+          <div class="eyebrow">ports v2.0.0</div>
           <h1>See what is running on your machine’s ports, fast.</h1>
           <p class="lead">
             <code>ports</code> gives developers a live terminal UI and quick CLI commands for
             inspecting listeners, spotting the project behind them, identifying the framework,
-            and acting immediately without hopping across half a dozen system commands.
+            and acting immediately without hopping across half a dozen system commands on macOS, Linux, or Windows.
           </p>
           <div class="cta-row">
             <div class="chip"><code>ports</code> opens the interactive TUI</div>
@@ -307,7 +307,7 @@
           <code>~/dev/ports</code>
         </div>
         <div class="terminal-shell" aria-label="Example ports terminal interface">
-          <div class="terminal-line term-blue">ports v1.1.0  [all ports] [port asc]</div>
+          <div class="terminal-line term-blue">ports v2.0.0  [all ports] [port asc]</div>
           <div class="terminal-line term-dim">Tracking 5 listening ports. Auto-refresh every 3s.</div>
           <div class="terminal-line"> </div>
           <div class="terminal-line"> PORT   PROJECT                FRAMEWORK    PID      MEM        UPTIME       COMMAND</div>
@@ -324,7 +324,7 @@
           <div class="terminal-line term-dim">│ /Users/dev/projects/web-app                                                │</div>
           <div class="terminal-line term-dim">╰────────────────────────────────────────────────────────────────────────────╯</div>
           <div class="terminal-line"> </div>
-          <div class="terminal-line term-dim">[↑/↓] Move  [/] Search  [f] Filter  [s] Sort  [K] Kill  [o] Open URL  [e] Open in Code  [r] Refresh  [q] Quit</div>
+          <div class="terminal-line term-dim">[↑/↓] Move  [/] Search  [f] Filter  [s] Sort  [K] Kill  [o] Open URL  [e] Open Editor  [r] Refresh  [q] Quit</div>
         </div>
       </section>
 
@@ -346,7 +346,7 @@
             </article>
             <article>
               <h3>Fast Actions</h3>
-              <p>Kill a listener, open its localhost URL, or jump directly into the detected project folder in VS Code from the TUI.</p>
+              <p>Kill a listener, open its localhost URL, or jump directly into the detected project folder in your preferred editor from the TUI.</p>
             </article>
             <article>
               <h3>Filters, Sorting, Search</h3>
@@ -385,7 +385,7 @@
             <article class="command-card">
               <h3>Stop A Listener</h3>
               <code>ports kill 3000</code>
-              <p>Send SIGTERM first, wait 1 second, and escalate to SIGKILL if the process refuses to exit.</p>
+              <p>Attempt a graceful stop first, wait 1 second, and then force-stop the process if it refuses to exit.</p>
             </article>
           </div>
         </section>
@@ -399,7 +399,7 @@
             <article><div class="shortcut-key">s</div><p>Cycle sort modes: port, memory, uptime, project</p></article>
             <article><div class="shortcut-key">K</div><p>Kill the selected process</p></article>
             <article><div class="shortcut-key">o</div><p>Open <code>http://localhost:PORT</code> in your browser</p></article>
-            <article><div class="shortcut-key">e</div><p>Open the detected project folder in VS Code</p></article>
+            <article><div class="shortcut-key">e</div><p>Open the detected project folder in your preferred editor</p></article>
             <article><div class="shortcut-key">r</div><p>Refresh immediately</p></article>
           </div>
         </section>
@@ -407,10 +407,10 @@
         <section class="section">
           <h2>How It Works</h2>
           <ul>
-            <li><code>lsof -iTCP -sTCP:LISTEN -P -n</code> finds all listening TCP ports.</li>
-            <li><code>lsof -a -p &lt;pid&gt; -d cwd -Fn</code> finds each process working directory.</li>
-            <li><code>ps -o comm=,args=,rss=,etime= -p &lt;pid&gt;</code> supplies the command label, memory, and uptime.</li>
-            <li>The tool walks upward from the working directory until it finds <code>package.json</code>.</li>
+            <li>On macOS and Linux, <code>ports</code> uses <code>lsof</code> and <code>ps</code> to discover listeners, working directories, memory usage, uptime, and command labels.</li>
+            <li>On Windows, <code>ports</code> uses PowerShell built-ins like <code>Get-NetTCPConnection</code> and <code>Get-CimInstance Win32_Process</code>.</li>
+            <li>The tool then normalizes that process data into one shared model so the same TUI, CLI, and JSON output work across platforms.</li>
+            <li>It walks upward from the detected working directory or best-guess project path until it finds <code>package.json</code>.</li>
             <li>Dependencies are inspected to detect frameworks and improve the context shown in the UI.</li>
           </ul>
         </section>
@@ -424,8 +424,8 @@
             <article><h3>chalk</h3><p>Color and visual emphasis in terminal output.</p></article>
             <article><h3>execa</h3><p>Reliable execution of system commands.</p></article>
             <article><h3>tsup</h3><p>Fast TypeScript bundling for the CLI binary.</p></article>
-            <article><h3>lsof</h3><p>Listening port and cwd discovery.</p></article>
-            <article><h3>ps</h3><p>Command, memory, and elapsed-time enrichment.</p></article>
+            <article><h3>PowerShell</h3><p>Windows listener and process discovery via built-in commands.</p></article>
+            <article><h3>lsof + ps</h3><p>macOS/Linux listener, cwd, command, memory, and uptime discovery.</p></article>
           </div>
         </section>
 
@@ -439,10 +439,13 @@ ports</code>
             After <code>npm link</code>, you can run <code>ports</code> from anywhere on your machine.
             In non-interactive shells it automatically falls back to a static list view.
           </p>
+          <p>
+            The <code>e</code> shortcut uses <code>PORTS_EDITOR</code>, then <code>VISUAL</code>, then <code>EDITOR</code>, and finally <code>code</code> if it is available.
+          </p>
         </section>
       </section>
 
-      <p class="footer-note">ports v1.1.0 · a developer-first view of what is actually listening on your machine.</p>
+      <p class="footer-note">ports v2.0.0 · a developer-first view of what is actually listening on your machine.</p>
     </main>
   </body>
 </html>

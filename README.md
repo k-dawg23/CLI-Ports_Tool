@@ -2,23 +2,24 @@
 
 `ports` is a developer-first CLI and terminal UI for seeing what is listening on your machine right now.
 
-The project also now includes a single-page end-user site at [index.html](/home/kdawg/AI-BootCamp/CLI-Ports_Tool/index.html) that shows the product, features, shortcuts, commands, stack, and getting-started flow in one place.
+`v2.0.0` makes the tool cross-platform. The same package now runs on macOS, Linux, and Windows, selecting the right process-discovery backend at runtime.
 
-For full end-user documentation, see [USER_MANUAL.md](/home/kdawg/AI-BootCamp/CLI-Ports_Tool/USER_MANUAL.md).
+The project also includes a single-page end-user site at [index.html](/home/kdawg/AI-BootCamp/CLI-Ports_Tool/index.html) and a full manual at [USER_MANUAL.md](/home/kdawg/AI-BootCamp/CLI-Ports_Tool/USER_MANUAL.md).
 
 ## Features
 
 - Interactive TUI when you run `ports`
+- Cross-platform runtime support for macOS, Linux, and Windows
+- Static table output with `ports list`
+- Machine-readable output with `ports list --json`
+- Port inspection with `ports check <port>`
+- Quick termination with `ports kill <port>`
 - Filter modes for all ports, dev ports, and node-focused processes
 - Sort modes for port, memory, uptime, and project name
 - Inline TUI search by project name, command, or port
 - Visual emphasis that dims system processes and highlights high memory use
-- Static table output with `ports list`
-- JSON output for `ports list --json`
-- Cleaner framework fallback and command names in the UI
-- Port inspection with `ports check <port>`
-- Quick termination with `ports kill <port>`
-- TUI shortcuts for browser launch and opening the project in VS Code
+- Browser launch from the TUI with `o`
+- Project-folder launch from the TUI with `e`
 - Project detection by walking up to the nearest `package.json`
 - Framework detection for Next.js, Astro, Vite, Remix, Nuxt, SvelteKit, and Angular
 
@@ -36,7 +37,7 @@ After linking, run:
 ports
 ```
 
-If `ports` is run in a non-interactive shell, it automatically falls back to the static table view.
+If `npm link` fails because npm is configured to use a system-owned global directory, move npm's global prefix to a user-owned location first.
 
 ## Commands
 
@@ -61,21 +62,47 @@ ports kill 3000
 ## TUI Shortcuts
 
 - `↑` / `↓` move selection
+- `/` open the search bar; typing filters live, `Enter` locks it in, `Escape` clears it
 - `f` cycle filters between all ports, dev ports, and node only
 - `s` cycle sorting between port, memory, uptime, and project name
-- `/` open the search bar; typing filters live, `Enter` locks it in, `Escape` clears it
 - `r` refresh immediately
-- `K` stop the selected process with SIGTERM, then SIGKILL after 1 second if needed
+- `K` stop the selected process gracefully first, then force-stop it after 1 second if needed
 - `o` open `http://localhost:PORT` in the default browser
-- `e` open the detected project directory in VS Code
+- `e` open the detected project directory in your preferred editor
 - `q` quit
 
-## How It Works
+## Cross-Platform Backends
 
-- `lsof -iTCP -sTCP:LISTEN -P -n` finds listeners
-- `lsof -a -p <pid> -d cwd -Fn` finds working directories
-- `ps -o rss=,etime= -p <pid>` provides memory and uptime
-- The tool walks upward from each process working directory to locate `package.json`
+`ports` uses a shared data model with OS-specific backends underneath it.
+
+- macOS and Linux use:
+  - `lsof -iTCP -sTCP:LISTEN -P -n`
+  - `lsof -a -p <pid> -d cwd -Fn`
+  - `ps -o comm=,args=,rss=,etime= -p <pid>`
+- Windows uses PowerShell built-ins:
+  - `Get-NetTCPConnection -State Listen`
+  - `Get-CimInstance Win32_Process`
+
+The CLI, TUI, JSON output, filters, sorting, search, and project/framework detection all stay the same across platforms.
+
+## Editor Selection
+
+When you press `e` in the TUI, `ports` chooses the editor command using this precedence:
+
+1. `PORTS_EDITOR`
+2. `VISUAL`
+3. `EDITOR`
+4. detected `code`
+
+Examples:
+
+```bash
+PORTS_EDITOR="cursor" ports
+PORTS_EDITOR="windsurf" ports
+PORTS_EDITOR="code -n" ports
+```
+
+If no supported editor command is available, `ports` shows a clear error instead of crashing.
 
 ## Visual Styling
 
@@ -87,9 +114,9 @@ ports kill 3000
 ## Display Notes
 
 - Framework shows `-` when no framework is detected or it is not relevant
-- Command uses the `ps` `comm` value, which is usually more useful than the truncated `lsof` command label
-- The TUI columns are aligned to fixed widths so values sit cleanly under their headings
+- Command prefers the short process name from system process data, with a fallback for generic values like `MainThread`
+- The TUI and static list share fixed-width columns so values stay aligned under their headings
 
 ## Version
 
-Current release: `v1.1.0`
+Current release: `v2.0.0`

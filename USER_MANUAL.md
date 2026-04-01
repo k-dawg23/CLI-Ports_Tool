@@ -4,13 +4,7 @@
 
 `ports` is a developer-focused CLI and terminal UI for inspecting what is listening on TCP ports on your machine.
 
-It helps you answer questions like:
-
-- What is running on port 3000?
-- Which project owns this dev server?
-- Is this a Next.js app, a Vite server, or a system service?
-- Which listener is using a lot of memory?
-- Can I kill this process, open it in the browser, or jump into its project folder quickly?
+As of `v2.0.0`, the same package works on macOS, Linux, and Windows. The interface stays the same across platforms, while the process-discovery backend changes automatically behind the scenes.
 
 ## Installation
 
@@ -28,7 +22,7 @@ After linking, run:
 ports
 ```
 
-If `npm link` fails because of permissions, set npm's global prefix to a user-owned directory and try again.
+If `npm link` fails because of permissions, configure npm to use a user-owned global prefix and then run `npm link` again.
 
 ## Main Ways To Use ports
 
@@ -121,9 +115,11 @@ Stops whatever is listening on a port.
 
 Behavior:
 
-- sends `SIGTERM` first
+- sends a graceful termination first
 - waits 1 second
-- if the process is still alive, sends `SIGKILL`
+- if the process is still alive, sends a forced stop
+
+On Unix-style systems this is `SIGTERM` then `SIGKILL`. On Windows this is `Stop-Process`, then `Stop-Process -Force`.
 
 Example:
 
@@ -154,6 +150,12 @@ Below the table, the selected process panel shows:
 - memory
 - uptime
 - working directory
+
+The header also shows:
+
+- current version
+- current filter mode
+- current sort mode
 
 ### TUI Shortcuts
 
@@ -225,7 +227,7 @@ The current sort label is shown in the header.
 #### Kill
 
 - `K`
-  Kills the currently selected process using the same `SIGTERM` then `SIGKILL` behavior as `ports kill <port>`.
+  Kills the currently selected process using the same graceful-then-forced behavior as `ports kill <port>`.
 
 #### Open In Browser
 
@@ -234,10 +236,25 @@ The current sort label is shown in the header.
 
 This only makes sense for services that actually speak HTTP.
 
-#### Open In VS Code
+#### Open In Editor
 
 - `e`
-  Opens the detected project directory for the selected row in VS Code using the `code` command.
+  Opens the detected project directory for the selected row in your preferred editor.
+
+Editor command precedence:
+
+1. `PORTS_EDITOR`
+2. `VISUAL`
+3. `EDITOR`
+4. detected `code`
+
+Examples:
+
+```bash
+PORTS_EDITOR="cursor" ports
+PORTS_EDITOR="code -n" ports
+PORTS_EDITOR="windsurf" ports
+```
 
 If no working directory could be detected, this action will fail gracefully.
 
@@ -250,7 +267,7 @@ If no working directory could be detected, this action will fail gracefully.
 
 ### Project Detection
 
-For each listening process, `ports` tries to find the working directory and then walks upward until it finds a `package.json`.
+For each listening process, `ports` tries to find a working directory or best-guess project path and then walks upward until it finds a `package.json`.
 
 That is used to determine:
 
@@ -259,12 +276,12 @@ That is used to determine:
 
 If no project can be identified:
 
-- `projectName` falls back to a reasonable directory-based name where possible
-- `framework` shows `-`
+- project name falls back to `-`
+- framework falls back to `-`
 
 ### Framework Detection
 
-Recognized frameworks:
+`ports` checks `package.json` dependencies and devDependencies for these frameworks:
 
 - Next.js
 - Astro
@@ -274,148 +291,134 @@ Recognized frameworks:
 - SvelteKit
 - Angular
 
-If the process does not look like one of these, the framework column shows `-`.
+If none are found, the framework column shows `-`.
 
-### Command Display
+### Command Detection
 
-The `COMMAND` column uses the `ps` `comm` value instead of relying only on the `lsof` command label.
+The `COMMAND` column prefers the short process name reported by the OS.
 
-Why this matters:
+If that short name is generic and not useful, such as `MainThread`, `ports` falls back to command-line information to find a better label.
 
-- `lsof` can return truncated or unhelpful values
-- `ps comm` is usually more stable and readable
-
-Special handling:
-
-- if the command is `MainThread`, `ports` tries to derive a more useful fallback from the first meaningful token in `args`
-
-### Memory Display
-
-Memory comes from `ps` RSS output and is displayed in MB or GB.
-
-Highlighting:
-
-- over `200 MB`: orange
-- over `500 MB`: red
-
-Only the memory value itself is highlighted.
+This is why a generic thread label can be replaced with something more useful like `node`.
 
 ### Visual Emphasis
 
-To make dev servers easier to spot, `ports` visually dims non-dev/system-style processes.
+`ports` intentionally makes likely dev servers easier to spot.
 
-Processes stay normal brightness when they are:
+Dev-like processes stay at normal brightness when they are:
 
 - `node`
 - `deno`
 - `bun`
-- or tied to a recognized framework
+- or attached to a recognized framework
 
-This applies to:
+System-style processes are dimmed so dev servers stand out more clearly.
 
-- the TUI
-- `ports list`
+Memory highlighting:
 
-### Uptime
+- above `200 MB`: orange
+- above `500 MB`: red
 
-Uptime comes from `ps etime`.
+Only the memory value is highlighted, not the whole row.
 
-For sorting, `ports` parses the elapsed time string into seconds so that sorting by uptime is accurate.
+### Search, Filter, and Sort Together
 
-## How ports Collects Its Data
+The TUI applies these layers in sequence:
 
-The tool uses standard system commands:
+1. start with all discovered listeners
+2. apply the selected filter mode
+3. apply the current search query
+4. apply the selected sort mode
+
+This means you can narrow the list quickly, then sort just the visible subset.
+
+## How ports Works
+
+### Shared Behavior
+
+Across all supported platforms, `ports`:
+
+- finds listening TCP ports
+- gathers per-process command, memory, and uptime data
+- tries to identify the project directory
+- walks upward to find `package.json`
+- detects a supported framework from dependencies
+- returns one normalized process model to the CLI, JSON mode, and TUI
+
+### macOS and Linux Backend
+
+On macOS and Linux, `ports` uses:
 
 - `lsof -iTCP -sTCP:LISTEN -P -n`
-  Finds listening TCP ports.
 - `lsof -a -p <pid> -d cwd -Fn`
-  Finds the working directory of a process.
 - `ps -o comm=,args=,rss=,etime= -p <pid>`
-  Gets:
-  - command
-  - args
-  - memory
-  - uptime
 
-Then it:
+### Windows Backend
 
-- walks upward to find `package.json`
-- reads the package name
-- inspects dependencies to detect the framework
+On Windows, `ports` uses PowerShell built-ins:
 
-## Example Workflows
+- `Get-NetTCPConnection -State Listen`
+- `Get-CimInstance Win32_Process`
 
-### Find What Is On Port 3000
+Windows working-directory detection is best effort. When the exact cwd is not available, `ports` tries to derive a useful project path from the executable path or command line.
 
-```bash
-ports check 3000
-```
+## Tech Stack
 
-### Kill A Stuck Dev Server
-
-```bash
-ports kill 5173
-```
-
-### Open The Full TUI
-
-```bash
-ports
-```
-
-Then:
-
-- press `f` to filter
-- press `s` to sort
-- press `/` to search
-- press `K` to kill the selected row
-
-### Feed Another Script
-
-```bash
-ports list --json
-```
+- TypeScript
+- Commander.js
+- Ink
+- React
+- chalk
+- execa
+- tsup
+- PowerShell on Windows
+- `lsof` and `ps` on macOS/Linux
 
 ## Troubleshooting
 
-### `ports` command not found
+### `npm link` fails with permissions
 
-Make sure you ran:
+Your npm global prefix is probably pointing to a system-owned directory.
 
-```bash
-npm run build
-npm link
-```
-
-### `npm link` permission denied
-
-Your npm global prefix may point to a system-owned directory like `/usr`.
-
-Configure a user-owned npm prefix, then run `npm link` again.
+Set it to a user-owned directory instead, then run `npm link` again.
 
 ### Browser open does not work
 
-The system needs a supported launcher:
+`ports` uses the platform default opener:
 
 - macOS: `open`
 - Linux: `xdg-open`
-- Windows: `start`
+- Windows: PowerShell `Start-Process`
 
-### VS Code open does not work
+If the environment does not support GUI launch, the command may fail gracefully.
 
-The `code` command must be installed and available in your shell.
+### Editor open does not work
 
-### Search is not letting me use shortcuts
+Set one of these environment variables to a working editor command:
 
-That is expected while the search bar is active.
+- `PORTS_EDITOR`
+- `VISUAL`
+- `EDITOR`
 
-Use:
+Examples:
 
-- `Enter` to lock the search
-- `Escape` to clear it and return to normal shortcuts
+```bash
+export PORTS_EDITOR="cursor"
+export PORTS_EDITOR="code -n"
+```
 
-## Related Files
+On Windows PowerShell:
 
-- End-user landing page: [index.html](/home/kdawg/AI-BootCamp/CLI-Ports_Tool/index.html)
-- Project overview: [README.md](/home/kdawg/AI-BootCamp/CLI-Ports_Tool/README.md)
-- Release history: [PROJECT_HISTORY.md](/home/kdawg/AI-BootCamp/CLI-Ports_Tool/PROJECT_HISTORY.md)
+```powershell
+$env:PORTS_EDITOR = "code -n"
+```
+
+### A framework is shown as `-`
+
+That means `ports` did not find one of the supported frameworks in the nearest detected `package.json`, or the process is not tied to a JavaScript project at all.
+
+### A working directory is missing
+
+This can happen when the OS does not expose the process cwd directly or the process exits while `ports` is collecting data.
+
+This is more likely on Windows, where cwd recovery is best effort.
