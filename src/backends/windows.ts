@@ -8,26 +8,46 @@ interface WindowsListener {
   OwningProcess?: number | string;
 }
 
-interface WindowsProcess {
+interface WindowsProcessSnapshot {
+  Id?: number | string;
+  ProcessName?: string;
+  WorkingSet64?: number | string;
+  StartTime?: string;
+}
+
+interface WindowsProcessMetadata {
   ProcessId?: number | string;
-  Name?: string;
   CommandLine?: string;
-  WorkingSetSize?: number | string;
-  CreationDate?: string;
   ExecutablePath?: string;
+}
+
+interface WindowsSnapshotPayload {
+  Listeners?: WindowsListener[] | WindowsListener;
+  Processes?: WindowsProcessSnapshot[] | WindowsProcessSnapshot;
+}
+
+interface CachedWindowsProcess {
+  pid: number;
+  name?: string;
+  workingSetSize?: number;
+  startTime?: string;
+  commandLine?: string;
+  executablePath?: string;
 }
 
 export class WindowsPortBackend implements PlatformPortBackend {
   private readonly shellPromise = findAvailableCommand(["powershell", "pwsh"]);
-  private processCache = new Map<number, WindowsProcess>();
+  private processCache = new Map<number, CachedWindowsProcess>();
 
   async getListeningPorts(): Promise<RawListener[]> {
-    const listeners = await this.runPowerShellJson<WindowsListener[]>(
-      "Get-NetTCPConnection -State Listen | Select-Object LocalPort,OwningProcess | ConvertTo-Json -Depth 3"
-    );
+    const snapshot = await this.getSnapshotPayload();
+    const listeners = normalizeArray(snapshot?.Listeners);
+    const fastProcesses = normalizeArray(snapshot?.Processes);
+
+    this.refreshFastProcessCache(fastProcesses);
 
     const records = new Map<string, RawListener>();
-    for (const listener of normalizeArray(listeners)) {
+    for (const listener of listeners) {
       const port = Number(listener.LocalPort);
       const pid = Number(listener.OwningProcess);
       if (Number.isNaN(port) || Number.isNaN(pid)) {
@@ -40,9 +60,8 @@ export class WindowsPortBackend implements PlatformPortBackend {
       }
     }
 
-    const nextRecords = [...records.values()];
-    await this.primeProcessCache(nextRecords.map((record) => record.pid));
-    return nextRecords;
+    await this.primeMetadataCache([...new Set([...records.values()].map((record) => record.pid))]);
+    return [...records.values()];
   }
 
   async getWorkingDirectory(pid: number): Promise<string | undefined> {
@@ -51,13 +70,13 @@ export class WindowsPortBackend implements PlatformPortBackend {
       return undefined;
     }
 
-    const fromArgs = derivePathFromCommandLine(process.CommandLine);
+    const fromArgs = derivePathFromCommandLine(process.commandLine);
     if (fromArgs) {
       return path.dirname(fromArgs);
     }
 
-    if (process.ExecutablePath) {
-      return path.dirname(process.ExecutablePath);
+    if (process.executablePath) {
+      return path.dirname(process.executablePath);
     }
 
     return undefined;
@@ -69,13 +88,13 @@ export class WindowsPortBackend implements PlatformPortBackend {
       return undefined;
     }
 
-    const memoryKb = process.WorkingSetSize ? Math.round(Number(process.WorkingSetSize) / 1024) : undefined;
+    const memoryKb = process.workingSetSize ? Math.round(process.workingSetSize / 1024) : undefined;
 
     return {
-      command: process.Name?.trim(),
-      args: process.CommandLine?.trim(),
+      command: process.name?.trim(),
+      args: process.commandLine?.trim(),
       memoryKb,
-      uptime: formatWindowsElapsedTime(process.CreationDate)
+      uptime: formatWindowsElapsedTime(process.startTime)
     };
   }
 
@@ -181,46 +200,78 @@ export class WindowsPortBackend implements PlatformPortBackend {
     };
   }
 
-  private async getWindowsProcess(pid: number): Promise<WindowsProcess | undefined> {
-    const cached = this.processCache.get(pid);
-    if (cached) {
-      return cached;
+  private refreshFastProcessCache(processes: WindowsProcessSnapshot[]): void {
+    const nextCache = new Map<number, CachedWindowsProcess>();
+
+    for (const process of processes) {
+      const pid = Number(process.Id);
+      if (Number.isNaN(pid)) {
+        continue;
+      }
+
+      const previous = this.processCache.get(pid);
+      nextCache.set(pid, {
+        pid,
+        name: process.ProcessName?.trim() ?? previous?.name,
+        workingSetSize: numberOrUndefined(process.WorkingSet64) ?? previous?.workingSetSize,
+        startTime: process.StartTime ?? previous?.startTime,
+        commandLine: previous?.commandLine,
+        executablePath: previous?.executablePath
+      });
     }
 
-    const process = await this.runPowerShellJson<WindowsProcess | WindowsProcess[]>(
-      `Get-CimInstance Win32_Process -Filter "ProcessId = ${pid}" | Select-Object ProcessId,Name,CommandLine,WorkingSetSize,CreationDate,ExecutablePath | ConvertTo-Json -Depth 4`
-    );
-
-    const resolved = normalizeArray(process)[0];
-    if (resolved?.ProcessId !== undefined) {
-      this.processCache.set(Number(resolved.ProcessId), resolved);
-    }
-
-    return resolved;
+    this.processCache = nextCache;
   }
 
-  private async primeProcessCache(pids: number[]): Promise<void> {
-    const uniquePids = [...new Set(pids)].filter((pid) => Number.isInteger(pid) && pid > 0);
-    if (uniquePids.length === 0) {
-      this.processCache = new Map();
+  private async primeMetadataCache(pids: number[]): Promise<void> {
+    const missingMetadata = pids.filter((pid) => {
+      const cached = this.processCache.get(pid);
+      return cached && !cached.commandLine && !cached.executablePath;
+    });
+
+    if (missingMetadata.length === 0) {
       return;
     }
 
-    const filter = uniquePids.map((pid) => `ProcessId = ${pid}`).join(" OR ");
-    const processes = await this.runPowerShellJson<WindowsProcess | WindowsProcess[]>(
-      `Get-CimInstance Win32_Process -Filter "${filter}" | Select-Object ProcessId,Name,CommandLine,WorkingSetSize,CreationDate,ExecutablePath | ConvertTo-Json -Depth 4`
+    const metadata = await this.runPowerShellJson<WindowsProcessMetadata | WindowsProcessMetadata[]>(
+      `Get-CimInstance Win32_Process -Filter "${missingMetadata.map((pid) => `ProcessId = ${pid}`).join(" OR ")}" | Select-Object ProcessId,CommandLine,ExecutablePath | ConvertTo-Json -Depth 4`
     );
 
-    const nextCache = new Map<number, WindowsProcess>();
-    for (const process of normalizeArray(processes)) {
+    for (const process of normalizeArray(metadata)) {
       const pid = Number(process.ProcessId);
       if (Number.isNaN(pid)) {
         continue;
       }
-      nextCache.set(pid, process);
-    }
 
-    this.processCache = nextCache;
+      const cached = this.processCache.get(pid);
+      if (!cached) {
+        continue;
+      }
+
+      this.processCache.set(pid, {
+        ...cached,
+        commandLine: process.CommandLine?.trim() || cached.commandLine,
+        executablePath: process.ExecutablePath?.trim() || cached.executablePath
+      });
+    }
+  }
+
+  private async getWindowsProcess(pid: number): Promise<CachedWindowsProcess | undefined> {
+    return this.processCache.get(pid);
+  }
+
+  private async getSnapshotPayload(): Promise<WindowsSnapshotPayload | undefined> {
+    return this.runPowerShellJson<WindowsSnapshotPayload>(
+      [
+        "$listeners = @(Get-NetTCPConnection -State Listen | Select-Object LocalPort,OwningProcess)",
+        "$pids = @($listeners | Select-Object -ExpandProperty OwningProcess -Unique)",
+        "$processes = @()",
+        "if ($pids.Count -gt 0) {",
+        "  $processes = @(Get-Process -Id $pids -ErrorAction SilentlyContinue | Select-Object Id,ProcessName,WorkingSet64,StartTime)",
+        "}",
+        "[pscustomobject]@{ Listeners = $listeners; Processes = $processes } | ConvertTo-Json -Depth 5"
+      ].join("; ")
+    );
   }
 
   private async runPowerShellJson<T>(command: string): Promise<T | undefined> {
@@ -254,12 +305,21 @@ function normalizeArray<T>(value: T | T[] | undefined): T[] {
   return Array.isArray(value) ? value : [value];
 }
 
-function formatWindowsElapsedTime(creationDate?: string): string | undefined {
-  if (!creationDate) {
+function numberOrUndefined(value?: number | string): number | undefined {
+  if (value === undefined) {
     return undefined;
   }
 
-  const startedAt = new Date(creationDate);
+  const parsed = Number(value);
+  return Number.isNaN(parsed) ? undefined : parsed;
+}
+
+function formatWindowsElapsedTime(startTime?: string): string | undefined {
+  if (!startTime) {
+    return undefined;
+  }
+
+  const startedAt = new Date(startTime);
   if (Number.isNaN(startedAt.getTime())) {
     return undefined;
   }
