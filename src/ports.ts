@@ -8,10 +8,26 @@ interface ListenerRecord {
   port: number;
 }
 
+interface StableProcessCacheEntry {
+  command?: string;
+  cwd?: string;
+  framework: PortProcess["framework"];
+  projectName: string;
+}
+
+const stableProcessCache = new Map<number, StableProcessCacheEntry>();
+
 export async function getListeningPorts(): Promise<PortProcess[]> {
   const backend = getPlatformPortBackend();
   const records = await backend.getListeningPorts();
   const enriched = await Promise.all(records.map((record) => enrichRecord(record, backend)));
+  const activePids = new Set(records.map((record) => record.pid));
+
+  for (const pid of stableProcessCache.keys()) {
+    if (!activePids.has(pid)) {
+      stableProcessCache.delete(pid);
+    }
+  }
 
   return enriched
     .filter((record): record is PortProcess => record !== undefined)
@@ -67,21 +83,31 @@ export async function openProjectInEditor(port: number): Promise<{ success: bool
 }
 
 async function enrichRecord(record: ListenerRecord, backend = getPlatformPortBackend()): Promise<PortProcess | undefined> {
-  const [cwd, stats] = await Promise.all([
-    backend.getWorkingDirectory(record.pid),
-    backend.getProcessStats(record.pid)
-  ]);
-  const packageContext = await getPackageContext(cwd);
+  const cached = stableProcessCache.get(record.pid);
+  const stats = await backend.getProcessStats(record.pid);
+
+  let stable = cached;
+  if (!stable) {
+    const cwd = await backend.getWorkingDirectory(record.pid);
+    const packageContext = await getPackageContext(cwd);
+    stable = {
+      command: record.command,
+      cwd,
+      framework: packageContext.framework,
+      projectName: packageContext.projectName
+    };
+    stableProcessCache.set(record.pid, stable);
+  }
 
   return {
     port: record.port,
     pid: record.pid,
-    command: getDisplayCommand(stats?.command, stats?.args) ?? record.command ?? "-",
-    cwd,
+    command: getDisplayCommand(stats?.command, stats?.args) ?? stable.command ?? record.command ?? "-",
+    cwd: stable.cwd,
     memoryKb: stats?.memoryKb,
     uptime: stats?.uptime,
-    projectName: packageContext.projectName,
-    framework: packageContext.framework
+    projectName: stable.projectName,
+    framework: stable.framework
   };
 }
 
