@@ -6,7 +6,7 @@ import { getListeningPorts, killPortProcess, openPortInBrowser, openProjectInEdi
 import type { PortProcess } from "./types.js";
 
 const REFRESH_INTERVAL_MS = 3000;
-const APP_VERSION = "1.1.0";
+const APP_VERSION = "2.0.0";
 const FILTER_MODES = ["all", "dev", "node"] as const;
 const SORT_MODES = ["port", "memory", "uptime", "project"] as const;
 
@@ -230,7 +230,7 @@ export function PortsApp() {
         return;
       }
 
-      setStatusMessage(`Opening ${currentSelected.projectName} in VS Code...`);
+      setStatusMessage(`Opening ${currentSelected.projectName} in your editor...`);
       void openProjectInEditor(currentSelected.port)
         .then((result) => {
           if (result.success) {
@@ -242,7 +242,7 @@ export function PortsApp() {
           setErrorMessage(result.message);
         })
         .catch((error) => {
-          setErrorMessage(error instanceof Error ? error.message : "Failed to open VS Code.");
+          setErrorMessage(error instanceof Error ? error.message : "Failed to open the editor.");
         });
       return;
     }
@@ -342,7 +342,7 @@ function ShortcutBar() {
       <Shortcut color="greenBright" keyLabel="s" label="Sort" />
       <Shortcut color="greenBright" keyLabel="K" label="Kill" />
       <Shortcut color="cyanBright" keyLabel="o" label="Open URL" />
-      <Shortcut color="blueBright" keyLabel="e" label="Open in Code" />
+      <Shortcut color="blueBright" keyLabel="e" label="Open Editor" />
       <Shortcut color="yellow" keyLabel="r" label="Refresh" />
       <Shortcut color="magentaBright" keyLabel="q" label="Quit" />
     </Box>

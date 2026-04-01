@@ -1,6 +1,6 @@
 {
   "name": "ports",
-  "version": "1.1.0",
+  "version": "2.0.0",
   "description": "Developer-friendly CLI and TUI for inspecting listening ports.",
   "type": "module",
   "bin": {
@@ -10,7 +10,8 @@
     "dist",
     "index.html",
     "PROJECT_HISTORY.md",
-    "README.md"
+    "README.md",
+    "USER_MANUAL.md"
   ],
   "scripts": {
     "build": "tsup src/cli.tsx --format esm --dts --clean",

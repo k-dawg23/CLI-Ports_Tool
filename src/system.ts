@@ -29,3 +29,59 @@ export async function runCommandWithExitCode(args: string[]): Promise<{ stdout: 
     exitCode: result.exitCode ?? 1
   };
 }
+
+export async function commandExists(command: string): Promise<boolean> {
+  const checker = process.platform === "win32" ? "where" : "which";
+  const result = await runCommandWithExitCode([checker, command]);
+  return result.exitCode === 0;
+}
+
+export async function findAvailableCommand(commands: string[]): Promise<string | undefined> {
+  for (const command of commands) {
+    if (await commandExists(command)) {
+      return command;
+    }
+  }
+
+  return undefined;
+}
+
+export function splitCommandString(command: string): string[] {
+  const parts: string[] = [];
+  let current = "";
+  let quote: "'" | '"' | undefined;
+
+  for (let index = 0; index < command.length; index += 1) {
+    const char = command[index]!;
+
+    if (quote) {
+      if (char === quote) {
+        quote = undefined;
+      } else {
+        current += char;
+      }
+      continue;
+    }
+
+    if (char === "'" || char === '"') {
+      quote = char;
+      continue;
+    }
+
+    if (/\s/.test(char)) {
+      if (current) {
+        parts.push(current);
+        current = "";
+      }
+      continue;
+    }
+
+    current += char;
+  }
+
+  if (current) {
+    parts.push(current);
+  }
+
+  return parts;
+}

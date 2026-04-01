@@ -1,5 +1,21 @@
 # Project History
 
+## v2.0.0 - 2026-04-01
+
+- Refactored the process-discovery layer into platform backends with one shared normalized port model.
+- Kept the existing Unix behavior by moving `lsof` and `ps` logic into a dedicated macOS/Linux backend.
+- Added a Windows backend that uses PowerShell built-ins:
+  - `Get-NetTCPConnection -State Listen`
+  - `Get-CimInstance Win32_Process`
+- Kept the existing CLI commands, TUI behavior, filters, sorting, search, JSON output, and project/framework detection consistent across platforms.
+- Added preferred editor selection for the `e` shortcut with this precedence:
+  - `PORTS_EDITOR`
+  - `VISUAL`
+  - `EDITOR`
+  - detected `code`
+- Generalized the editor-opening UX so it is no longer documented as VS Code only.
+- Updated the README, user manual, landing page, and version strings for the `v2.0.0` cross-platform release.
+
 ## v1.1.0 - 2026-03-31
 
 - Added a single-page end-user HTML site for the project.
