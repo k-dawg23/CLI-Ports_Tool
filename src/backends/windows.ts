@@ -19,6 +19,7 @@ interface WindowsProcess {
 
 export class WindowsPortBackend implements PlatformPortBackend {
   private readonly shellPromise = findAvailableCommand(["powershell", "pwsh"]);
+  private processCache = new Map<number, WindowsProcess>();
 
   async getListeningPorts(): Promise<RawListener[]> {
     const listeners = await this.runPowerShellJson<WindowsListener[]>(
@@ -39,7 +40,9 @@ export class WindowsPortBackend implements PlatformPortBackend {
       }
     }
 
-    return [...records.values()];
+    const nextRecords = [...records.values()];
+    await this.primeProcessCache(nextRecords.map((record) => record.pid));
+    return nextRecords;
   }
 
   async getWorkingDirectory(pid: number): Promise<string | undefined> {
@@ -179,11 +182,45 @@ export class WindowsPortBackend implements PlatformPortBackend {
   }
 
   private async getWindowsProcess(pid: number): Promise<WindowsProcess | undefined> {
+    const cached = this.processCache.get(pid);
+    if (cached) {
+      return cached;
+    }
+
     const process = await this.runPowerShellJson<WindowsProcess | WindowsProcess[]>(
       `Get-CimInstance Win32_Process -Filter "ProcessId = ${pid}" | Select-Object ProcessId,Name,CommandLine,WorkingSetSize,CreationDate,ExecutablePath | ConvertTo-Json -Depth 4`
     );
 
-    return normalizeArray(process)[0];
+    const resolved = normalizeArray(process)[0];
+    if (resolved?.ProcessId !== undefined) {
+      this.processCache.set(Number(resolved.ProcessId), resolved);
+    }
+
+    return resolved;
+  }
+
+  private async primeProcessCache(pids: number[]): Promise<void> {
+    const uniquePids = [...new Set(pids)].filter((pid) => Number.isInteger(pid) && pid > 0);
+    if (uniquePids.length === 0) {
+      this.processCache = new Map();
+      return;
+    }
+
+    const filter = uniquePids.map((pid) => `ProcessId = ${pid}`).join(" OR ");
+    const processes = await this.runPowerShellJson<WindowsProcess | WindowsProcess[]>(
+      `Get-CimInstance Win32_Process -Filter "${filter}" | Select-Object ProcessId,Name,CommandLine,WorkingSetSize,CreationDate,ExecutablePath | ConvertTo-Json -Depth 4`
+    );
+
+    const nextCache = new Map<number, WindowsProcess>();
+    for (const process of normalizeArray(processes)) {
+      const pid = Number(process.ProcessId);
+      if (Number.isNaN(pid)) {
+        continue;
+      }
+      nextCache.set(pid, process);
+    }
+
+    this.processCache = nextCache;
   }
 
   private async runPowerShellJson<T>(command: string): Promise<T | undefined> {
