@@ -2,7 +2,7 @@
 
 ## Overview
 
-`ports` is a developer-focused CLI and terminal UI for inspecting what is listening on TCP ports on your machine.
+`ports` is a developer-focused CLI and terminal UI for inspecting and managing listening TCP ports on your machine.
 
 As of `v2.0.0`, the same package works on macOS, Linux, and Windows. The interface stays the same across platforms, while the process-discovery backend changes automatically behind the scenes.
 
@@ -10,10 +10,18 @@ The Windows version has been optimized to keep the tool comfortably usable for e
 
 ## Installation
 
-From the project directory:
+Prerequisites:
+
+- Node.js 22.18+ on the 22.x line, 24.11+ on the 24.x line, or 26+, with npm. These requirements match the tsup 9 build tool; Node.js 24 or 26 LTS is recommended.
+- macOS/Linux: `lsof` and `ps` available on `PATH`.
+- Windows: `powershell` or `pwsh` available on `PATH`, with `Get-NetTCPConnection`, `Get-Process`, and `Get-CimInstance` available. The backend tries `powershell` first, then `pwsh`.
+
+Clone the repository with Git, then install and build:
 
 ```bash
-npm install
+git clone https://github.com/k-dawg23/CLI-Ports_Tool.git
+cd CLI-Ports_Tool
+npm ci
 npm run build
 npm link
 ```
@@ -24,7 +32,16 @@ After linking, run:
 ports
 ```
 
-If `npm link` fails because of permissions, configure npm to use a user-owned global prefix and then run `npm link` again.
+Ensure npm's global executable directory is on `PATH`. If `npm link` fails because of permissions, configure npm to use a user-owned global prefix, add its executable directory to `PATH`, and then run `npm link` again.
+
+To run the built CLI without linking:
+
+```bash
+node dist/cli.js
+node dist/cli.js list --json
+```
+
+`npm start` runs the built CLI. For development, `npm run dev` runs the TypeScript entry point directly without a build.
 
 ## Main Ways To Use ports
 
@@ -48,7 +65,7 @@ What it does:
 - lets you navigate with the keyboard
 - lets you filter, sort, search, kill, open, and inspect from one screen
 
-If `ports` is run in a non-interactive shell, it automatically falls back to the static list view instead of opening the TUI.
+The TUI requires standard input to be a TTY with raw-mode support. Otherwise, `ports` prints a notice and falls back to the static list view. Use `ports list --json` when you need machine-readable output.
 
 ### `ports list`
 
@@ -64,7 +81,7 @@ Each row includes:
 - uptime
 - command
 
-This is useful when you just want a quick snapshot.
+This is useful when you just want a quick snapshot. Results are sorted by port ascending. Each row represents a unique PID and port pair: IPv4/IPv6 listeners for the same PID and port are combined, while different processes on the same port have separate rows. UDP sockets are not included.
 
 ### `ports list --json`
 
@@ -80,7 +97,9 @@ Each object includes:
 - `memoryKB`
 - `uptime`
 
-This mode is meant for scripts and integrations.
+`port` and `pid` are numbers. `command`, `projectName`, and `framework` are strings. `memoryKB` is a number in KiB, or `null` when unavailable. `uptime` is an elapsed-time string, or `null` when unavailable. An undetected framework is `"-"`; project-name fallbacks are described under Project Detection.
+
+Results use the same PID/port deduplication and port ordering as `ports list`. An empty result is `[]`. This mode is meant for scripts and integrations.
 
 Example:
 
@@ -90,7 +109,7 @@ ports list --json
 
 ### `ports check <port>`
 
-Shows detailed information for one port.
+Shows detailed information for the first discovered listener on one TCP port. Use a port number from `1` through `65535` for `check` and `kill`.
 
 If something is listening on that port, it prints:
 
@@ -113,21 +132,35 @@ ports check 3000
 
 ### `ports kill <port>`
 
-Stops whatever is listening on a port.
+Stops the first discovered process listening on the requested port. If several processes share that port, one invocation stops only one of them. Stopping a process also affects any other ports and work handled by that process.
 
-Behavior:
+On macOS/Linux:
 
-- sends a graceful termination first
+- sends `SIGTERM` first
 - waits 1 second
-- if the process is still alive, sends a forced stop
+- if the process is still alive, sends `SIGKILL`
 
-On Unix-style systems this is `SIGTERM` then `SIGKILL`. On Windows this is `Stop-Process`, then `Stop-Process -Force`.
+On Windows, it calls `Stop-Process`, waits 1 second, and retries with `Stop-Process -Force` if the process is still alive. This does not request a graceful application shutdown.
+
+If the initial stop fails, it reports failure without attempting the forced stop. The CLI exits with status 1 if stopping fails or no listener is found; otherwise it exits with status 0.
 
 Example:
 
 ```bash
 ports kill 3000
 ```
+
+### Help and Version
+
+```bash
+ports --help
+ports list --help
+ports check --help
+ports kill --help
+ports --version
+```
+
+`--help` shows usage and available options. `--version` prints the current version, `2.0.0`.
 
 ## TUI Guide
 
@@ -179,8 +212,10 @@ Search behavior:
   - command
   - port number
 - `Enter` locks in the current search
-- `Escape` cancels and clears the search
+- `Escape` cancels and clears the search while the search bar is active
 - while the search bar is active, other shortcuts are disabled so typing only affects search
+
+Matching is case-insensitive and uses substring matching; leading and trailing whitespace in the query is ignored. To clear a locked search, press `/` to reopen the search bar, then `Escape`.
 
 #### Filtering
 
@@ -219,7 +254,7 @@ Sort modes:
 - `project a-z`
   Sorts alphabetically by project name.
 
-The current sort label is shown in the header.
+The current sort label is shown in the header. Memory and uptime ties are ordered by port ascending, as are matching project names. Missing memory or uptime values are treated as zero for sorting.
 
 #### Refresh
 
@@ -229,7 +264,7 @@ The current sort label is shown in the header.
 #### Kill
 
 - `K`
-  Kills the currently selected process using the same graceful-then-forced behavior as `ports kill <port>`.
+  Stops the first discovered listener on the selected port using the same platform-specific behavior as `ports kill <port>`. If multiple processes share that port, the process stopped can differ from the selected row's PID.
 
 #### Open In Browser
 
@@ -241,7 +276,7 @@ This only makes sense for services that actually speak HTTP.
 #### Open In Editor
 
 - `e`
-  Opens the detected project directory for the selected row in your preferred editor.
+  Opens the detected process working directory for the selected port in your preferred editor. This can be below the directory containing `package.json`; the action does not automatically open the package root.
 
 Editor command precedence:
 
@@ -250,7 +285,9 @@ Editor command precedence:
 3. `EDITOR`
 4. detected `code`
 
-Examples:
+The first defined environment variable wins. A blank value falls back to detecting `code`, rather than trying lower-priority variables. If a configured command fails, `ports` does not retry with another editor.
+
+Examples for macOS/Linux shells:
 
 ```bash
 PORTS_EDITOR="cursor" ports
@@ -258,7 +295,14 @@ PORTS_EDITOR="code -n" ports
 PORTS_EDITOR="windsurf" ports
 ```
 
-If no working directory could be detected, this action will fail gracefully.
+In Windows PowerShell:
+
+```powershell
+$env:PORTS_EDITOR = "code -n"
+ports
+```
+
+If no working directory could be detected or the editor cannot be launched, the TUI displays an error. Browser and editor actions look up the first discovered listener for the selected port; when processes share a port, this may differ from the selected row.
 
 #### Quit
 
@@ -276,14 +320,17 @@ That is used to determine:
 - the project name
 - the framework
 
-If no project can be identified:
+The project name uses the nearest `package.json`'s non-empty `name`. Fallbacks are:
 
-- project name falls back to `-`
-- framework falls back to `-`
+- if the package name is missing or the file cannot be parsed, the directory containing `package.json` supplies the name
+- if no `package.json` is found, the detected working directory's name is used
+- if no working directory is available, the project name is `-`
+
+The framework is `-` when no supported framework can be detected. Working-directory, project, and framework information is cached between refreshes. Restart `ports` after changing project metadata if the displayed information is stale.
 
 ### Framework Detection
 
-`ports` checks `package.json` dependencies and devDependencies for these frameworks:
+`ports` checks `dependencies`, `devDependencies`, `peerDependencies`, and `optionalDependencies` in the nearest detected `package.json` for these frameworks, in this order:
 
 - Next.js
 - Astro
@@ -293,13 +340,13 @@ If no project can be identified:
 - SvelteKit
 - Angular
 
-If none are found, the framework column shows `-`.
+The first matching framework wins. For example, a package containing both `vite` and `@sveltejs/kit` is labeled `Vite`. If none are found, the framework column shows `-`.
 
 ### Command Detection
 
 The `COMMAND` column prefers the short process name reported by the OS.
 
-If that short name is generic and not useful, such as `MainThread`, `ports` falls back to command-line information to find a better label.
+When the short name is exactly `MainThread`, `ports` tries command-line information to find a better label. If process statistics provide no command, it falls back to the listener's command when available, then `-`.
 
 This is why a generic thread label can be replaced with something more useful like `node`.
 
@@ -307,21 +354,22 @@ This is why a generic thread label can be replaced with something more useful li
 
 `ports` intentionally makes likely dev servers easier to spot.
 
-Dev-like processes stay at normal brightness when they are:
+Dev-like processes stay at normal brightness when their command contains any of these strings (case-insensitive), or a supported framework is detected:
 
 - `node`
 - `deno`
 - `bun`
-- or attached to a recognized framework
 
-System-style processes are dimmed so dev servers stand out more clearly.
+Other processes are dimmed in the TUI and static table, except for the selected TUI row, which uses inverse highlighting.
 
 Memory highlighting:
 
-- above `200 MB`: orange
-- above `500 MB`: red
+- at or above `200 MB` and below `500 MB`: orange
+- at or above `500 MB`: red
 
-Only the memory value is highlighted, not the whole row.
+Only the memory value receives memory highlighting. Colors depend on terminal color support.
+
+Memory values use binary scaling: KiB is divided by 1024 for the displayed `MB` value and by 1024 squared for `GB`. Values of at least 1024 MB are displayed in GB. Missing or zero memory values and missing uptime values display as `-`; JSON uses `null` for missing values.
 
 ### Search, Filter, and Sort Together
 
@@ -342,7 +390,7 @@ Across all supported platforms, `ports`:
 
 - finds listening TCP ports
 - gathers per-process command, memory, and uptime data
-- tries to identify the project directory
+- tries to identify the process working directory or infer a directory
 - walks upward to find `package.json`
 - detects a supported framework from dependencies
 - returns one normalized process model to the CLI, JSON mode, and TUI
@@ -360,11 +408,12 @@ On macOS and Linux, `ports` uses:
 On Windows, `ports` uses PowerShell built-ins:
 
 - `Get-NetTCPConnection -State Listen`
-- `Get-CimInstance Win32_Process`
+- `Get-Process` for process name, working-set memory, and start time
+- `Get-CimInstance Win32_Process` for missing command-line and executable-path metadata
 
-Windows working-directory detection is best effort. When the exact cwd is not available, `ports` tries to derive a useful project path from the executable path or command line.
+Windows working-directory detection is best effort. It takes the directory of the first path-like token in the command line, falling back to the executable's directory. This can identify the runtime installation directory rather than the project directory, affecting project/framework detection and the editor action.
 
-In practice, the Windows backend is feature-complete and usable, but it may refresh a little less lightly than the macOS/Linux backend because the underlying process inspection is more expensive.
+The Windows backend caches metadata and batches queries to reduce refresh work. Refreshes may still feel heavier than on macOS/Linux because of the PowerShell-based inspection.
 
 ## Tech Stack
 
@@ -384,7 +433,11 @@ In practice, the Windows backend is feature-complete and usable, but it may refr
 
 Your npm global prefix is probably pointing to a system-owned directory.
 
-Set it to a user-owned directory instead, then run `npm link` again.
+Set it to a user-owned directory instead, add npm's global executable directory to `PATH`, then run `npm link` again. You can also use `node dist/cli.js` after building to avoid global linking.
+
+### No listeners or incomplete process details
+
+Check that the platform tools listed under Installation are available. Process visibility depends on OS permissions, and processes can exit during collection. Some backend queries suppress errors, so an empty list does not always prove that no services are listening. In particular, missing PowerShell or failed Windows queries can produce an empty result.
 
 ### Browser open does not work
 
@@ -404,6 +457,8 @@ Set one of these environment variables to a working editor command:
 - `VISUAL`
 - `EDITOR`
 
+Check higher-priority variables too: an invalid `PORTS_EDITOR` takes precedence over a valid `VISUAL` or `EDITOR`. The editor command must be launchable in the environment running `ports`.
+
 Examples:
 
 ```bash
@@ -420,6 +475,8 @@ $env:PORTS_EDITOR = "code -n"
 ### A framework is shown as `-`
 
 That means `ports` did not find one of the supported frameworks in the nearest detected `package.json`, or the process is not tied to a JavaScript project at all.
+
+On Windows, an inferred directory pointing at the runtime rather than the project can also prevent detection. Restart `ports` after editing `package.json` to clear cached project metadata.
 
 ### A working directory is missing
 
