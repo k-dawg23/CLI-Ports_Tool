@@ -1,5 +1,16 @@
 # Project History
 
+## v2.0.1 - Unreleased
+
+- Captured the selected PID/port for TUI actions and preserved selection through refreshes and sorting.
+- Added guarded stop escalation, three-outcome liveness verification, and explicit incomplete-stop errors.
+- Distinguished required discovery failure from genuine empty results on Unix and Windows; kept metadata best effort.
+- Serialized snapshot collection and validation, bounded collection/enrichment, and retained stale TUI snapshots with visible errors.
+- Required complete decimal port arguments before backend work and moved diagnostic output to stderr.
+- Kept the successful JSON schema and existing commands unchanged.
+- Added unit, rendered TUI, built CLI integration, owned-server native smoke tests, and a cross-platform CI matrix.
+- Updated current-release version displays to v2.0.1. Release acceptance remains pending native Windows/macOS verification.
+
 ## v2.0.0 - 2026-04-01
 
 - Refactored the process-discovery layer into platform backends with one shared normalized port model.

@@ -109,7 +109,7 @@ ports list --json
 
 ### `ports check <port>`
 
-Shows detailed information for the first discovered listener on one TCP port. Use a port number from `1` through `65535` for `check` and `kill`.
+Shows detailed information for the first discovered listener on one TCP port. Use a complete ASCII decimal port from `1` through `65535` for `check` and `kill`. Leading zeros are accepted. Signs, whitespace, fractions, suffixes, prefixes, and exponent notation are rejected before any discovery or action.
 
 If something is listening on that port, it prints:
 
@@ -138,11 +138,11 @@ On macOS/Linux:
 
 - sends `SIGTERM` first
 - waits 1 second
-- if the process is still alive, sends `SIGKILL`
+- if the captured PID is confirmed alive and still listening on the original port, sends `SIGKILL`
 
-On Windows, it calls `Stop-Process`, waits 1 second, and retries with `Stop-Process -Force` if the process is still alive. This does not request a graceful application shutdown.
+On Windows, it calls `Stop-Process`, waits 1 second, and retries with `Stop-Process -Force` only if the captured PID is confirmed alive and still listening on the original port. This does not request a graceful application shutdown.
 
-If the initial stop fails, it reports failure without attempting the forced stop. The CLI exits with status 1 if stopping fails or no listener is found; otherwise it exits with status 0.
+If the initial stop fails, it reports failure without attempting the forced stop. Unknown liveness or failed discovery prevents escalation. If the process releases the port but stays alive, it reports “Listener released; process still running” and exits with status 1. Only a confirmed exit reports the process stopped with status 0; a failed or unverified stop, or no listener, exits with status 1. Failure diagnostics go to stderr.
 
 Example:
 
@@ -160,7 +160,7 @@ ports kill --help
 ports --version
 ```
 
-`--help` shows usage and available options. `--version` prints the current version, `2.0.0`.
+`--help` shows usage and available options. `--version` prints the current version, `2.0.1`.
 
 ## TUI Guide
 
@@ -264,7 +264,7 @@ The current sort label is shown in the header. Memory and uptime ties are ordere
 #### Kill
 
 - `K`
-  Stops the first discovered listener on the selected port using the same platform-specific behavior as `ports kill <port>`. If multiple processes share that port, the process stopped can differ from the selected row's PID.
+  Stops the selected PID after fresh validation of its PID/port pair, using the guarded termination behavior described above. It never substitutes another PID sharing the port. Duplicate activation of the same pending action is ignored.
 
 #### Open In Browser
 
@@ -302,7 +302,7 @@ $env:PORTS_EDITOR = "code -n"
 ports
 ```
 
-If no working directory could be detected or the editor cannot be launched, the TUI displays an error. Browser and editor actions look up the first discovered listener for the selected port; when processes share a port, this may differ from the selected row.
+If no working directory could be detected or the editor cannot be launched, the TUI displays an error. Browser and editor actions validate the selected PID/port pair again. The editor uses that row's detected directory. The browser opens the shared HTTP endpoint and cannot choose which process handles a connection.
 
 #### Quit
 
@@ -437,7 +437,7 @@ Set it to a user-owned directory instead, add npm's global executable directory 
 
 ### No listeners or incomplete process details
 
-Check that the platform tools listed under Installation are available. Process visibility depends on OS permissions, and processes can exit during collection. Some backend queries suppress errors, so an empty list does not always prove that no services are listening. In particular, missing PowerShell or failed Windows queries can produce an empty result.
+Check that the platform tools listed under Installation are available. Missing tools, failed required queries, malformed listener output, and enumeration timeouts produce an error and CLI status 1, with diagnostics on stderr and no success payload. Successful JSON is still an array; optional metadata warnings appear only on stderr. Genuine empty discovery exits 0. Process visibility still depends on OS permissions, and processes can exit during collection.
 
 ### Browser open does not work
 
@@ -471,6 +471,16 @@ On Windows PowerShell:
 ```powershell
 $env:PORTS_EDITOR = "code -n"
 ```
+
+### Refresh failure and stale data
+
+The TUI retains prior rows after a refresh failure and shows `STALE`, the last successful refresh time, and the error. An initial failure shows unavailable data. Search, sorting, and filtering do not clear discovery errors; the next successful snapshot does. Action failures remain visible across routine refreshes.
+
+Selection follows the same PID/port through refreshes and sorting. If it disappears, selection moves to its former position, clamped to the remaining rows; an empty list has no selection. Filter/search changes reset selection to the first visible row. All actions capture their target when pressed.
+
+Only one snapshot collection runs at a time. Pending refreshes coalesce and action validation takes priority over queued routine refreshes. Each active collection has a total 15-second budget; required-query failure is fatal, while optional enrichment deadline produces known listener rows with fallback details and a warning. Stop commands and liveness probes are also bounded.
+
+PID/port checks cannot eliminate PID reuse or races between validation and signaling. Cached cwd/project metadata can remain stale after undetected PID reuse; fresh enumeration does not prove fresh process identity or directory metadata. Restart the tool if cached details are stale.
 
 ### A framework is shown as `-`
 
