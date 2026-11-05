@@ -35,9 +35,16 @@ jobs:
       - run: npm run test:integration
       - run: node dist/cli.js --help
       - run: node dist/cli.js --version
+      - name: Prepare fresh native evidence directory
+        shell: bash
+        run: |
+          evidence_dir="$RUNNER_TEMP/ports-native-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          mkdir "$evidence_dir"
+          echo "PORTS_NATIVE_OUTPUT_DIR=$evidence_dir" >> "$GITHUB_ENV"
       - run: npm run test:native
       - uses: actions/upload-artifact@v4
-        if: always()
+        if: always() && env.PORTS_NATIVE_OUTPUT_DIR != ''
         with:
           name: native-${{ matrix.os }}-node-${{ matrix.node }}
-          path: docs/verification/native-*.json
+          path: ${{ env.PORTS_NATIVE_OUTPUT_DIR }}/native-*.json
+          if-no-files-found: warn

@@ -22,7 +22,7 @@ const linuxMountWarnings = text => {
 };
 
 const cli = fileURLToPath(new URL("../dist/cli.js", import.meta.url));
-const directory = fileURLToPath(new URL("../docs/verification/", import.meta.url));
+const directory = process.env.PORTS_NATIVE_OUTPUT_DIR || fileURLToPath(new URL("../docs/verification/", import.meta.url));
 const capture = { platform: process.platform, os: os.release(), node: process.version, terminationMechanism: "authenticated IPC request; fixture signals itself", checks: [], fixtures: [] };
 const children = [];
 const checked = async (name, work) => { await work(); capture.checks.push({ name, status: "passed" }); console.log(`PASS: ${name}`); };

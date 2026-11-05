@@ -1,4 +1,6 @@
 import { execa } from "execa";
+import { statSync } from "node:fs";
+import path from "node:path";
 import { DiscoveryError, type CollectionContext } from "./discovery.js";
 
 export interface CommandOptions {
@@ -17,6 +19,26 @@ export interface CommandResult {
 
 export type CommandRunner = (args: string[], options?: CommandOptions) => Promise<CommandResult>;
 
+// Execa can route unresolved Windows commands through cmd.exe, losing ENOENT.
+// Only prove absence; leave resolution, execution, and argument escaping to Execa.
+function windowsCommandIsMissing(command: string): boolean {
+  const directories = /[\\/]/.test(command) ? [""] : [process.cwd(), ...(process.env.PATH ?? "").split(";")];
+  const extensions = ["", ...(process.env.PATHEXT || ".EXE;.CMD;.BAT;.COM").split(";")];
+  for (const directory of directories) {
+    const candidate = path.join(directory.replace(/^"(.*)"$/, "$1"), command);
+    for (const extension of extensions) {
+      try {
+        statSync(candidate + extension);
+        return false;
+      } catch (error) {
+        // Access errors or other uncertainty must not become "not found".
+        if (!["ENOENT", "ENOTDIR"].includes((error as NodeJS.ErrnoException).code ?? "")) return false;
+      }
+    }
+  }
+  return true;
+}
+
 export const runCheckedCommand: CommandRunner = async (args, options = {}) => {
   try {
     const result = await execa(args[0]!, args.slice(1), {
@@ -30,7 +52,8 @@ export const runCheckedCommand: CommandRunner = async (args, options = {}) => {
       stdout: result.stdout.trimEnd(),
       stderr: result.stderr.trimEnd(),
       exitCode: result.exitCode ?? 1,
-      failure: result.timedOut || result.isCanceled ? "timeout" : result.code === "ENOENT" ? "missing" : result.failed && result.exitCode === undefined ? "launch" : undefined
+      failure: result.timedOut || result.isCanceled ? "timeout" : result.code === "ENOENT" ||
+        (process.platform === "win32" && result.exitCode === 1 && windowsCommandIsMissing(args[0]!)) ? "missing" : result.failed && result.exitCode === undefined ? "launch" : undefined
     };
   } catch (error) {
     const details = error as { code?: string; timedOut?: boolean; isCanceled?: boolean; message?: string };
