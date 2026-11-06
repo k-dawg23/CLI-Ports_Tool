@@ -42,6 +42,24 @@ jobs:
           mkdir "$evidence_dir"
           echo "PORTS_NATIVE_OUTPUT_DIR=$evidence_dir" >> "$GITHUB_ENV"
       - run: npm run test:native
+      - name: Build test-only Windows ConPTY host
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $evidence = Join-Path $env:PORTS_NATIVE_OUTPUT_DIR 'conpty'
+          New-Item -ItemType Directory -Path $evidence | Out-Null
+          "PORTS_CONPTY_OUTPUT_DIR=$evidence" >> $env:GITHUB_ENV
+          dotnet --info | Out-File (Join-Path $evidence 'dotnet-environment.txt')
+          dotnet build scripts/conpty/ConPtyHost.csproj -c Release -o (Join-Path $evidence 'host')
+      - name: Windows ConPTY feasibility experiment
+        if: runner.os == 'Windows'
+        timeout-minutes: 6
+        run: node scripts/conpty/experiment.mjs
+      - uses: actions/upload-artifact@v4
+        if: always() && runner.os == 'Windows' && env.PORTS_CONPTY_OUTPUT_DIR != ''
+        with:
+          name: conpty-windows-node-${{ matrix.node }}
+          path: ${{ env.PORTS_CONPTY_OUTPUT_DIR }}
       - uses: actions/upload-artifact@v4
         if: always() && env.PORTS_NATIVE_OUTPUT_DIR != ''
         with:
