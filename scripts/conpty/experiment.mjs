@@ -7,6 +7,7 @@ import { once } from 'node:events';
 import { createInterface } from 'node:readline';
 import { fileURLToPath } from 'node:url';
 import { setTimeout as delay } from 'node:timers/promises';
+import { StringDecoder } from 'node:string_decoder';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const directory = process.env.PORTS_CONPTY_OUTPUT_DIR;
@@ -18,15 +19,16 @@ const live = [];
 export async function session(name, args, env = {}) {
   const command = ['dotnet', path.join(directory, 'host', 'ConPtyHost.dll'), process.execPath, ...args];
   const child = spawn(command[0], command.slice(1), { env: { ...process.env, ...env }, stdio: ['pipe', 'pipe', 'pipe'] });
-  const exited = once(child, 'exit');
+  const exited = once(child, 'close');
   live.push({ child, exited });
   const data = { name, command, events: [], input: [], output: '', stderr: '' };
   report.sessions.push(data);
+  const decoder = new StringDecoder('utf8');
   child.stderr.on('data', chunk => { data.stderr += chunk; });
   createInterface({ input: child.stdout }).on('line', line => {
     try {
       const event = JSON.parse(line); data.events.push(event);
-      if (event.type === 'output') data.output += Buffer.from(event.data, 'base64').toString('utf8');
+      if (event.type === 'output') data.output += decoder.write(Buffer.from(event.data, 'base64'));
     } catch (error) { data.events.push({ type: 'parse-error', line, error: error.message }); }
   });
   const input = text => {
@@ -35,7 +37,7 @@ export async function session(name, args, env = {}) {
   };
   const wait = async (label, predicate, ms = 30000) => {
     const deadline = Date.now() + ms;
-    while (!predicate()) {
+    while (!(await predicate())) {
       assert.ok(Date.now() < deadline, `Timed out: ${name}: ${label}`);
       assert.ok(!data.events.some(e => e.type === 'error'), JSON.stringify(data.events));
       assert.ok(!data.events.some(e => !e.type), 'Unexpected child output bypassed the ConPTY channel');
@@ -73,6 +75,10 @@ try {
   assert.match(probe.data.output, /"marker":"probe-complete","raw":false/);
   report.stage1 = 'PASS';
   console.log('Stage 1 PASS: native ConPTY, TTY/raw input, a/up/b/q events, captured output, normal exit and handle cleanup');
+  if (process.argv.includes('--cli')) {
+    const { verifyCli } = await import('./cli-stage.mjs');
+    await verifyCli({ session, report, directory, here });
+  }
 } catch (error) {
   report.error = error.stack;
   console.error(error);

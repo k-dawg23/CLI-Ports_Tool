@@ -51,10 +51,10 @@ jobs:
           "PORTS_CONPTY_OUTPUT_DIR=$evidence" >> $env:GITHUB_ENV
           dotnet --info | Out-File (Join-Path $evidence 'dotnet-environment.txt')
           dotnet build scripts/conpty/ConPtyHost.csproj -c Release -o (Join-Path $evidence 'host')
-      - name: Windows ConPTY feasibility experiment
+      - name: Windows ConPTY staged verification experiment
         if: runner.os == 'Windows'
-        timeout-minutes: 6
-        run: node scripts/conpty/experiment.mjs
+        timeout-minutes: 8
+        run: node scripts/conpty/experiment.mjs --cli
       - uses: actions/upload-artifact@v4
         if: always() && runner.os == 'Windows' && env.PORTS_CONPTY_OUTPUT_DIR != ''
         with:
