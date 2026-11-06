@@ -106,10 +106,21 @@ except Exception as error:
     emit(type='error', error=repr(error))
 finally:
     restored = False
+    inspection = 'not-inspected-abnormal-exit'
     if child is not None and child.poll() is not None:
-        current = termios.tcgetattr(slave)
-        mask = termios.ECHO | termios.ICANON
-        restored = current[3] & mask == original[3] & mask
+        try:
+            current = termios.tcgetattr(slave)
+            mask = termios.ECHO | termios.ICANON
+            restored = current[3] & mask == original[3] & mask
+            inspection = 'post-exit-termios-comparison'
+        except termios.error as error:
+            # macOS invalidates terminal ioctls when the session leader exits.
+            # Preserve the explicit limitation; Node raw-state evidence is
+            # checked separately, and teardown must still close every fd.
+            restored = None
+            inspection = 'unavailable-after-exit: ' + repr(error)
+            if error.args[0] not in (errno.ENOTTY, errno.EIO):
+                result = 1
     # Terminal hangup targets only the session created above; EOF on this pipe
     # also reaches only the child with its explicitly inherited private fd.
     os.close(master)
@@ -127,5 +138,5 @@ finally:
     os.close(slave)
     emit(type='cleanup', descriptorsClosed=True, childReaped=child is not None and child.returncode is not None,
          exitCode=None if child is None else child.returncode, normalExit=normal,
-         outputDrained=drained, terminalRestoredByChild=restored)
+         outputDrained=drained, terminalRestoredByChild=restored, termiosInspection=inspection)
 sys.exit(result)

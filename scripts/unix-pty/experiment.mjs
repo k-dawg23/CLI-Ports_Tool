@@ -49,7 +49,7 @@ async function session(name, args, env = {}) {
     if (failure) assert.notEqual(code, 0); else assert.equal(code, 0, JSON.stringify(data));
     const cleanup = data.events.find(e => e.type === 'cleanup');
     assert.ok(cleanup?.descriptorsClosed && cleanup.childReaped, JSON.stringify(data));
-    if (!failure) assert.ok(cleanup.normalExit && cleanup.outputDrained && cleanup.terminalRestoredByChild, JSON.stringify(data));
+    if (!failure) assert.ok(cleanup.normalExit && cleanup.outputDrained && cleanup.terminalRestoredByChild !== false, JSON.stringify(data));
     child.stdin.end();
   };
   return { data, input, wait, finish, abort: () => child.stdin.write('{"type":"abort"}\n'), disconnect: () => child.stdin.end() };
@@ -68,6 +68,7 @@ try {
     probe.input(text); await probe.wait(`key ${name}`, () => probe.data.output.includes(`"name":"${name}"`));
   }
   await probe.finish();
+  assert.match(probe.data.output, /"marker":"probe-complete","raw":false/);
   for (const method of ['abort', 'disconnect']) {
     const failure = await session(`failure-${method}`, [path.join(here, 'keyboard-probe.cjs')]);
     await failure.wait('raw-ready', () => failure.data.output.includes('raw-ready'));
