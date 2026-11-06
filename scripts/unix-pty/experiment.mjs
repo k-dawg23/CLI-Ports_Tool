@@ -36,6 +36,7 @@ async function session(name, args, env = {}) {
     child.stdin.write(JSON.stringify({ type: 'input', data: Buffer.from(text).toString('base64') }) + '\n');
   };
   const wait = async (label, predicate, ms = 30000) => {
+    console.log(`PTY waiting: ${label}`);
     const deadline = Date.now() + ms;
     while (!(await predicate())) {
       assert.ok(Date.now() < deadline, `Timed out: ${name}: ${label}`);
@@ -43,6 +44,7 @@ async function session(name, args, env = {}) {
       assert.equal(child.exitCode, null, JSON.stringify(data));
       await delay(50);
     }
+    console.log(`PTY observed: ${label}`);
   };
   const finish = async (failure = false) => {
     const [code, signal] = await closed; data.hostExit = { code, signal };
@@ -76,6 +78,10 @@ try {
   }
   report.stage1 = 'PASS';
   console.log('Stage 1 PASS: actual Unix PTY, TTY/raw input, keyboard, output, dimensions, normal exit and abort/disconnect cleanup');
+  if (process.argv.includes('--cli')) {
+    const { verifyCli } = await import('./cli-stage.mjs');
+    await verifyCli({ session, report, directory, here });
+  }
 } catch (error) {
   report.error = error.stack; console.error(error); process.exitCode = 1;
 } finally {

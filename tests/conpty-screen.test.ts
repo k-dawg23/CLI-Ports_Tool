@@ -11,4 +11,6 @@ test('ConPTY transcript decoder applies cursor rewrites rather than matching sta
 test('ConPTY decoder handles cleared frames, title sequences, attributes and incomplete final escape', () => {
   assert.equal(terminalScreen('stale\x1b[2J\x1b[H\x1b]0;title\x07\x1b[32mSelected\x1b[m\x1b['), 'Selected');
   assert.throws(() => terminalScreen('\x1b[1L'), /Unsupported terminal control/);
+  assert.throws(() => terminalScreen('\x1b7'), /Unsupported terminal sequence/);
+  assert.throws(() => terminalScreen('\x1b[!p'), /Unsupported terminal control/);
 });

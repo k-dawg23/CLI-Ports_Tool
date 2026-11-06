@@ -42,7 +42,7 @@ jobs:
           mkdir "$evidence_dir"
           echo "PORTS_NATIVE_OUTPUT_DIR=$evidence_dir" >> "$GITHUB_ENV"
       - run: npm run test:native
-      - name: Unix PTY feasibility experiment
+      - name: Unix PTY staged verification experiment
         if: runner.os != 'Windows' && matrix.node == 24
         timeout-minutes: 8
         shell: bash
@@ -50,7 +50,7 @@ jobs:
           evidence_dir="$PORTS_NATIVE_OUTPUT_DIR/unix-pty"
           mkdir "$evidence_dir"
           echo "PORTS_PTY_OUTPUT_DIR=$evidence_dir" >> "$GITHUB_ENV"
-          PORTS_PTY_OUTPUT_DIR="$evidence_dir" node scripts/unix-pty/experiment.mjs
+          PORTS_PTY_OUTPUT_DIR="$evidence_dir" node scripts/unix-pty/experiment.mjs --cli
       - uses: actions/upload-artifact@v4
         if: always() && env.PORTS_PTY_OUTPUT_DIR != ''
         with:

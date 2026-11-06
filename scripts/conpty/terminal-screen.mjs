@@ -14,7 +14,10 @@ export function terminalScreen(text, columns = 160, rows = 60) {
     }
     if (rest.startsWith('\x1b[')) {
       const csi = /^\x1b\[([0-9;?]*)([ -/]*)([@-~])/.exec(rest);
-      if (!csi) break; // Incomplete last output chunk; caller replays complete transcript.
+      if (!csi) {
+        if (/^\x1b\[[0-9;?]*[ -/]*$/.test(rest)) break; // Incomplete final chunk.
+        throw new Error(`Unsupported terminal sequence: ${JSON.stringify(rest.slice(0, 20))}`);
+      }
       i += csi[0].length;
       const [n = 1, m = 1] = csi[1].split(';').map(v => Number(v) || 1);
       const mode = Number(csi[1]) || 0;
@@ -37,6 +40,10 @@ export function terminalScreen(text, columns = 160, rows = 60) {
         default: throw new Error(`Unsupported terminal control: ${JSON.stringify(csi[0])}`);
       }
       clamp(); continue;
+    }
+    if (rest[0] === '\x1b') {
+      if (rest.length === 1) break;
+      throw new Error(`Unsupported terminal sequence: ${JSON.stringify(rest.slice(0, 2))}`);
     }
     const char = String.fromCodePoint(text.codePointAt(i)); i += char.length;
     if (char === '\r') x = 0;
