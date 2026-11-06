@@ -26,15 +26,20 @@ const cli = fileURLToPath(new URL("../dist/cli.js", import.meta.url));
 const directory = process.env.PORTS_NATIVE_OUTPUT_DIR || fileURLToPath(new URL("../docs/verification/", import.meta.url));
 const capture = { platform: process.platform, os: os.release(), node: process.version,
   github: { sha: process.env.GITHUB_SHA, runId: process.env.GITHUB_RUN_ID, attempt: process.env.GITHUB_RUN_ATTEMPT, job: process.env.GITHUB_JOB, runner: process.env.RUNNER_NAME },
-  terminationMechanism: "authenticated IPC request; fixture signals itself", checks: [], fixtures: [] };
+  terminationMechanism: "authenticated IPC request; fixture signals itself", checks: [], fixtures: [], commands: [] };
 const children = [];
 const checked = async (name, work) => { await work(); capture.checks.push({ name, status: "passed" }); console.log(`PASS: ${name}`); };
-const command = async (executable, args) => {
-  const r = await execa(executable, args, { reject: false, timeout: 15000, env: { LC_ALL: "C", NO_COLOR: "1" } });
+const command = async (executable, args, timeoutMs = 15000) => {
+  const startedAt = Date.now();
+  const r = await execa(executable, args, { reject: false, timeout: timeoutMs, env: { LC_ALL: "C", NO_COLOR: "1" } });
+  capture.commands.push({ command: [executable, ...args], timeoutMs, durationMs: Date.now() - startedAt,
+    exitCode: r.exitCode, timedOut: r.timedOut, stdout: r.stdout, stderr: r.stderr });
   if (r.failed && r.exitCode === undefined) throw r;
   return { command: [executable, ...args], stdout: r.stdout, stderr: r.stderr, exitCode: r.exitCode };
 };
-const run = args => command(process.execPath, [cli, ...args]);
+// Observe the CLI's own 15-second active collection budget plus startup/output
+// and subprocess cleanup. Never preempt that budget with an equal outer timer.
+const run = args => command(process.execPath, [cli, ...args], 30000);
 const assertOwnedAlive = child => {
   assert.equal(child.exitCode, null);
   assert.equal(child.signalCode, null);
