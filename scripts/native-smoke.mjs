@@ -13,6 +13,7 @@ import { PortService } from "../src/ports.ts";
 import { UnixPortBackend } from "../src/backends/unix.ts";
 import { WindowsPortBackend } from "../src/backends/windows.ts";
 import { runCheckedCommand } from "../src/system.ts";
+import { CollectionContext } from "../src/discovery.ts";
 
 const linuxMountWarnings = text => {
   const lines = text.trimEnd().split("\n");
@@ -23,7 +24,9 @@ const linuxMountWarnings = text => {
 
 const cli = fileURLToPath(new URL("../dist/cli.js", import.meta.url));
 const directory = process.env.PORTS_NATIVE_OUTPUT_DIR || fileURLToPath(new URL("../docs/verification/", import.meta.url));
-const capture = { platform: process.platform, os: os.release(), node: process.version, terminationMechanism: "authenticated IPC request; fixture signals itself", checks: [], fixtures: [] };
+const capture = { platform: process.platform, os: os.release(), node: process.version,
+  github: { sha: process.env.GITHUB_SHA, runId: process.env.GITHUB_RUN_ID, attempt: process.env.GITHUB_RUN_ATTEMPT, job: process.env.GITHUB_JOB, runner: process.env.RUNNER_NAME },
+  terminationMechanism: "authenticated IPC request; fixture signals itself", checks: [], fixtures: [] };
 const children = [];
 const checked = async (name, work) => { await work(); capture.checks.push({ name, status: "passed" }); console.log(`PASS: ${name}`); };
 const command = async (executable, args) => {
@@ -63,6 +66,7 @@ async function server(hosts) {
 }
 
 try {
+  await fs.mkdir(directory, { recursive: true });
   const target = await server(process.platform === "win32" ? ["127.0.0.1"] : ["127.0.0.1", "::1"]);
   const sentinel = await server(["127.0.0.1"]);
   const port = target.ports[0].port;
@@ -77,6 +81,51 @@ try {
       const r = await run(args); assert.equal(r.exitCode, 0, r.stderr); assert.match(r.stdout, new RegExp(String(target.pid)));
     }
   });
+  if (process.platform === "win32") {
+    await checked("production backend-selected PowerShell executable and version verified with native discovery", async () => {
+      const nonce = randomUUID();
+      const identityFile = path.join(directory, `powershell-observed-${nonce}.json`);
+      const identityExpression = "[pscustomobject]@{Executable=[System.Diagnostics.Process]::GetCurrentProcess().MainModule.FileName; Version=$PSVersionTable.PSVersion.ToString(); Edition=$PSVersionTable.PSEdition; ProcessId=$PID}";
+      const evidence = capture.windowsShell = { lookup: [], discovery: undefined, identity: undefined, versionQuery: undefined };
+      const observe = async (args, options) => {
+        if (args[0] === "where") {
+          const result = await runCheckedCommand(args, options);
+          evidence.lookup.push({ command: args, result });
+          return result;
+        }
+        assert.ok(["powershell", "pwsh"].includes(args[0]), "Observe the backend's selected executable, never choose another shell");
+        assert.ok(args.at(-1).includes("Get-NetTCPConnection"));
+        const original = [...args];
+        // Record identity INSIDE the process running the original native query.
+        // File output only: preserve discovery stdout, argv prefix and options.
+        const script = `${args.at(-1)}; ${identityExpression} | Add-Member -NotePropertyName Nonce -NotePropertyValue '${nonce}' -PassThru | ConvertTo-Json -Compress | Set-Content -LiteralPath '${identityFile.replaceAll("'", "''")}' -Encoding UTF8`;
+        const observedCommand = [...args.slice(0, -1), script];
+        const result = await runCheckedCommand(observedCommand, options);
+        evidence.discovery = { selectedCommand: args[0], originalCommand: original, observedCommand, result };
+        return result;
+      };
+      const context = new CollectionContext("Windows");
+      let listeners;
+      try { listeners = await new WindowsPortBackend(observe).getListeningPorts(context); }
+      finally { context.finish(false); }
+      assert.ok(listeners.some(row => row.pid === target.pid && row.port === port));
+      evidence.ownedListener = { pid: target.pid, port, found: true };
+      evidence.identity = JSON.parse((await fs.readFile(identityFile, "utf8")).replace(/^\uFEFF/, ""));
+      assert.equal(evidence.identity.Nonce, nonce);
+      assert.ok(path.isAbsolute(evidence.identity.Executable));
+      assert.match(path.basename(evidence.identity.Executable), /^(powershell|pwsh)\.exe$/i);
+      assert.ok((await fs.stat(evidence.identity.Executable)).isFile());
+      assert.ok(Number.isSafeInteger(evidence.identity.ProcessId) && evidence.identity.ProcessId > 0);
+      assert.match(evidence.identity.Version, /^\d+\.\d+/);
+      evidence.versionQuery = await command(evidence.identity.Executable, ["-NoProfile", "-NonInteractive", "-Command", `${identityExpression} | ConvertTo-Json -Compress`]);
+      assert.equal(evidence.versionQuery.exitCode, 0, evidence.versionQuery.stderr);
+      const version = JSON.parse(evidence.versionQuery.stdout);
+      assert.equal(version.Executable.toLowerCase(), evidence.identity.Executable.toLowerCase());
+      assert.equal(version.Version, evidence.identity.Version);
+      assert.equal(version.Edition, evidence.identity.Edition);
+      await fs.unlink(identityFile);
+    });
+  }
   if (process.platform !== "win32") {
     capture.tool = await command("lsof", ["-v"]);
     for (const [name, args] of [
