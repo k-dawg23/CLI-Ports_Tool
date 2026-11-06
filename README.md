@@ -73,9 +73,9 @@ ports --version
 
 `ports` opens the TUI only when standard input is a TTY with raw-mode support; otherwise it prints a notice and a static table. Use `ports list --json` for machine-readable output.
 
-`ports list` prints a one-time table with port, project, framework, PID, memory, uptime, and command columns. `ports check <port>` shows details including the working directory, or reports that the port is free. Port arguments must be in the range `1`–`65535`.
+`ports list` prints a one-time table with port, project, framework, PID, memory, uptime, and command columns. `ports check <port>` shows details including the working directory, or reports that the port is free. Port arguments must contain only decimal digits and be in the range `1`–`65535`. Leading zeros are accepted; suffixes, fractions, signs, whitespace, and exponent notation are rejected before discovery.
 
-`ports kill <port>` stops the first discovered process listening on that port. Stopping a process affects all of its ports. On macOS/Linux, it sends `SIGTERM`, waits 1 second, then sends `SIGKILL` if needed. On Windows, it calls `Stop-Process`, waits 1 second, then retries with `-Force` if needed; this is not a graceful application shutdown. The command exits with status 1 if stopping fails or no listener is found.
+`ports kill <port>` stops the first discovered process listening on that port. Stopping a process affects all of its ports. On macOS/Linux, it sends `SIGTERM`, waits 1 second, then sends `SIGKILL` only if the captured PID is confirmed alive and still listening on that port. On Windows, it calls `Stop-Process`, waits 1 second, then retries with `-Force` only after the same checks; this is not a graceful application shutdown. The command exits with status 1 if stopping fails, no listener is found, verification fails, or the process remains alive after releasing the listener. Only a confirmed process exit is reported as stopped. Failure diagnostics go to stderr.
 
 `ports list --json` returns an array of objects with:
 
@@ -96,7 +96,7 @@ ports --version
 - `f` cycle filters between all ports, dev ports (`3000`–`9999`), and node only (commands containing `node`, `deno`, or `bun`, or any recognized framework)
 - `s` cycle sorting between port ascending, memory descending, uptime descending, and project name alphabetically
 - `r` refresh immediately
-- `K` stop the first discovered listener on the selected port, using the same behavior as `ports kill <port>`
+- `K` stop the selected PID after fresh PID/port validation; repeated presses during the same pending action are ignored
 - `o` open `http://localhost:PORT` in the default browser (useful for HTTP services)
 - `e` open the detected process working directory in your preferred editor
 - `q` quit
@@ -163,6 +163,16 @@ Memory is divided by 1024 for the displayed `MB`/`GB` values. Color output depen
 - Command prefers the short process name from system process data, with a fallback for generic values like `MainThread`
 - The TUI and static list share column widths, though their spacing differs; long text values may be truncated
 
+## Reliability and verification
+
+Discovery failures exit with status 1 and diagnostics on stderr; they never produce an empty JSON array or a free-port result. Successful JSON keeps its existing schema, with optional metadata warnings on stderr. A genuine empty result is still `[]`. Results remain subject to OS process-visibility permissions.
+
+The TUI retains the last successful snapshot after a failed refresh, labels it `STALE`, and shows its refresh time and error. Initial failure shows unavailable data. Selection follows the PID/port across refreshes and sorting; filters and search can reset it. Refreshes and action validation are serialized, and active collection has a 15-second budget. Optional enrichment that exceeds the budget produces fallback details and a warning.
+
+PID/port validation cannot eliminate PID reuse or races between checking and signaling. Working-directory/project caches remain best effort and can retain stale metadata after undetected PID reuse. Browser opening still targets an HTTP endpoint and cannot select a particular process sharing it.
+
+Development checks: `npm ci`, `npm run typecheck`, `npm test`, `npm run build`, `npm run test:integration`, and `npm run test:native`. Native checks start and clean up only their own test servers. Windows/macOS verification remains pending until run on those platforms; see the v2.0.1 implementation and verification report in `docs/verification/`.
+
 ## Version
 
-Current release: `v2.0.0`
+Current release: `v2.0.1`

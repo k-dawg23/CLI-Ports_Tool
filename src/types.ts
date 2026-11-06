@@ -24,3 +24,14 @@ export interface PortProcess {
   projectName: string;
   framework: Framework;
 }
+
+export interface ListenerTarget {
+  pid: number;
+  port: number;
+}
+
+export interface PortSnapshot {
+  processes: readonly PortProcess[];
+  warnings: readonly string[];
+  completedAt: number;
+}

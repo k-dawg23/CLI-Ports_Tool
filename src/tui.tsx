@@ -1,299 +1,144 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Box, Text, useApp, useInput } from "ink";
 import chalk from "chalk";
 import { colorFramework, colorMemory, formatMemory, isNodeLikeCommand, padAnsiEndVisible, padEndVisible, shouldDimProcess, TABLE_HEADERS, TABLE_WIDTHS, truncateVisible } from "./format.js";
-import { getListeningPorts, killPortProcess, openPortInBrowser, openProjectInEditor } from "./ports.js";
-import type { PortProcess } from "./types.js";
+import { portService, type PortService } from "./ports.js";
+import { RefreshController, selectedIndex as resolveSelection, type Selection } from "./tui-state.js";
+import type { ListenerTarget, PortProcess, PortSnapshot } from "./types.js";
+import type { BackendActionResult } from "./backends/types.js";
+
+import { APP_VERSION } from "./version.js";
 
 const REFRESH_INTERVAL_MS = 3000;
-const APP_VERSION = "2.0.0";
 const FILTER_MODES = ["all", "dev", "node"] as const;
 const SORT_MODES = ["port", "memory", "uptime", "project"] as const;
 
 type FilterMode = (typeof FILTER_MODES)[number];
 type SortMode = (typeof SORT_MODES)[number];
+type AppService = Pick<PortService, "snapshot" | "killTarget" | "openBrowser" | "openEditor">;
 
-export function PortsApp() {
+export function PortsApp({ service = portService }: { service?: AppService } = {}) {
   const { exit } = useApp();
-  const [processes, setProcesses] = useState<PortProcess[]>([]);
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [view, setView] = useState<{ snapshot?: PortSnapshot; error?: string; refreshing: boolean }>({ refreshing: true });
+  const [selection, setSelection] = useState<Selection>({ index: 0 });
   const [filterMode, setFilterMode] = useState<FilterMode>("all");
   const [sortMode, setSortMode] = useState<SortMode>("port");
   const [searchQuery, setSearchQuery] = useState("");
   const [searchDraft, setSearchDraft] = useState("");
   const [isSearchActive, setIsSearchActive] = useState(false);
-  const [statusMessage, setStatusMessage] = useState("Loading listening ports...");
-  const [errorMessage, setErrorMessage] = useState<string | undefined>();
-  const [isRefreshing, setIsRefreshing] = useState(true);
-
-  const refreshProcesses = async (message?: string) => {
-    setIsRefreshing(true);
-
-    try {
-      const next = await getListeningPorts();
-      setProcesses(next);
-      setSelectedIndex((current) => Math.max(0, Math.min(current, Math.max(0, next.length - 1))));
-      setStatusMessage(message ?? `Tracking ${next.length} listening port${next.length === 1 ? "" : "s"}. Auto-refresh every 3s.`);
-      setErrorMessage(undefined);
-    } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : "Failed to refresh ports.");
-    } finally {
-      setIsRefreshing(false);
-    }
-  };
+  const [feedback, setFeedback] = useState<{ message: string; success?: boolean }>();
+  const [actionWarnings, setActionWarnings] = useState<readonly string[]>([]);
+  const active = useRef(false);
+  const actionSequence = useRef(0);
+  const pending = useRef(new Set<string>());
+  const refresh = useRef<RefreshController>();
 
   useEffect(() => {
-    let active = true;
-
-    const refresh = async (message?: string) => {
-      setIsRefreshing(true);
-      try {
-        const next = await getListeningPorts();
-        if (!active) {
-          return;
-        }
-
-        setProcesses(next);
-        setSelectedIndex((current) => Math.max(0, Math.min(current, Math.max(0, next.length - 1))));
-        setStatusMessage(message ?? `Tracking ${next.length} listening port${next.length === 1 ? "" : "s"}. Auto-refresh every 3s.`);
-        setErrorMessage(undefined);
-      } catch (error) {
-        if (!active) {
-          return;
-        }
-        setErrorMessage(error instanceof Error ? error.message : "Failed to refresh ports.");
-      } finally {
-        if (active) {
-          setIsRefreshing(false);
-        }
-      }
-    };
-
-    void refresh();
-    const timer = setInterval(() => {
-      void refresh();
-    }, REFRESH_INTERVAL_MS);
-
-    return () => {
-      active = false;
-      clearInterval(timer);
-    };
-  }, []);
+    active.current = true;
+    const controller = new RefreshController(
+      () => service.snapshot(),
+      () => setView(current => ({ ...current, refreshing: true })),
+      snapshot => { setView({ snapshot, refreshing: false }); setActionWarnings([]); },
+      error => setView(current => ({ ...current, error: error instanceof Error ? error.message : "Failed to refresh ports." })),
+      () => setView(current => ({ ...current, refreshing: false }))
+    );
+    refresh.current = controller;
+    controller.request();
+    const timer = setInterval(() => controller.request(), REFRESH_INTERVAL_MS);
+    return () => { active.current = false; controller.dispose(); clearInterval(timer); };
+  }, [service]);
 
   const activeSearchQuery = isSearchActive ? searchDraft : searchQuery;
   const visibleProcesses = sortProcesses(
-    processes
-      .filter((process) => matchesFilter(process, filterMode))
-      .filter((process) => matchesSearch(process, activeSearchQuery)),
-    sortMode
+    (view.snapshot?.processes ?? []).filter(row => matchesFilter(row, filterMode)).filter(row => matchesSearch(row, activeSearchQuery)), sortMode
   );
+  const selectedIndex = resolveSelection(visibleProcesses, selection);
   const selected = visibleProcesses[selectedIndex];
 
   useEffect(() => {
-    setSelectedIndex((current) => Math.max(0, Math.min(current, Math.max(0, visibleProcesses.length - 1))));
-  }, [visibleProcesses.length]);
+    const target = selected ? { pid: selected.pid, port: selected.port } : undefined;
+    setSelection(current => current.index === selectedIndex && current.target?.pid === target?.pid && current.target?.port === target?.port
+      ? current : { index: selectedIndex, target });
+  }, [selectedIndex, selected?.pid, selected?.port, selection.target?.pid, selection.target?.port]);
+
+  const runAction = (kind: "kill" | "browser" | "editor", target: ListenerTarget) => {
+    const captured = { pid: target.pid, port: target.port };
+    const key = `${kind}:${captured.pid}:${captured.port}`;
+    if (pending.current.has(key)) return;
+    pending.current.add(key);
+    const sequence = ++actionSequence.current;
+    setFeedback({ message: `${kind === "kill" ? "Stopping" : "Opening"} PID ${captured.pid} on port ${captured.port}...` });
+    const onWarnings = (warnings: readonly string[]) => { if (active.current) setActionWarnings(warnings); };
+    const operation = () => kind === "kill" ? service.killTarget(captured, onWarnings) : kind === "browser" ? service.openBrowser(captured, onWarnings) : service.openEditor(captured, onWarnings);
+    void Promise.resolve().then(operation).then((result: BackendActionResult) => {
+      if (!active.current) return;
+      if (sequence === actionSequence.current) setFeedback(result);
+      if (kind === "kill") refresh.current?.request();
+    }, error => {
+      if (active.current && sequence === actionSequence.current) setFeedback({ success: false, message: error instanceof Error ? error.message : "Action failed." });
+    }).finally(() => pending.current.delete(key));
+  };
 
   useInput((input, key) => {
     if (isSearchActive) {
       if (key.escape) {
-        setIsSearchActive(false);
-        setSearchDraft("");
-        setSearchQuery("");
-        setSelectedIndex(0);
-        setStatusMessage("Search cleared.");
-        setErrorMessage(undefined);
-        return;
+        setIsSearchActive(false); setSearchDraft(""); setSearchQuery(""); setSelection({ index: 0 }); return;
       }
-
       if (key.return) {
-        setIsSearchActive(false);
-        setSearchQuery(searchDraft);
-        setSelectedIndex(0);
-        setStatusMessage(searchDraft.trim() ? `Search locked: ${searchDraft}` : "Search cleared.");
-        setErrorMessage(undefined);
-        return;
+        setIsSearchActive(false); setSearchQuery(searchDraft); setSelection({ index: 0 }); return;
       }
-
       if (key.backspace || key.delete) {
-        setSearchDraft((current) => current.slice(0, -1));
-        setSelectedIndex(0);
-        return;
+        setSearchDraft(current => current.slice(0, -1)); setSelection({ index: 0 }); return;
       }
-
       if (input && !key.ctrl && !key.meta) {
-        setSearchDraft((current) => current + input);
-        setSelectedIndex(0);
+        setSearchDraft(current => current + input); setSelection({ index: 0 });
       }
-
       return;
     }
-
-    const currentVisible = sortProcesses(
-      processes
-        .filter((process) => matchesFilter(process, filterMode))
-        .filter((process) => matchesSearch(process, activeSearchQuery)),
-      sortMode
-    );
-    const currentSelected = currentVisible[selectedIndex];
-
-    if (key.upArrow) {
-      setSelectedIndex((current) => Math.max(0, current - 1));
-      return;
+    if (key.upArrow || key.downArrow) {
+      const index = Math.max(0, Math.min(visibleProcesses.length - 1, selectedIndex + (key.upArrow ? -1 : 1)));
+      const row = visibleProcesses[index];
+      setSelection({ index, target: row ? { pid: row.pid, port: row.port } : undefined }); return;
     }
-
-    if (key.downArrow) {
-      setSelectedIndex((current) => Math.min(currentVisible.length - 1, current + 1));
-      return;
-    }
-
-    if (input === "/") {
-      setIsSearchActive(true);
-      setSearchDraft(searchQuery);
-      setSelectedIndex(0);
-      setStatusMessage("Search by project, command, or port.");
-      setErrorMessage(undefined);
-      return;
-    }
-
-    if (input === "f") {
-      setFilterMode((current) => {
-        const next = FILTER_MODES[(FILTER_MODES.indexOf(current) + 1) % FILTER_MODES.length]!;
-        setSelectedIndex(0);
-        setStatusMessage(`Filter set to ${getFilterLabel(next)}.`);
-        setErrorMessage(undefined);
-        return next;
-      });
-      return;
-    }
-
-    if (input === "s") {
-      setSortMode((current) => {
-        const next = SORT_MODES[(SORT_MODES.indexOf(current) + 1) % SORT_MODES.length]!;
-        setStatusMessage(`Sort set to ${getSortLabel(next)}.`);
-        setErrorMessage(undefined);
-        return next;
-      });
-      return;
-    }
-
-    if (input === "q") {
-      exit();
-      return;
-    }
-
-    if (input === "r") {
-      setStatusMessage("Refreshing now...");
-      void refreshProcesses("Refreshed listening ports.");
-      return;
-    }
-
-    if (input === "K") {
-      if (!currentSelected) {
-        return;
-      }
-
-      setStatusMessage(`Stopping PID ${currentSelected.pid} on port ${currentSelected.port}...`);
-      void killPortProcess(currentSelected.port)
-        .then(async (result) => {
-          await refreshProcesses(result.message);
-        })
-        .catch((error) => {
-          setErrorMessage(error instanceof Error ? error.message : "Failed to kill process.");
-        });
-      return;
-    }
-
-    if (input === "o") {
-      if (!currentSelected) {
-        return;
-      }
-
-      setStatusMessage(`Opening localhost:${currentSelected.port} in your browser...`);
-      void openPortInBrowser(currentSelected.port)
-        .then((result) => {
-          if (result.success) {
-            setStatusMessage(result.message);
-            setErrorMessage(undefined);
-            return;
-          }
-
-          setErrorMessage(result.message);
-        })
-        .catch((error) => {
-          setErrorMessage(error instanceof Error ? error.message : "Failed to open the browser.");
-        });
-      return;
-    }
-
-    if (input === "e") {
-      if (!currentSelected) {
-        return;
-      }
-
-      setStatusMessage(`Opening ${currentSelected.projectName} in your editor...`);
-      void openProjectInEditor(currentSelected.port)
-        .then((result) => {
-          if (result.success) {
-            setStatusMessage(result.message);
-            setErrorMessage(undefined);
-            return;
-          }
-
-          setErrorMessage(result.message);
-        })
-        .catch((error) => {
-          setErrorMessage(error instanceof Error ? error.message : "Failed to open the editor.");
-        });
-      return;
-    }
+    if (input === "/") { setIsSearchActive(true); setSearchDraft(searchQuery); setSelection({ index: 0 }); return; }
+    if (input === "f") { setFilterMode(current => FILTER_MODES[(FILTER_MODES.indexOf(current) + 1) % FILTER_MODES.length]!); setSelection({ index: 0 }); return; }
+    if (input === "s") { setSortMode(current => SORT_MODES[(SORT_MODES.indexOf(current) + 1) % SORT_MODES.length]!); return; }
+    if (input === "q") { exit(); return; }
+    if (input === "r") { refresh.current?.request(); return; }
+    if (!selected) return;
+    if (input === "K") runAction("kill", selected);
+    if (input === "o") runAction("browser", selected);
+    if (input === "e") runAction("editor", selected);
   });
 
   return (
     <Box flexDirection="column" paddingX={1}>
-      <Text color="cyanBright">
-        ports v{APP_VERSION}  <Text color="yellowBright">[{getFilterLabel(filterMode)}]</Text> <Text color="greenBright">[{getSortLabel(sortMode)}]</Text>
+      <Text color="cyanBright">ports v{APP_VERSION}  <Text color="yellowBright">[{getFilterLabel(filterMode)}]</Text> <Text color="greenBright">[{getSortLabel(sortMode)}]</Text></Text>
+      <Text color={view.error ? "redBright" : "gray"}>
+        {view.error
+          ? `${view.snapshot ? `STALE · Last successful refresh ${new Date(view.snapshot.completedAt).toLocaleTimeString()} · ` : "Discovery unavailable · "}${view.error}`
+          : view.snapshot ? `Tracking ${view.snapshot.processes.length} listening ports. Auto-refresh every 3s.${view.refreshing ? " Refreshing..." : ""}` : "Loading listening ports..."}
       </Text>
-      <Text color={errorMessage ? "redBright" : "gray"}>
-        {errorMessage ?? `${statusMessage}${isRefreshing ? " Refreshing..." : ""}`}
-      </Text>
+      {[...new Set([...(view.snapshot?.warnings ?? []), ...actionWarnings])].map(warning => <Text key={warning} color="yellow">{warning}</Text>)}
+      {feedback ? <Text color={feedback.success === false ? "redBright" : feedback.success ? "green" : "gray"}>{feedback.message}</Text> : null}
       <Box marginTop={1} flexDirection="column">
         <HeaderRow />
-        {visibleProcesses.length === 0 ? (
-          <Text color="yellow">No ports match the current filter.</Text>
-        ) : (
-          visibleProcesses.map((process, index) => (
-            <PortRow
-              key={`${process.pid}-${process.port}`}
-              process={process}
-              selected={index === selectedIndex}
-            />
-          ))
-        )}
+        {!view.snapshot ? <Text color="yellow">{view.error ? "Listening-port data is unavailable." : "Loading listening-port data..."}</Text>
+          : visibleProcesses.length === 0 ? <Text color="yellow">No ports match the current filter.</Text>
+          : visibleProcesses.map((row, index) => <PortRow key={`${row.pid}-${row.port}`} process={row} selected={index === selectedIndex} />)}
       </Box>
       <Box marginTop={1} flexDirection="column" borderStyle="round" borderColor="gray" paddingX={1}>
         <Text>{chalk.bold("Selected")}</Text>
-        {selected ? (
-          <>
-            <Text>Port {selected.port} · {selected.projectName} · PID {selected.pid}</Text>
-            <Text>Framework {selected.framework} · Mem {formatMemory(selected.memoryKb)} · Uptime {selected.uptime ?? "-"}</Text>
-            <Text dimColor>{selected.cwd ?? "No working directory detected"}</Text>
-          </>
-        ) : (
-          <Text dimColor>No process selected.</Text>
-        )}
+        {selected ? <>
+          <Text>Port {selected.port} · {selected.projectName} · PID {selected.pid}</Text>
+          <Text>Framework {selected.framework} · Mem {formatMemory(selected.memoryKb)} · Uptime {selected.uptime ?? "-"}</Text>
+          <Text dimColor>{selected.cwd ?? "No working directory detected"}</Text>
+        </> : <Text dimColor>No process selected.</Text>}
       </Box>
-      <Box marginTop={1}>
-        <ShortcutBar />
-      </Box>
-      {isSearchActive ? (
-        <Box marginTop={1} borderStyle="round" borderColor="cyanBright" paddingX={1}>
-          <Text>
-            <Text color="cyanBright">/</Text> {searchDraft}
-            <Text dimColor>{searchDraft ? "" : " search project, command, or port"}</Text>
-            <Text dimColor>  Enter lock  Esc clear</Text>
-          </Text>
-        </Box>
-      ) : null}
+      <Box marginTop={1}><ShortcutBar /></Box>
+      {isSearchActive ? <Box marginTop={1} borderStyle="round" borderColor="cyanBright" paddingX={1}>
+        <Text><Text color="cyanBright">/</Text> {searchDraft}<Text dimColor>{searchDraft ? "" : " search project, command, or port"}  Enter lock  Esc clear</Text></Text>
+      </Box> : null}
     </Box>
   );
 }
@@ -382,7 +227,7 @@ function matchesSearch(process: PortProcess, query: string): boolean {
   );
 }
 
-function sortProcesses(processes: PortProcess[], sortMode: SortMode): PortProcess[] {
+export function sortProcesses(processes: readonly PortProcess[], sortMode: SortMode): PortProcess[] {
   return [...processes].sort((left, right) => {
     switch (sortMode) {
       case "memory":

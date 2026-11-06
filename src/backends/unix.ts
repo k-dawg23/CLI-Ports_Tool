@@ -1,31 +1,45 @@
 import path from "node:path";
-import { buildEditorErrorMessage, resolveEditorCommand } from "./common.js";
-import { runCommand, runCommandOrUndefined, runCommandWithExitCode } from "../system.js";
-import type { BackendActionResult, PlatformPortBackend, ProcessStats, RawListener } from "./types.js";
+import { buildEditorErrorMessage, resolveEditorCommand, stopValidatedProcess } from "./common.js";
+import { requireCommand, runCheckedCommand, type CommandRunner } from "../system.js";
+import { DiscoveryError, type CollectionContext } from "../discovery.js";
+import type { BackendActionResult, PlatformPortBackend, ProcessStats, RawListener, ProcessLiveness, ValidateTarget } from "./types.js";
 
 export class UnixPortBackend implements PlatformPortBackend {
-  async getListeningPorts(): Promise<RawListener[]> {
-    const output = await runCommand(["lsof", "-iTCP", "-sTCP:LISTEN", "-P", "-n"]);
+  constructor(
+    private readonly run: CommandRunner = runCheckedCommand,
+    private readonly probe: (pid: number) => ProcessLiveness = unixProcessLiveness,
+    private readonly wait?: (ms: number) => Promise<void>,
+    private readonly platform = process.platform
+  ) {}
+
+  async getListeningPorts(context: CollectionContext): Promise<RawListener[]> {
+    const result = await this.run(["lsof", "-iTCP", "-sTCP:LISTEN", "-P", "-n"], { signal: context.signal, timeoutMs: context.remainingMs });
+    if (!result.failure && result.exitCode === 1 && !result.stdout && (!result.stderr || (this.platform === "linux" && isLinuxMountWarning(result.stderr)))) {
+      if (result.stderr) context.warn(listenerWarning(result.stderr));
+      return [];
+    }
+    const output = requireCommand(result, "Unix", "lsof");
+    if (result.stderr) context.warn(listenerWarning(result.stderr));
     const lines = output
       .split("\n")
       .map((line) => line.trimEnd())
       .filter(Boolean);
 
-    if (lines.length <= 1) {
-      return [];
-    }
+    if (lines.length === 0) return [];
+    if (!/^COMMAND\s+PID\s+.*\bNAME\s*$/.test(lines[0]!)) throw new DiscoveryError("invalid-output", "Unix", "Unrecognized lsof listener header.");
 
     const records = new Map<string, RawListener>();
 
     for (const line of lines.slice(1)) {
       const match = line.match(/^(\S+)\s+(\d+)\s+.+\sTCP\s+.+:(\d+)\s+\(LISTEN\)$/);
       if (!match) {
-        continue;
+        throw new DiscoveryError("invalid-output", "Unix", "Unrecognized lsof listener record; collection may be incomplete.");
       }
 
       const [, command, pidText, portText] = match;
       const pid = Number(pidText);
       const port = Number(portText);
+      if (!Number.isSafeInteger(pid) || pid < 0 || !Number.isInteger(port) || port < 1 || port > 65535) throw new DiscoveryError("invalid-output", "Unix", "Invalid lsof listener PID or port.");
       const key = `${pid}:${port}`;
 
       if (!records.has(key)) {
@@ -40,8 +54,10 @@ export class UnixPortBackend implements PlatformPortBackend {
     return [...records.values()];
   }
 
-  async getWorkingDirectory(pid: number): Promise<string | undefined> {
-    const output = await runCommandOrUndefined(["lsof", "-a", "-p", String(pid), "-d", "cwd", "-Fn"]);
+  async getWorkingDirectory(pid: number, context: CollectionContext): Promise<string | undefined> {
+    const result = await this.run(["lsof", "-a", "-p", String(pid), "-d", "cwd", "-Fn"], { signal: context.signal, timeoutMs: context.remainingMs });
+    if (result.failure || (result.exitCode !== 0 && result.stderr)) context.warn("Some process details are unavailable: cwd query failed.");
+    const output = result.exitCode === 0 && !result.failure ? result.stdout : undefined;
     if (!output) {
       return undefined;
     }
@@ -58,8 +74,10 @@ export class UnixPortBackend implements PlatformPortBackend {
     return cwd ? path.resolve(cwd) : undefined;
   }
 
-  async getProcessStats(pid: number): Promise<ProcessStats | undefined> {
-    const output = await runCommandOrUndefined(["ps", "-o", "comm=,args=,rss=,etime=", "-p", String(pid)]);
+  async getProcessStats(pid: number, context: CollectionContext): Promise<ProcessStats | undefined> {
+    const result = await this.run(["ps", "-o", "comm=,args=,rss=,etime=", "-p", String(pid)], { signal: context.signal, timeoutMs: context.remainingMs });
+    if (result.failure || (result.exitCode !== 0 && result.stderr)) context.warn("Some process details are unavailable: ps query failed. Check that ps is installed and on PATH.");
+    const output = result.exitCode === 0 && !result.failure ? result.stdout : undefined;
     if (!output) {
       return undefined;
     }
@@ -78,47 +96,21 @@ export class UnixPortBackend implements PlatformPortBackend {
     };
   }
 
-  async killProcess(pid: number, port: number): Promise<BackendActionResult> {
-    const termResult = await runCommandWithExitCode(["kill", "-15", String(pid)]);
-    if (termResult.exitCode !== 0) {
-      return {
-        success: false,
-        message: `Failed to kill PID ${pid} on port ${port}.`
-      };
-    }
-
-    await wait(1000);
-
-    if (!(await this.isProcessAlive(pid))) {
-      return {
-        success: true,
-        message: `Stopped PID ${pid} on port ${port} with SIGTERM.`
-      };
-    }
-
-    const killResult = await runCommandWithExitCode(["kill", "-9", String(pid)]);
-    if (killResult.exitCode !== 0) {
-      return {
-        success: false,
-        message: `SIGTERM was sent to PID ${pid}, but SIGKILL failed and the process is still alive.`
-      };
-    }
-
-    return {
-      success: true,
-      message: `Stopped stubborn PID ${pid} on port ${port} with SIGKILL after waiting 1s for SIGTERM.`
-    };
+  async killProcess(pid: number, port: number, validate: ValidateTarget): Promise<BackendActionResult> {
+    return stopValidatedProcess(pid, port, validate, async force => {
+      requireCommand(await this.run(["kill", force ? "-9" : "-15", String(pid)], { timeoutMs: 15_000 }), "Unix", "kill");
+    }, () => this.isProcessAlive(pid), this.wait);
   }
 
-  async isProcessAlive(pid: number): Promise<boolean> {
-    const result = await runCommandWithExitCode(["kill", "-0", String(pid)]);
-    return result.exitCode === 0;
+  async isProcessAlive(pid: number): Promise<ProcessLiveness> {
+    return this.probe(pid);
   }
 
   async openInBrowser(url: string): Promise<BackendActionResult> {
     const command = process.platform === "darwin" ? ["open", url] : ["xdg-open", url];
-    const result = await runCommandWithExitCode(command);
-    if (result.exitCode !== 0) {
+    // Launchers may remain attached for the lifetime of the user's application.
+    const result = await this.run(command, { timeoutMs: 0, inheritLocale: true });
+    if (result.failure || result.exitCode !== 0) {
       return {
         success: false,
         message: `Failed to open ${url} in your default browser.`
@@ -140,8 +132,8 @@ export class UnixPortBackend implements PlatformPortBackend {
       };
     }
 
-    const result = await runCommandWithExitCode([...editorCommand, targetPath]);
-    if (result.exitCode !== 0) {
+    const result = await this.run([...editorCommand, targetPath], { timeoutMs: 0, inheritLocale: true });
+    if (result.failure || result.exitCode !== 0) {
       return {
         success: false,
         message: buildEditorErrorMessage(editorCommand)
@@ -155,8 +147,30 @@ export class UnixPortBackend implements PlatformPortBackend {
   }
 }
 
-function wait(durationMs: number): Promise<void> {
-  return new Promise((resolve) => {
-    setTimeout(resolve, durationMs);
-  });
+export function unixProcessLiveness(pid: number): ProcessLiveness {
+  if (!Number.isSafeInteger(pid) || pid <= 0) return { state: "unknown", reason: "Invalid process PID." };
+  try {
+    process.kill(pid, 0);
+    return { state: "alive" };
+  } catch (error) {
+    const code = (error as NodeJS.ErrnoException).code;
+    if (code === "ESRCH") return { state: "exited" };
+    if (code === "EPERM") return { state: "alive" };
+    return { state: "unknown", reason: error instanceof Error ? error.message : "Liveness query failed." };
+  }
+}
+
+// Native Linux fixtures verify these mount warnings with both populated and
+// controlled no-match queries. Never swallow additional/unknown diagnostics.
+export function isLinuxMountWarning(stderr: string): boolean {
+  const lines = stderr.trimEnd().split("\n");
+  return lines.length > 0 && lines.length % 2 === 0 && lines.every((line, index) => index % 2 === 0
+    ? /^lsof: WARNING: can't stat\(\) (overlay|nsfs) file system .+$/.test(line)
+    : /^\s+Output information may be incomplete\.$/.test(line));
+}
+
+function listenerWarning(stderr: string): string {
+  return isLinuxMountWarning(stderr)
+    ? "lsof reported filesystem visibility warnings; results may be incomplete."
+    : `lsof reported a visibility warning: ${stderr}`;
 }

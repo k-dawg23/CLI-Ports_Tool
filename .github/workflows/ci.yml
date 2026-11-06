@@ -1,0 +1,82 @@
+name: v2.0.1 verification
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        node: [24]
+        include:
+          - os: ubuntu-latest
+            node: 22.18.0
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - name: Install Linux discovery prerequisite
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y lsof
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+      - run: npm run test:integration
+      - run: node dist/cli.js --help
+      - run: node dist/cli.js --version
+      - name: Prepare fresh native evidence directory
+        shell: bash
+        run: |
+          evidence_dir="$RUNNER_TEMP/ports-native-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          mkdir "$evidence_dir"
+          echo "PORTS_NATIVE_OUTPUT_DIR=$evidence_dir" >> "$GITHUB_ENV"
+      - run: npm run test:native
+      - name: Unix PTY staged verification experiment
+        if: runner.os != 'Windows' && matrix.node == 24
+        timeout-minutes: 8
+        shell: bash
+        run: |
+          evidence_dir="$PORTS_NATIVE_OUTPUT_DIR/unix-pty"
+          mkdir "$evidence_dir"
+          echo "PORTS_PTY_OUTPUT_DIR=$evidence_dir" >> "$GITHUB_ENV"
+          PORTS_PTY_OUTPUT_DIR="$evidence_dir" node scripts/unix-pty/experiment.mjs --cli
+      - uses: actions/upload-artifact@v4
+        if: always() && env.PORTS_PTY_OUTPUT_DIR != ''
+        with:
+          name: unix-pty-${{ matrix.os }}-node-${{ matrix.node }}
+          path: ${{ env.PORTS_PTY_OUTPUT_DIR }}
+      - name: Build test-only Windows ConPTY host
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $evidence = Join-Path $env:PORTS_NATIVE_OUTPUT_DIR 'conpty'
+          New-Item -ItemType Directory -Path $evidence | Out-Null
+          "PORTS_CONPTY_OUTPUT_DIR=$evidence" >> $env:GITHUB_ENV
+          dotnet --info | Out-File (Join-Path $evidence 'dotnet-environment.txt')
+          dotnet build scripts/conpty/ConPtyHost.csproj -c Release -o (Join-Path $evidence 'host')
+      - name: Windows ConPTY staged verification experiment
+        if: runner.os == 'Windows'
+        timeout-minutes: 8
+        run: node scripts/conpty/experiment.mjs --cli
+      - uses: actions/upload-artifact@v4
+        if: always() && runner.os == 'Windows' && env.PORTS_CONPTY_OUTPUT_DIR != ''
+        with:
+          name: conpty-windows-node-${{ matrix.node }}
+          path: ${{ env.PORTS_CONPTY_OUTPUT_DIR }}
+      - uses: actions/upload-artifact@v4
+        if: always() && env.PORTS_NATIVE_OUTPUT_DIR != ''
+        with:
+          name: native-${{ matrix.os }}-node-${{ matrix.node }}
+          path: ${{ env.PORTS_NATIVE_OUTPUT_DIR }}/native-*.json
+          if-no-files-found: warn

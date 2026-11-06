@@ -2,10 +2,11 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { detectFramework } from "./frameworks.js";
 import type { PackageContext } from "./types.js";
+import type { CollectionContext } from "./discovery.js";
 
 const packageCache = new Map<string, PackageContext>();
 
-export async function getPackageContext(cwd?: string): Promise<PackageContext> {
+export async function getPackageContext(cwd?: string, collection?: CollectionContext): Promise<PackageContext> {
   if (!cwd) {
     return {
       projectName: "-",
@@ -34,7 +35,8 @@ export async function getPackageContext(cwd?: string): Promise<PackageContext> {
       projectName: typeof parsed.name === "string" && parsed.name.trim() ? parsed.name : path.basename(path.dirname(packageJsonPath)),
       framework: detectFramework(parsed)
     };
-    packageCache.set(packageJsonPath, context);
+    if (collection) collection.stage(() => packageCache.set(packageJsonPath, context));
+    else packageCache.set(packageJsonPath, context);
     return context;
   } catch {
     return {
