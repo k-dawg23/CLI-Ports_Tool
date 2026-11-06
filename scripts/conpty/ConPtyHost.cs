@@ -35,7 +35,10 @@ internal static class ConPtyHost {
             attributes = Marshal.AllocHGlobal(size);
             Check(InitializeProcThreadAttributeList(attributes, 1, 0, ref size)); attributesReady = true;
             Check(UpdateProcThreadAttribute(attributes, 0, (IntPtr)0x00020016, console, (IntPtr)IntPtr.Size, IntPtr.Zero, IntPtr.Zero));
-            var startup = new STARTUPINFOEX { StartupInfo = new STARTUPINFO { cb = Marshal.SizeOf<STARTUPINFOEX>() }, lpAttributeList = attributes };
+            // Explicit null standard handles prevent Windows from duplicating the
+            // host's redirected protocol pipes instead of connecting to ConPTY.
+            // https://github.com/microsoft/terminal/discussions/15814
+            var startup = new STARTUPINFOEX { StartupInfo = new STARTUPINFO { cb = Marshal.SizeOf<STARTUPINFOEX>(), dwFlags = 0x100 }, lpAttributeList = attributes };
             job = CreateJobObjectW(IntPtr.Zero, null); Check(job != IntPtr.Zero);
             var limits = new JOBOBJECT_EXTENDED_LIMIT_INFORMATION(); limits.BasicLimitInformation.LimitFlags = 0x2000; // KILL_ON_JOB_CLOSE
             Check(SetInformationJobObject(job, 9, ref limits, (uint)Marshal.SizeOf<JOBOBJECT_EXTENDED_LIMIT_INFORMATION>()));

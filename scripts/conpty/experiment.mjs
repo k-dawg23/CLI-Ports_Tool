@@ -38,6 +38,8 @@ export async function session(name, args, env = {}) {
     while (!predicate()) {
       assert.ok(Date.now() < deadline, `Timed out: ${name}: ${label}`);
       assert.ok(!data.events.some(e => e.type === 'error'), JSON.stringify(data.events));
+      assert.ok(!data.events.some(e => !e.type), 'Unexpected child output bypassed the ConPTY channel');
+      assert.ok(!data.events.some(e => e.type === 'exit' && e.exitCode !== 0), JSON.stringify(data.events));
       assert.equal(child.exitCode, null, `Host exited before ${label}: ${JSON.stringify(data)}`);
       await delay(50);
     }
