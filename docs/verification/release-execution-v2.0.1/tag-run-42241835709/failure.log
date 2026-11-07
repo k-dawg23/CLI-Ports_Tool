@@ -1,0 +1,41 @@
+verify (macos-latest, 24)	Unix PTY staged verification experiment	﻿2026-11-06T15:19:34.0239600Z ##[group]Run evidence_dir="$PORTS_NATIVE_OUTPUT_DIR/unix-pty"
+verify (macos-latest, 24)	Unix PTY staged verification experiment	2026-11-06T15:19:34.0278220Z ^[[36;1mevidence_dir="$PORTS_NATIVE_OUTPUT_DIR/unix-pty"^[[0m
+verify (macos-latest, 24)	Unix PTY staged verification experiment	2026-11-06T15:19:34.0278750Z ^[[36;1mmkdir "$evidence_dir"^[[0m
+verify (macos-latest, 24)	Unix PTY staged verification experiment	2026-11-06T15:19:34.0279090Z ^[[36;1mecho "PORTS_PTY_OUTPUT_DIR=$evidence_dir" >> "$GITHUB_ENV"^[[0m
+verify (macos-latest, 24)	Unix PTY staged verification experiment	2026-11-06T15:19:34.0279570Z ^[[36;1mPORTS_PTY_OUTPUT_DIR="$evidence_dir" node scripts/unix-pty/experiment.mjs --cli^[[0m
+verify (macos-latest, 24)	Unix PTY staged verification experiment	2026-11-06T15:19:34.0321880Z shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+verify (macos-latest, 24)	Unix PTY staged verification experiment	2026-11-06T15:19:34.0322260Z env:
+verify (macos-latest, 24)	Unix PTY staged verification experiment	2026-11-06T15:19:34.0322550Z   PORTS_NATIVE_OUTPUT_DIR: /Users/runner/work/_temp/ports-native-42241835709-1
+verify (macos-latest, 24)	Unix PTY staged verification experiment	2026-11-06T15:19:34.0322930Z ##[endgroup]
+verify (macos-latest, 24)	Unix PTY staged verification experiment	2026-11-06T15:19:34.1217540Z PTY waiting: raw-ready
+verify (macos-latest, 24)	Unix PTY staged verification experiment	2026-11-06T15:19:34.5336780Z PTY observed: raw-ready
+verify (macos-latest, 24)	Unix PTY staged verification experiment	2026-11-06T15:19:34.5339570Z PTY waiting: key a
+verify (macos-latest, 24)	Unix PTY staged verification experiment	2026-11-06T15:19:34.5858800Z PTY observed: key a
+verify (macos-latest, 24)	Unix PTY staged verification experiment	2026-11-06T15:19:34.5859740Z PTY waiting: key up
+verify (macos-latest, 24)	Unix PTY staged verification experiment	2026-11-06T15:19:34.6368730Z PTY observed: key up
+verify (macos-latest, 24)	Unix PTY staged verification experiment	2026-11-06T15:19:34.6470340Z PTY waiting: key b
+verify (macos-latest, 24)	Unix PTY staged verification experiment	2026-11-06T15:19:34.6879790Z PTY observed: key b
+verify (macos-latest, 24)	Unix PTY staged verification experiment	2026-11-06T15:19:34.6981170Z PTY waiting: key q
+verify (macos-latest, 24)	Unix PTY staged verification experiment	2026-11-06T15:19:34.7479340Z PTY observed: key q
+verify (macos-latest, 24)	Unix PTY staged verification experiment	2026-11-06T15:19:34.7581770Z PTY waiting: raw-ready
+verify (macos-latest, 24)	Unix PTY staged verification experiment	2026-11-06T15:19:34.9094360Z PTY observed: raw-ready
+verify (macos-latest, 24)	Unix PTY staged verification experiment	2026-11-06T15:19:34.9196020Z PTY waiting: raw-ready
+verify (macos-latest, 24)	Unix PTY staged verification experiment	2026-11-06T15:19:35.0204860Z PTY observed: raw-ready
+verify (macos-latest, 24)	Unix PTY staged verification experiment	2026-11-06T15:19:35.0329620Z Stage 1 PASS: actual Unix PTY, TTY/raw input, keyboard, output, dimensions, normal exit and abort/disconnect cleanup
+verify (macos-latest, 24)	Unix PTY staged verification experiment	2026-11-06T15:19:35.1455190Z PTY waiting: native TUI header
+verify (macos-latest, 24)	Unix PTY staged verification experiment	2026-11-06T15:19:35.5097320Z PTY observed: native TUI header
+verify (macos-latest, 24)	Unix PTY staged verification experiment	2026-11-06T15:19:35.5300410Z AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+verify (macos-latest, 24)	Unix PTY staged verification experiment	2026-11-06T15:19:35.5301520Z PTY cleaning owned fixtures
+verify (macos-latest, 24)	Unix PTY staged verification experiment	2026-11-06T15:19:35.5400190Z 
+verify (macos-latest, 24)	Unix PTY staged verification experiment	2026-11-06T15:19:35.5417300Z   assert.ok(observed.some(e => e.type === 'raw' && e.actual === true))
+verify (macos-latest, 24)	Unix PTY staged verification experiment	2026-11-06T15:19:35.5418270Z 
+verify (macos-latest, 24)	Unix PTY staged verification experiment	2026-11-06T15:19:35.5420040Z     at verifyCli (file:///Users/runner/work/CLI-Ports_Tool/CLI-Ports_Tool/scripts/unix-pty/cli-stage.mjs:75:12)
+verify (macos-latest, 24)	Unix PTY staged verification experiment	2026-11-06T15:19:35.5423790Z     at async file:///Users/runner/work/CLI-Ports_Tool/CLI-Ports_Tool/scripts/unix-pty/experiment.mjs:83:5 {
+verify (macos-latest, 24)	Unix PTY staged verification experiment	2026-11-06T15:19:35.5431210Z   generatedMessage: true,
+verify (macos-latest, 24)	Unix PTY staged verification experiment	2026-11-06T15:19:35.5432200Z   code: 'ERR_ASSERTION',
+verify (macos-latest, 24)	Unix PTY staged verification experiment	2026-11-06T15:19:35.5433060Z   actual: false,
+verify (macos-latest, 24)	Unix PTY staged verification experiment	2026-11-06T15:19:35.5434220Z   expected: true,
+verify (macos-latest, 24)	Unix PTY staged verification experiment	2026-11-06T15:19:35.5435110Z   operator: '==',
+verify (macos-latest, 24)	Unix PTY staged verification experiment	2026-11-06T15:19:35.5435770Z   diff: 'simple'
+verify (macos-latest, 24)	Unix PTY staged verification experiment	2026-11-06T15:19:35.5436460Z }
+verify (macos-latest, 24)	Unix PTY staged verification experiment	2026-11-06T15:19:35.5668590Z ##[error]Process completed with exit code 1.

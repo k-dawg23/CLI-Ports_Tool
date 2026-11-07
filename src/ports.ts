@@ -8,14 +8,15 @@ interface ListenerRecord {
   command?: string;
   pid: number;
   port: number;
+  addresses: PortProcess["addresses"];
 }
 
 interface StableProcessCacheEntry {
-  command?: string;
   cwd?: string;
-  framework: PortProcess["framework"];
-  projectName: string;
+  acquiredAt: number;
 }
+
+const METADATA_TTL_MS = 30_000;
 
 type WarningHandler = (warnings: readonly string[]) => void;
 
@@ -27,7 +28,8 @@ export class PortService {
     private readonly backendFactory: () => PlatformPortBackend = getPlatformPortBackend,
     private readonly timeoutMs = 15_000,
     private readonly packageContext = getPackageContext,
-    private readonly onWarnings: (warnings: readonly string[]) => void = () => {}
+    private readonly onWarnings: (warnings: readonly string[]) => void = () => {},
+    private readonly now: () => number = Date.now
   ) {}
 
   snapshot(priority: "refresh" | "action" = "refresh"): Promise<PortSnapshot> {
@@ -75,15 +77,22 @@ export class PortService {
       const backend = this.backendFactory();
       const records = await context.required(() => backend.getListeningPorts(context));
       context.check();
+      // Register before optional work: a later enrichment deadline must not
+      // prevent successful identity invalidations from being published.
+      context.stage(() => {
+        for (const pid of backend.invalidatedProcessIds?.(context) ?? []) this.stableProcessCache.delete(pid);
+      });
       if (backend.prepareProcesses) await context.optional(() => backend.prepareProcesses!(records, context));
+      const invalidated = backend.invalidatedProcessIds?.(context) ?? new Set<number>();
+      const metadataByPid = new Map<number, Promise<{ stable: StableProcessCacheEntry; projectName: string; framework: PortProcess["framework"] }>>();
       const enriched = await Promise.all(records.map(async record => {
-        const completed = await context.optional(() => this.enrichRecord(record, backend, context));
-        return Object.freeze(completed ?? this.fallback(record));
+        const completed = await context.optional(() => this.enrichRecord(record, backend, context, metadataByPid, invalidated));
+        return Object.freeze(completed ?? this.fallback(record, invalidated));
       }));
       const activePids = new Set(records.map(record => record.pid));
       // This synchronous publication cannot race with later optional completions.
       for (const pid of this.stableProcessCache.keys()) if (!activePids.has(pid)) this.stableProcessCache.delete(pid);
-      const snapshot = Object.freeze({ processes: Object.freeze(enriched.sort((a, b) => a.port - b.port)), warnings: Object.freeze([...context.warnings]), completedAt: Date.now() });
+      const snapshot = Object.freeze({ processes: Object.freeze(enriched.sort((a, b) => a.port - b.port)), warnings: Object.freeze([...context.warnings]), completedAt: this.now() });
       context.finish();
       this.onWarnings(snapshot.warnings);
       return snapshot;
@@ -93,26 +102,42 @@ export class PortService {
     }
   }
 
-  private fallback(record: ListenerRecord): PortProcess {
+  private fallback(record: ListenerRecord, invalidated: ReadonlySet<number>): PortProcess {
     const stable = this.stableProcessCache.get(record.pid);
-    return { ...record, command: stable?.command ?? record.command ?? "-", cwd: stable?.cwd, projectName: stable?.projectName ?? "-", framework: stable?.framework ?? "-" };
+    const usable = stable && !invalidated.has(record.pid) && this.now() - stable.acquiredAt < METADATA_TTL_MS ? stable : undefined;
+    return { ...record, addresses: freezeAddresses(record.addresses), command: record.command ?? "-", cwd: usable?.cwd, projectName: "-", framework: "-" };
   }
 
-  private async enrichRecord(record: ListenerRecord, backend: PlatformPortBackend, context: CollectionContext): Promise<PortProcess> {
-    let stable = this.stableProcessCache.get(record.pid);
+  private async enrichRecord(record: ListenerRecord, backend: PlatformPortBackend, context: CollectionContext, metadataByPid: Map<number, Promise<{ stable: StableProcessCacheEntry; projectName: string; framework: PortProcess["framework"] }>>, invalidated: ReadonlySet<number>): Promise<PortProcess> {
     const stats = await backend.getProcessStats(record.pid, context);
     context.check();
-    if (!stable) {
-      const cwd = await backend.getWorkingDirectory(record.pid, context);
-      context.check();
-      const packageContext = await this.packageContext(cwd, context);
-      context.check();
-      stable = { command: record.command, cwd, framework: packageContext.framework, projectName: packageContext.projectName };
-      const entry = stable;
-      context.stage(() => this.stableProcessCache.set(record.pid, entry));
+    let metadata = metadataByPid.get(record.pid);
+    if (!metadata) {
+      metadata = (async () => {
+        let stable = invalidated.has(record.pid) ? undefined : this.stableProcessCache.get(record.pid);
+        if (!stable || this.now() - stable.acquiredAt >= METADATA_TTL_MS) {
+          const cwd = await backend.getWorkingDirectory(record.pid, context);
+          context.check();
+          stable = { cwd, acquiredAt: this.now() };
+          if (cwd !== undefined) {
+            const entry = stable;
+            context.stage(() => this.stableProcessCache.set(record.pid, entry));
+          }
+        }
+        const packageContext = await this.packageContext(stable.cwd, context, this.now);
+        context.check();
+        return { stable, projectName: packageContext.projectName, framework: packageContext.framework };
+      })();
+      metadataByPid.set(record.pid, metadata);
     }
-    return { port: record.port, pid: record.pid, command: getDisplayCommand(stats?.command, stats?.args) ?? stable.command ?? record.command ?? "-", cwd: stable.cwd, memoryKb: stats?.memoryKb, uptime: stats?.uptime, projectName: stable.projectName, framework: stable.framework };
+    const { stable, projectName, framework } = await metadata;
+    context.check();
+    return { port: record.port, pid: record.pid, addresses: freezeAddresses(record.addresses), command: getDisplayCommand(stats?.command, stats?.args) ?? record.command ?? "-", cwd: stable.cwd, memoryKb: stats?.memoryKb, uptime: stats?.uptime, projectName, framework };
   }
+}
+
+function freezeAddresses(addresses: PortProcess["addresses"]): PortProcess["addresses"] {
+  return Object.freeze(addresses.map(address => Object.freeze({ ...address })));
 }
 
 export const portService = new PortService();

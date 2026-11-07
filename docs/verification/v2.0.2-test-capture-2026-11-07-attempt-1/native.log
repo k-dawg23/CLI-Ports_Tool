@@ -1,0 +1,8 @@
+
+> ports@2.0.2 test:native
+> node --import tsx scripts/native-smoke.mjs
+
+Error: Native IPv4 loopback bind unavailable: [{"host":"127.0.0.1","error":"EPERM"},{"host":"::1","error":"EPERM"}]
+    at file:///home/kdawg/Development/CLI-Ports_Tool/scripts/native-smoke.mjs:78:68
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+Native verification recorded in /home/kdawg/Development/CLI-Ports_Tool/docs/verification/v2.0.2-test-capture-2026-11-07-attempt-1/native/native-linux.json

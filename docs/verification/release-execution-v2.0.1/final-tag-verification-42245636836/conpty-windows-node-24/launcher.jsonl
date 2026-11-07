@@ -1,0 +1,2 @@
+{"at":1793979922832,"kind":"editor","args":["editor argument with spaces","D:\\a\\_temp\\ports-native-42245636836-1\\conpty\\owned project with spaces"],"env":{"LC_ALL":"en_GB.UTF-8","LANG":"en_GB.UTF-8","LC_MESSAGES":"de_DE.UTF-8","LANGUAGE":"en:de","PORTS_CONPTY_MARKER":"inherited marker with spaces"}}
+{"at":1793979924345,"kind":"browser","args":["http://localhost:58605"],"env":{"LC_ALL":"en_GB.UTF-8","LANG":"en_GB.UTF-8","LC_MESSAGES":"de_DE.UTF-8","LANGUAGE":"en:de","PORTS_CONPTY_MARKER":"inherited marker with spaces"}}

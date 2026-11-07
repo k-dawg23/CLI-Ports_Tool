@@ -1,0 +1,34 @@
+{"at":1793979910800,"pid":4760,"type":"terminal","stdinTTY":true,"stdoutTTY":true,"rawAvailable":true,"columns":160,"rows":60}
+{"at":1793979911110,"pid":4760,"type":"raw","requested":true,"actual":true}
+{"at":1793979911183,"pid":4760,"type":"terminal-input","data":"Lw=="}
+{"at":1793979911204,"pid":4760,"type":"discovery-start","command":"powershell","args":["-NoProfile","-NonInteractive","-Command","$ErrorActionPreference = 'Stop'; $listeners = @(Get-NetTCPConnection -State Listen -ErrorAction Stop | Select-Object LocalPort,OwningProcess); [pscustomobject]@{ Listeners = $listeners } | ConvertTo-Json -Depth 5"]}
+{"at":1793979911236,"pid":4760,"type":"terminal-input","data":"Y29ucHR5LW93bmVk"}
+{"at":1793979911821,"pid":4760,"type":"discovery-exit","code":0,"signal":null}
+{"at":1793979912505,"pid":4760,"type":"terminal-input","data":"DQ=="}
+{"at":1793979912568,"pid":4760,"type":"terminal-input","data":"G1tC"}
+{"at":1793979912622,"pid":4760,"type":"terminal-input","data":"cg=="}
+{"at":1793979912706,"pid":4760,"type":"discovery-start","command":"powershell","args":["-NoProfile","-NonInteractive","-Command","$ErrorActionPreference = 'Stop'; $listeners = @(Get-NetTCPConnection -State Listen -ErrorAction Stop | Select-Object LocalPort,OwningProcess); [pscustomobject]@{ Listeners = $listeners } | ConvertTo-Json -Depth 5"]}
+{"at":1793979913301,"pid":4760,"type":"discovery-exit","code":0,"signal":null}
+{"at":1793979914111,"pid":4760,"type":"refresh-timer"}
+{"at":1793979914200,"pid":4760,"type":"discovery-start","command":"powershell","args":["-NoProfile","-NonInteractive","-Command","$ErrorActionPreference = 'Stop'; $listeners = @(Get-NetTCPConnection -State Listen -ErrorAction Stop | Select-Object LocalPort,OwningProcess); [pscustomobject]@{ Listeners = $listeners } | ConvertTo-Json -Depth 5"]}
+{"at":1793979914799,"pid":4760,"type":"discovery-exit","code":0,"signal":null}
+{"at":1793979917111,"pid":4760,"type":"refresh-timer"}
+{"at":1793979917202,"pid":4760,"type":"discovery-start","command":"powershell","args":["-NoProfile","-NonInteractive","-Command","$ErrorActionPreference = 'Stop'; $listeners = @(Get-NetTCPConnection -State Listen -ErrorAction Stop | Select-Object LocalPort,OwningProcess); [pscustomobject]@{ Listeners = $listeners } | ConvertTo-Json -Depth 5"]}
+{"at":1793979917803,"pid":4760,"type":"discovery-exit","code":0,"signal":null}
+{"at":1793979920112,"pid":4760,"type":"refresh-timer"}
+{"at":1793979920194,"pid":4760,"type":"discovery-start","command":"powershell","args":["-NoProfile","-NonInteractive","-Command","$ErrorActionPreference = 'Stop'; $listeners = @(Get-NetTCPConnection -State Listen -ErrorAction Stop | Select-Object LocalPort,OwningProcess); [pscustomobject]@{ Listeners = $listeners } | ConvertTo-Json -Depth 5"]}
+{"at":1793979920801,"pid":4760,"type":"discovery-exit","code":0,"signal":null}
+{"at":1793979921438,"pid":4760,"type":"terminal-input","data":"cw=="}
+{"at":1793979921500,"pid":4760,"type":"terminal-input","data":"ZQ=="}
+{"at":1793979921586,"pid":4760,"type":"discovery-start","command":"powershell","args":["-NoProfile","-NonInteractive","-Command","$ErrorActionPreference = 'Stop'; $listeners = @(Get-NetTCPConnection -State Listen -ErrorAction Stop | Select-Object LocalPort,OwningProcess); [pscustomobject]@{ Listeners = $listeners } | ConvertTo-Json -Depth 5"]}
+{"at":1793979922180,"pid":4760,"type":"discovery-exit","code":0,"signal":null}
+{"at":1793979922877,"pid":4760,"type":"terminal-input","data":"bw=="}
+{"at":1793979922959,"pid":4760,"type":"discovery-start","command":"powershell","args":["-NoProfile","-NonInteractive","-Command","$ErrorActionPreference = 'Stop'; $listeners = @(Get-NetTCPConnection -State Listen -ErrorAction Stop | Select-Object LocalPort,OwningProcess); [pscustomobject]@{ Listeners = $listeners } | ConvertTo-Json -Depth 5"]}
+{"at":1793979923126,"pid":4760,"type":"refresh-timer"}
+{"at":1793979923581,"pid":4760,"type":"discovery-exit","code":0,"signal":null}
+{"at":1793979924296,"pid":4760,"type":"browser-intercept","command":"powershell","args":["-NoProfile","-Command","Start-Process \"http://localhost:58605\""]}
+{"at":1793979924305,"pid":4760,"type":"discovery-start","command":"powershell","args":["-NoProfile","-NonInteractive","-Command","$ErrorActionPreference = 'Stop'; $listeners = @(Get-NetTCPConnection -State Listen -ErrorAction Stop | Select-Object LocalPort,OwningProcess); [pscustomobject]@{ Listeners = $listeners } | ConvertTo-Json -Depth 5"]}
+{"at":1793979924400,"pid":4760,"type":"terminal-input","data":"cQ=="}
+{"at":1793979924400,"pid":4760,"type":"raw","requested":false,"actual":false}
+{"at":1793979924901,"pid":4760,"type":"discovery-exit","code":0,"signal":null}
+{"at":1793979925512,"pid":4760,"type":"cli-exit","code":0,"raw":false}

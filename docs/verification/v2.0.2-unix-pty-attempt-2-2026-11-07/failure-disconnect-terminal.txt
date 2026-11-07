@@ -1,0 +1,4 @@
+{"marker": "controlling-terminal", "foregroundGroup": 39, "pid": 39}
+{"marker":"dimensions","columns":160,"rows":60}
+{"marker":"probe-start","stdinTTY":true,"stdoutTTY":true,"rawAvailable":true,"node":"v24.21.0"}
+{"marker":"raw-ready","raw":true}

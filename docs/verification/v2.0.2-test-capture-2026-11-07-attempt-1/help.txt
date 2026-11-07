@@ -1,0 +1,13 @@
+Usage: ports [options] [command]
+
+Inspect and manage listening ports on your machine.
+
+Options:
+  -V, --version   output the version number
+  -h, --help      display help for command
+
+Commands:
+  list [options]  Print a static table of all listening ports.
+  check <port>    Show detailed info about what is on a port.
+  kill <port>     Stop the first discovered listener on a port.
+  help [command]  display help for command

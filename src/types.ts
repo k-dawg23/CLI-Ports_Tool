@@ -17,6 +17,7 @@ export interface PackageContext {
 export interface PortProcess {
   port: number;
   pid: number;
+  addresses: readonly import("./backends/types.js").ListenerAddress[];
   command: string;
   cwd?: string;
   memoryKb?: number;

@@ -1,0 +1,4 @@
+{"at":1793978375244,"pid":3128,"type":"terminal","stdinTTY":true,"stdoutTTY":true,"rawAvailable":true,"columns":160,"rows":60}
+{"at":1793978375511,"pid":3128,"type":"raw","requested":true,"actual":true}
+{"at":1793978375523,"pid":3128,"type":"discovery-start","command":"lsof","args":["-iTCP","-sTCP:LISTEN","-P","-n"]}
+{"at":1793978375548,"pid":3128,"type":"cli-exit","code":1,"raw":true}

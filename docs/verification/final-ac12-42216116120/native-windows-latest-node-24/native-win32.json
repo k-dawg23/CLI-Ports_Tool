@@ -1,0 +1,97 @@
+{
+  "platform": "win32",
+  "os": "10.0.26100",
+  "node": "v24.22.2",
+  "github": {
+    "sha": "4b5bdf39a7ec8268d0bad938deba154690adb7c6",
+    "runId": "42216116120",
+    "attempt": "1",
+    "job": "verify",
+    "runner": "GitHub Actions 1000000036"
+  },
+  "terminationMechanism": "authenticated IPC request; fixture signals itself",
+  "checks": [
+    {
+      "name": "owned listener appears in JSON, table, and check",
+      "status": "passed"
+    },
+    {
+      "name": "production backend-selected PowerShell executable and version verified with native discovery",
+      "status": "passed"
+    },
+    {
+      "name": "native stop refuses unknown identity and a different process PID",
+      "status": "passed"
+    },
+    {
+      "name": "production stop flow requests a signal only from the authenticated owned fixture",
+      "status": "passed"
+    },
+    {
+      "name": "released port is free after successful discovery; owned sentinel survives",
+      "status": "passed"
+    }
+  ],
+  "fixtures": [],
+  "windowsShell": {
+    "lookup": [
+      {
+        "command": [
+          "where",
+          "powershell"
+        ],
+        "result": {
+          "stdout": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+          "stderr": "",
+          "exitCode": 0
+        }
+      }
+    ],
+    "discovery": {
+      "selectedCommand": "powershell",
+      "originalCommand": [
+        "powershell",
+        "-NoProfile",
+        "-NonInteractive",
+        "-Command",
+        "$ErrorActionPreference = 'Stop'; $listeners = @(Get-NetTCPConnection -State Listen -ErrorAction Stop | Select-Object LocalPort,OwningProcess); [pscustomobject]@{ Listeners = $listeners } | ConvertTo-Json -Depth 5"
+      ],
+      "observedCommand": [
+        "powershell",
+        "-NoProfile",
+        "-NonInteractive",
+        "-Command",
+        "$ErrorActionPreference = 'Stop'; $listeners = @(Get-NetTCPConnection -State Listen -ErrorAction Stop | Select-Object LocalPort,OwningProcess); [pscustomobject]@{ Listeners = $listeners } | ConvertTo-Json -Depth 5; [pscustomobject]@{Executable=[System.Diagnostics.Process]::GetCurrentProcess().MainModule.FileName; Version=$PSVersionTable.PSVersion.ToString(); Edition=$PSVersionTable.PSEdition; ProcessId=$PID} | Add-Member -NotePropertyName Nonce -NotePropertyValue 'a0545f8e-1dc0-4dd6-bf59-7751882d676a' -PassThru | ConvertTo-Json -Compress | Set-Content -LiteralPath 'D:\\a\\_temp\\ports-native-42216116120-1\\powershell-observed-a0545f8e-1dc0-4dd6-bf59-7751882d676a.json' -Encoding UTF8"
+      ],
+      "result": {
+        "stdout": "{\r\n    \"Listeners\":  [\r\n                      {\r\n                          \"LocalPort\":  49681,\r\n                          \"OwningProcess\":  952\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  49671,\r\n                          \"OwningProcess\":  3856\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  49670,\r\n                          \"OwningProcess\":  3360\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  49668,\r\n                          \"OwningProcess\":  2512\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  49667,\r\n                          \"OwningProcess\":  2444\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  49666,\r\n                          \"OwningProcess\":  2788\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  49665,\r\n                          \"OwningProcess\":  860\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  49664,\r\n                          \"OwningProcess\":  980\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  47001,\r\n                          \"OwningProcess\":  4\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  5986,\r\n                          \"OwningProcess\":  4\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  5985,\r\n                          \"OwningProcess\":  4\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  3389,\r\n                          \"OwningProcess\":  1324\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  2179,\r\n                          \"OwningProcess\":  1948\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  2107,\r\n                          \"OwningProcess\":  3856\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  2105,\r\n                          \"OwningProcess\":  3856\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  2103,\r\n                          \"OwningProcess\":  3856\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  1801,\r\n                          \"OwningProcess\":  3856\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  445,\r\n                          \"OwningProcess\":  4\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  135,\r\n                          \"OwningProcess\":  1084\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  80,\r\n                          \"OwningProcess\":  4\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  22,\r\n                          \"OwningProcess\":  3968\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  50107,\r\n                          \"OwningProcess\":  4264\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  50106,\r\n                          \"OwningProcess\":  4932\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  49681,\r\n                          \"OwningProcess\":  952\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  49671,\r\n                          \"OwningProcess\":  3856\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  49670,\r\n                          \"OwningProcess\":  3360\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  49668,\r\n                          \"OwningProcess\":  2512\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  49667,\r\n                          \"OwningProcess\":  2444\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  49666,\r\n                          \"OwningProcess\":  2788\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  49665,\r\n                          \"OwningProcess\":  860\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  49664,\r\n                          \"OwningProcess\":  980\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  3389,\r\n                          \"OwningProcess\":  1324\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  2179,\r\n                          \"OwningProcess\":  1948\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  2107,\r\n                          \"OwningProcess\":  3856\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  2105,\r\n                          \"OwningProcess\":  3856\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  2103,\r\n                          \"OwningProcess\":  3856\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  1801,\r\n                          \"OwningProcess\":  3856\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  139,\r\n                          \"OwningProcess\":  4\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  139,\r\n                          \"OwningProcess\":  4\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  135,\r\n                          \"OwningProcess\":  1084\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  53,\r\n                          \"OwningProcess\":  3716\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  22,\r\n                          \"OwningProcess\":  3968\r\n                      }\r\n                  ]\r\n}",
+        "stderr": "",
+        "exitCode": 0
+      }
+    },
+    "identity": {
+      "Executable": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+      "Version": "5.1.26100.33648",
+      "Edition": "Desktop",
+      "ProcessId": 3628,
+      "Nonce": "a0545f8e-1dc0-4dd6-bf59-7751882d676a"
+    },
+    "versionQuery": {
+      "command": [
+        "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "-NoProfile",
+        "-NonInteractive",
+        "-Command",
+        "[pscustomobject]@{Executable=[System.Diagnostics.Process]::GetCurrentProcess().MainModule.FileName; Version=$PSVersionTable.PSVersion.ToString(); Edition=$PSVersionTable.PSEdition; ProcessId=$PID} | ConvertTo-Json -Compress"
+      ],
+      "stdout": "{\"Executable\":\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\",\"Version\":\"5.1.26100.33648\",\"Edition\":\"Desktop\",\"ProcessId\":7456}",
+      "stderr": "",
+      "exitCode": 0
+    },
+    "ownedListener": {
+      "pid": 4932,
+      "port": 50106,
+      "found": true
+    }
+  }
+}

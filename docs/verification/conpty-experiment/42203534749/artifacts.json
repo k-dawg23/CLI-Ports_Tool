@@ -1,0 +1,99 @@
+{
+  "artifacts": [
+    {
+      "id": 13495477654,
+      "name": "conpty-windows-node-24",
+      "size_in_bytes": 36165909,
+      "url": "https://api.github.com/repos/k-dawg23/CLI-Ports_Tool/actions/artifacts/13495477654",
+      "archive_download_url": "https://api.github.com/repos/k-dawg23/CLI-Ports_Tool/actions/artifacts/13495477654/zip",
+      "expired": false,
+      "created_at": "2026-11-06T10:35:40Z",
+      "expires_at": "2027-02-04T10:33:10Z",
+      "updated_at": "2026-11-06T10:35:40Z",
+      "digest": "sha256:db8657bfe24c1d939483aa041f7afdc359a69fa3906fd0f9e20e689c91909be1",
+      "workflow_run": {
+        "id": 42203534749,
+        "repository_id": 1197061189,
+        "head_repository_id": 1197061189,
+        "head_branch": "codex/v2.0.1-cross-platform-verification",
+        "head_sha": "105b905ecd3df1b1978d641a8131925b6a6b793a"
+      }
+    },
+    {
+      "id": 13495432068,
+      "name": "native-ubuntu-latest-node-22.18.0",
+      "size_in_bytes": 1634,
+      "url": "https://api.github.com/repos/k-dawg23/CLI-Ports_Tool/actions/artifacts/13495432068",
+      "archive_download_url": "https://api.github.com/repos/k-dawg23/CLI-Ports_Tool/actions/artifacts/13495432068/zip",
+      "expired": false,
+      "created_at": "2026-11-06T10:33:58Z",
+      "expires_at": "2027-02-04T10:33:10Z",
+      "updated_at": "2026-11-06T10:33:58Z",
+      "digest": "sha256:07f5d5267c6d32debf3287e05fc4e0ff8791a13b61e801c853086359333fdfd9",
+      "workflow_run": {
+        "id": 42203534749,
+        "repository_id": 1197061189,
+        "head_repository_id": 1197061189,
+        "head_branch": "codex/v2.0.1-cross-platform-verification",
+        "head_sha": "105b905ecd3df1b1978d641a8131925b6a6b793a"
+      }
+    },
+    {
+      "id": 13494579208,
+      "name": "native-ubuntu-latest-node-24",
+      "size_in_bytes": 1639,
+      "url": "https://api.github.com/repos/k-dawg23/CLI-Ports_Tool/actions/artifacts/13494579208",
+      "archive_download_url": "https://api.github.com/repos/k-dawg23/CLI-Ports_Tool/actions/artifacts/13494579208/zip",
+      "expired": false,
+      "created_at": "2026-11-06T10:34:01Z",
+      "expires_at": "2027-02-04T10:33:10Z",
+      "updated_at": "2026-11-06T10:34:01Z",
+      "digest": "sha256:c88c312da5fdb12486f3e3f28e638b3caebbbac1244b7fee023ff52248467a2a",
+      "workflow_run": {
+        "id": 42203534749,
+        "repository_id": 1197061189,
+        "head_repository_id": 1197061189,
+        "head_branch": "codex/v2.0.1-cross-platform-verification",
+        "head_sha": "105b905ecd3df1b1978d641a8131925b6a6b793a"
+      }
+    },
+    {
+      "id": 13494509767,
+      "name": "native-windows-latest-node-24",
+      "size_in_bytes": 476,
+      "url": "https://api.github.com/repos/k-dawg23/CLI-Ports_Tool/actions/artifacts/13494509767",
+      "archive_download_url": "https://api.github.com/repos/k-dawg23/CLI-Ports_Tool/actions/artifacts/13494509767/zip",
+      "expired": false,
+      "created_at": "2026-11-06T10:35:41Z",
+      "expires_at": "2027-02-04T10:33:10Z",
+      "updated_at": "2026-11-06T10:35:41Z",
+      "digest": "sha256:dfdfb2be81aa6bc0c77822d17f64bc895e0288116838641956861f5747141b37",
+      "workflow_run": {
+        "id": 42203534749,
+        "repository_id": 1197061189,
+        "head_repository_id": 1197061189,
+        "head_branch": "codex/v2.0.1-cross-platform-verification",
+        "head_sha": "105b905ecd3df1b1978d641a8131925b6a6b793a"
+      }
+    },
+    {
+      "id": 13494409831,
+      "name": "native-macos-latest-node-24",
+      "size_in_bytes": 1170,
+      "url": "https://api.github.com/repos/k-dawg23/CLI-Ports_Tool/actions/artifacts/13494409831",
+      "archive_download_url": "https://api.github.com/repos/k-dawg23/CLI-Ports_Tool/actions/artifacts/13494409831/zip",
+      "expired": false,
+      "created_at": "2026-11-06T10:34:23Z",
+      "expires_at": "2027-02-04T10:33:10Z",
+      "updated_at": "2026-11-06T10:34:23Z",
+      "digest": "sha256:9acd316a3729a14376ec739ed0c084938bcaefd1db7bbe16d22af472a9d784ed",
+      "workflow_run": {
+        "id": 42203534749,
+        "repository_id": 1197061189,
+        "head_repository_id": 1197061189,
+        "head_branch": "codex/v2.0.1-cross-platform-verification",
+        "head_sha": "105b905ecd3df1b1978d641a8131925b6a6b793a"
+      }
+    }
+  ]
+}

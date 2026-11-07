@@ -1,0 +1,121 @@
+{
+  "stage1": "PASS",
+  "stage2": "NOT ATTEMPTED",
+  "sha": "44d728bd820be6a7c72b0c6a9de2ff6946030cd1",
+  "run": "42201698269",
+  "attempt": "1",
+  "os": "10.0.26100",
+  "platform": "win32",
+  "node": "v24.22.2",
+  "dimensions": {
+    "columns": 160,
+    "rows": 60
+  },
+  "sessions": [
+    {
+      "name": "feasibility",
+      "command": [
+        "dotnet",
+        "D:\\a\\_temp\\ports-native-42201698269-1\\conpty\\host\\ConPtyHost.dll",
+        "C:\\hostedtoolcache\\windows\\node\\24.22.2\\x64\\node.exe",
+        "D:\\a\\CLI-Ports_Tool\\CLI-Ports_Tool\\scripts\\conpty\\keyboard-probe.cjs"
+      ],
+      "events": [
+        {
+          "type": "conpty",
+          "api": "CreatePseudoConsole",
+          "hresult": 0,
+          "columns": 160,
+          "rows": 60,
+          "os": "Microsoft Windows NT 10.0.26100.0",
+          "helperRuntime": "8.0.33"
+        },
+        {
+          "type": "started",
+          "pid": 6644,
+          "command": [
+            "C:\\hostedtoolcache\\windows\\node\\24.22.2\\x64\\node.exe",
+            "D:\\a\\CLI-Ports_Tool\\CLI-Ports_Tool\\scripts\\conpty\\keyboard-probe.cjs"
+          ],
+          "assignedToOwnedJob": true
+        },
+        {
+          "type": "output",
+          "data": "G1s/OTAwMWgbWz8xMDA0aA=="
+        },
+        {
+          "type": "output",
+          "data": "G1s/MjVsG1syShtbbRtbSHsibWFya2VyIjoicHJvYmUtc3RhcnQiLCJzdGRpblRUWSI6dHJ1ZSwic3Rkb3V0VFRZIjp0cnVlLCJyYXdBdmFpbGFibGUiOnRydWUsIm5vZGUiOiJ2MjQuMjIuMiJ9DQobXTA7QzpcaG9zdGVkdG9vbGNhY2hlXHdpbmRvd3Ncbm9kZVwyNC4yMi4yXHg2NFxub2RlLmV4ZQcbWz8yNWg="
+        },
+        {
+          "type": "output",
+          "data": "eyJtYXJrZXIiOiJyYXctcmVhZHkiLCJyYXciOnRydWV9DQo="
+        },
+        {
+          "type": "output",
+          "data": "eyJtYXJrZXIiOiJrZXkiLCJuYW1lIjoiYSIsInNlcXVlbmNlIjoiYSJ9DQo="
+        },
+        {
+          "type": "output",
+          "data": "eyJtYXJrZXIiOiJrZXkiLCJuYW1lIjoidXAiLCJzZXF1ZW5jZSI6Ilx1MDAxYltBIn0NCg=="
+        },
+        {
+          "type": "output",
+          "data": "eyJtYXJrZXIiOiJrZXkiLCJuYW1lIjoiYiIsInNlcXVlbmNlIjoiYiJ9DQo="
+        },
+        {
+          "type": "output",
+          "data": "eyJtYXJrZXIiOiJrZXkiLCJuYW1lIjoicSIsInNlcXVlbmNlIjoicSJ9DQo="
+        },
+        {
+          "type": "exit",
+          "exitCode": 0
+        },
+        {
+          "type": "output",
+          "data": "eyJtYXJrZXIiOiJwcm9iZS1jb21wbGV0ZSIsInJhdyI6ZmFsc2V9DQo="
+        },
+        {
+          "type": "output",
+          "data": "G1s/OTAwMWwbWz8xMDA0bA=="
+        },
+        {
+          "type": "child-cleanup",
+          "exited": true
+        },
+        {
+          "type": "cleanup",
+          "pseudoconsoleClosed": true,
+          "outputDrained": true,
+          "handlesClosed": true,
+          "ownedJobClosed": true,
+          "normalExit": true
+        }
+      ],
+      "input": [
+        {
+          "at": 1793960454081,
+          "text": "a"
+        },
+        {
+          "at": 1793960454133,
+          "text": "\u001b[A"
+        },
+        {
+          "at": 1793960454183,
+          "text": "b"
+        },
+        {
+          "at": 1793960454234,
+          "text": "q"
+        }
+      ],
+      "output": "\u001b[?9001h\u001b[?1004h\u001b[?25l\u001b[2J\u001b[m\u001b[H{\"marker\":\"probe-start\",\"stdinTTY\":true,\"stdoutTTY\":true,\"rawAvailable\":true,\"node\":\"v24.22.2\"}\r\n\u001b]0;C:\\hostedtoolcache\\windows\\node\\24.22.2\\x64\\node.exe\u0007\u001b[?25h{\"marker\":\"raw-ready\",\"raw\":true}\r\n{\"marker\":\"key\",\"name\":\"a\",\"sequence\":\"a\"}\r\n{\"marker\":\"key\",\"name\":\"up\",\"sequence\":\"\\u001b[A\"}\r\n{\"marker\":\"key\",\"name\":\"b\",\"sequence\":\"b\"}\r\n{\"marker\":\"key\",\"name\":\"q\",\"sequence\":\"q\"}\r\n{\"marker\":\"probe-complete\",\"raw\":false}\r\n\u001b[?9001l\u001b[?1004l",
+      "stderr": "",
+      "hostExit": {
+        "code": 0,
+        "signal": null
+      }
+    }
+  ]
+}

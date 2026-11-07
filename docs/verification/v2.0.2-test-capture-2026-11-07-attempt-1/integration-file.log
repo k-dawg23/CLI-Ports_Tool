@@ -1,0 +1,14 @@
+
+> ports@2.0.2 test:integration
+> node scripts/test.mjs --integration --file-capture
+
+Local file-backed integration capture: redirected-output verification only; piped-output acceptance remains pending.
+✔ /home/kdawg/Development/CLI-Ports_Tool/tests/cli.integration.test.ts (30347.510493ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 30363.162276

@@ -1,0 +1,19 @@
+--- a/PROJECT_HISTORY.md
++++ b/PROJECT_HISTORY.md
+@@ -1,6 +1,6 @@
+ # Project History
+ 
+-## v2.0.1 - Unreleased
++## v2.0.1 - <actual release date>
+ 
+ - Captured the selected PID/port for TUI actions and preserved selection through refreshes and sorting.
+ - Added guarded stop escalation, three-outcome liveness verification, and explicit incomplete-stop errors.
+@@ -9,7 +9,7 @@
+ - Required complete decimal port arguments before backend work and moved diagnostic output to stderr.
+ - Kept the successful JSON schema and existing commands unchanged.
+ - Added unit, rendered TUI, built CLI integration, owned-server native smoke tests, and a cross-platform CI matrix.
+-- Updated current-release version displays to v2.0.1. Release acceptance remains pending native Windows/macOS verification.
++- Updated current-release version displays to v2.0.1. Completed cross-platform CI and native Linux/macOS PTY and Windows ConPTY verification; RV-01 through RV-07 and AC-12 passed.
+ 
+ ## v2.0.0 - 2026-04-01
+ 

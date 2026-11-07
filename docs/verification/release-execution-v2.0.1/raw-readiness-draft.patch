@@ -1,0 +1,28 @@
+--- a/scripts/unix-pty/cli-stage.mjs
++++ b/scripts/unix-pty/cli-stage.mjs
+@@ -70,7 +70,10 @@
+     };
+     const isTarget = text => selected(text)?.pid === target.identity.pid && selected(text)?.port === target.identity.port;
+     await cli.wait('native TUI header', () => frame().includes('ports v2.0.1'));
+-    await refreshRecords();
++    await cli.wait('native raw input enabled', async () => {
++      await refreshRecords();
++      return observed.some(e => e.type === 'raw' && e.actual === true);
++    });
+     assert.ok(observed.some(e => e.type === 'terminal' && e.stdinTTY && e.stdoutTTY && e.rawAvailable && e.columns === 160 && e.rows === 60));
+     assert.ok(observed.some(e => e.type === 'raw' && e.actual === true));
+     assert.ok(!cli.data.output.includes('Falling back to a static port list'));
+--- a/scripts/conpty/cli-stage.mjs
++++ b/scripts/conpty/cli-stage.mjs
+@@ -65,7 +65,10 @@
+     };
+     const isTarget = text => selected(text)?.pid === target.identity.pid && selected(text)?.port === target.identity.port;
+     await cli.wait('native TUI header', () => frame().includes('ports v2.0.1'));
+-    await refreshRecords();
++    await cli.wait('native raw input enabled', async () => {
++      await refreshRecords();
++      return observed.some(e => e.type === 'raw' && e.actual === true);
++    });
+     assert.ok(observed.some(e => e.type === 'terminal' && e.stdinTTY && e.stdoutTTY && e.rawAvailable && e.columns === 160 && e.rows === 60));
+     assert.ok(observed.some(e => e.type === 'raw' && e.actual === true));
+     assert.ok(!cli.data.output.includes('Falling back to a static port list'));

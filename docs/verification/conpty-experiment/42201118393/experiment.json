@@ -1,0 +1,78 @@
+{
+  "stage1": "FAIL",
+  "stage2": "NOT ATTEMPTED",
+  "sha": "9a58b764eff90e9fa768664095612b2bacb43bc0",
+  "run": "42201118393",
+  "attempt": "1",
+  "os": "10.0.26100",
+  "platform": "win32",
+  "node": "v24.22.2",
+  "dimensions": {
+    "columns": 160,
+    "rows": 60
+  },
+  "sessions": [
+    {
+      "name": "feasibility",
+      "command": [
+        "dotnet",
+        "D:\\a\\_temp\\ports-native-42201118393-1\\conpty\\host\\ConPtyHost.dll",
+        "C:\\hostedtoolcache\\windows\\node\\24.22.2\\x64\\node.exe",
+        "D:\\a\\CLI-Ports_Tool\\CLI-Ports_Tool\\scripts\\conpty\\keyboard-probe.cjs"
+      ],
+      "events": [
+        {
+          "type": "conpty",
+          "api": "CreatePseudoConsole",
+          "hresult": 0,
+          "columns": 160,
+          "rows": 60,
+          "os": "Microsoft Windows NT 10.0.26100.0",
+          "helperRuntime": "8.0.33"
+        },
+        {
+          "type": "started",
+          "pid": 5632,
+          "command": [
+            "C:\\hostedtoolcache\\windows\\node\\24.22.2\\x64\\node.exe",
+            "D:\\a\\CLI-Ports_Tool\\CLI-Ports_Tool\\scripts\\conpty\\keyboard-probe.cjs"
+          ],
+          "assignedToOwnedJob": true
+        },
+        {
+          "type": "output",
+          "data": "G1s/OTAwMWgbWz8xMDA0aA=="
+        },
+        {
+          "marker": "probe-start",
+          "rawAvailable": false,
+          "node": "v24.22.2"
+        },
+        {
+          "type": "exit",
+          "exitCode": 1
+        },
+        {
+          "type": "output",
+          "data": "G1s/MjVsG1s/OTAwMWwbWz8xMDA0bBtbMkobW20bW0gbXTA7QzpcaG9zdGVkdG9vbGNhY2hlXHdpbmRvd3Ncbm9kZVwyNC4yMi4yXHg2NFxub2RlLmV4ZQcbWz8yNWg="
+        },
+        {
+          "type": "child-cleanup",
+          "exited": true
+        },
+        {
+          "type": "cleanup",
+          "pseudoconsoleClosed": true,
+          "outputDrained": true,
+          "handlesClosed": true,
+          "ownedJobClosed": true,
+          "normalExit": false
+        }
+      ],
+      "input": [],
+      "output": "\u001b[?9001h\u001b[?1004h\u001b[?25l\u001b[?9001l\u001b[?1004l\u001b[2J\u001b[m\u001b[H\u001b]0;C:\\hostedtoolcache\\windows\\node\\24.22.2\\x64\\node.exe\u0007\u001b[?25h",
+      "stderr": ""
+    }
+  ],
+  "error": "AssertionError [ERR_ASSERTION]: Timed out: feasibility: raw-ready\n    at Object.wait (file:///D:/a/CLI-Ports_Tool/CLI-Ports_Tool/scripts/conpty/experiment.mjs:39:14)\n    at async file:///D:/a/CLI-Ports_Tool/CLI-Ports_Tool/scripts/conpty/experiment.mjs:62:3"
+}

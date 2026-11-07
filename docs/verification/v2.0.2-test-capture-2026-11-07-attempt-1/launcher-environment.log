@@ -1,0 +1,14 @@
+✔ Unix and Windows editor/browser launchers preserve explicit LC_ALL and inherited environment (204.705159ms)
+✔ Unix and Windows editor/browser launchers preserve absent LC_ALL and inherited environment (164.012795ms)
+✔ Unix and Windows editor/browser launchers preserve empty LC_ALL and inherited environment (170.136544ms)
+✔ system commands still normalize only LC_ALL, without mutating the inherited environment (83.35205ms)
+✔ locale inheritance does not change explicit timeouts or cancellation (95.3253ms)
+✔ running commands remain cancellable with either locale policy (105.081391ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 834.02253

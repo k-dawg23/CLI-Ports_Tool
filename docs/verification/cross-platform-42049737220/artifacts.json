@@ -1,0 +1,80 @@
+{
+  "artifacts": [
+    {
+      "id": 13427380138,
+      "name": "native-windows-latest-node-24",
+      "size_in_bytes": 476,
+      "url": "https://api.github.com/repos/k-dawg23/CLI-Ports_Tool/actions/artifacts/13427380138",
+      "archive_download_url": "https://api.github.com/repos/k-dawg23/CLI-Ports_Tool/actions/artifacts/13427380138/zip",
+      "expired": false,
+      "created_at": "2026-11-05T14:57:26Z",
+      "expires_at": "2027-02-03T14:55:30Z",
+      "updated_at": "2026-11-05T14:57:26Z",
+      "digest": "sha256:be2f33c47c79da383cd231498c7e340aa3cc9590209b29345e34b4db0ae7dbab",
+      "workflow_run": {
+        "id": 42049737220,
+        "repository_id": 1197061189,
+        "head_repository_id": 1197061189,
+        "head_branch": "codex/v2.0.1-cross-platform-verification",
+        "head_sha": "6c66def4b5721c97361fdbeef831e6c38b7169f1"
+      }
+    },
+    {
+      "id": 13427100005,
+      "name": "native-ubuntu-latest-node-22.18.0",
+      "size_in_bytes": 1634,
+      "url": "https://api.github.com/repos/k-dawg23/CLI-Ports_Tool/actions/artifacts/13427100005",
+      "archive_download_url": "https://api.github.com/repos/k-dawg23/CLI-Ports_Tool/actions/artifacts/13427100005/zip",
+      "expired": false,
+      "created_at": "2026-11-05T14:56:24Z",
+      "expires_at": "2027-02-03T14:55:30Z",
+      "updated_at": "2026-11-05T14:56:24Z",
+      "digest": "sha256:2258250ade38a24dc09c01710feed508fb242c10aea5c465e57a2e3ba3b62ec8",
+      "workflow_run": {
+        "id": 42049737220,
+        "repository_id": 1197061189,
+        "head_repository_id": 1197061189,
+        "head_branch": "codex/v2.0.1-cross-platform-verification",
+        "head_sha": "6c66def4b5721c97361fdbeef831e6c38b7169f1"
+      }
+    },
+    {
+      "id": 13425769114,
+      "name": "native-macos-latest-node-24",
+      "size_in_bytes": 1166,
+      "url": "https://api.github.com/repos/k-dawg23/CLI-Ports_Tool/actions/artifacts/13425769114",
+      "archive_download_url": "https://api.github.com/repos/k-dawg23/CLI-Ports_Tool/actions/artifacts/13425769114/zip",
+      "expired": false,
+      "created_at": "2026-11-05T14:56:31Z",
+      "expires_at": "2027-02-03T14:55:30Z",
+      "updated_at": "2026-11-05T14:56:31Z",
+      "digest": "sha256:38e6959f76c4b4618fe56fea9ef8422d69567a4dd561f9098e223acb993fac0a",
+      "workflow_run": {
+        "id": 42049737220,
+        "repository_id": 1197061189,
+        "head_repository_id": 1197061189,
+        "head_branch": "codex/v2.0.1-cross-platform-verification",
+        "head_sha": "6c66def4b5721c97361fdbeef831e6c38b7169f1"
+      }
+    },
+    {
+      "id": 13425524691,
+      "name": "native-ubuntu-latest-node-24",
+      "size_in_bytes": 1638,
+      "url": "https://api.github.com/repos/k-dawg23/CLI-Ports_Tool/actions/artifacts/13425524691",
+      "archive_download_url": "https://api.github.com/repos/k-dawg23/CLI-Ports_Tool/actions/artifacts/13425524691/zip",
+      "expired": false,
+      "created_at": "2026-11-05T14:56:30Z",
+      "expires_at": "2027-02-03T14:55:30Z",
+      "updated_at": "2026-11-05T14:56:30Z",
+      "digest": "sha256:9dcff73aa54cd221a49362365eece9eb99084bb132908e1707a618639a0130a1",
+      "workflow_run": {
+        "id": 42049737220,
+        "repository_id": 1197061189,
+        "head_repository_id": 1197061189,
+        "head_branch": "codex/v2.0.1-cross-platform-verification",
+        "head_sha": "6c66def4b5721c97361fdbeef831e6c38b7169f1"
+      }
+    }
+  ]
+}

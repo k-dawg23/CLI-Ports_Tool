@@ -1,0 +1,8 @@
+[?9001h[?1004h[?25l[2J[m[H{"marker":"probe-start","stdinTTY":true,"stdoutTTY":true,"rawAvailable":true,"node":"v24.22.2"}
+]0;C:\hostedtoolcache\windows\node\24.22.2\x64\node.exe[?25h{"marker":"raw-ready","raw":true}
+{"marker":"key","name":"a","sequence":"a"}
+{"marker":"key","name":"up","sequence":"\u001b[A"}
+{"marker":"key","name":"b","sequence":"b"}
+{"marker":"key","name":"q","sequence":"q"}
+{"marker":"probe-complete","raw":false}
+[?9001l[?1004l

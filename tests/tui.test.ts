@@ -10,7 +10,7 @@ import type { PortProcess, PortSnapshot } from "../src/types.js";
 import { PortService } from "../src/ports.js";
 import type { PlatformPortBackend } from "../src/backends/types.js";
 
-const row = (pid: number, extra = {}): PortProcess => ({ pid, port: 3000 + pid, command: "node", projectName: `project-${pid}`, framework: "-", ...extra });
+const row = (pid: number, extra = {}): PortProcess => ({ pid, port: 3000 + pid, addresses: [{ address: "127.0.0.1", family: "IPv4" }], command: "node", projectName: `project-${pid}`, framework: "-", ...extra });
 const snapshot = (rows = [row(11), row(22)]): PortSnapshot => ({ processes: rows, warnings: [], completedAt: 1000 });
 const flush = async () => { for (let i = 0; i < 20; i++) await Promise.resolve(); };
 
@@ -54,6 +54,12 @@ function harness(service: Parameters<typeof PortsApp>[0]["service"]) {
 }
 
 async function settled() { await new Promise(resolve => setTimeout(resolve, 35)); }
+
+test("selected TUI details render all bindings for the selected port", async () => {
+  const app = harness({ snapshot: async () => snapshot([row(11, { addresses: [{ address: "127.0.0.1", family: "IPv4" }, { address: "::1", family: "IPv6" }] })]), killTarget: async () => ({ success: true, message: "ok" }), openBrowser: async () => ({ success: true, message: "ok" }), openEditor: async () => ({ success: true, message: "ok" }) });
+  try { await settled(); assert.match(app.frame(), /Bindings: 127\.0\.0\.1:3011, \[::1\]:3011/); }
+  finally { app.close(); }
+});
 
 test("rendered TUI retains stale data/errors through controls and recovers to genuine empty", async () => {
   let state = "success";
@@ -141,7 +147,7 @@ test("warnings from real target validation reach the TUI for browser, editor, an
         calls++;
         if (calls === 2) context.warn("VALIDATION_METADATA_UNAVAILABLE");
         if (calls === 3 && key === "K") await new Promise<void>(resolve => { finishRefresh = resolve; });
-        return [{ pid: 11, port: 3011, command: "node" }];
+        return [{ pid: 11, port: 3011, addresses: [{ address: "127.0.0.1", family: "IPv4" }], command: "node" }];
       },
       getProcessStats: async () => undefined, getWorkingDirectory: async () => "/a project",
       isProcessAlive: async () => ({ state: "alive" }),

@@ -1,0 +1,269 @@
+{
+  "stage1": "PASS",
+  "stage2": "FAIL",
+  "platform": "linux",
+  "os": "7.0.0-42-generic",
+  "node": "v24.21.0",
+  "dimensions": {
+    "columns": 160,
+    "rows": 60
+  },
+  "sessions": [
+    {
+      "name": "feasibility",
+      "command": [
+        "python3",
+        "/home/kdawg/Development/CLI-Ports_Tool/scripts/unix-pty/host.py",
+        "/home/kdawg/.nvm/versions/node/v24.21.0/bin/node",
+        "--require",
+        "/home/kdawg/Development/CLI-Ports_Tool/scripts/unix-pty/lifetime.cjs",
+        "/home/kdawg/Development/CLI-Ports_Tool/scripts/unix-pty/keyboard-probe.cjs"
+      ],
+      "events": [
+        {
+          "type": "pty",
+          "api": "pty.openpty + setsid + TIOCSCTTY",
+          "pid": 16,
+          "command": [
+            "/home/kdawg/.nvm/versions/node/v24.21.0/bin/node",
+            "--require",
+            "/home/kdawg/Development/CLI-Ports_Tool/scripts/unix-pty/lifetime.cjs",
+            "/home/kdawg/Development/CLI-Ports_Tool/scripts/unix-pty/keyboard-probe.cjs"
+          ],
+          "python": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]",
+          "os": "Linux-7.0.0-42-generic-x86_64-with-glibc2.39",
+          "columns": 160,
+          "rows": 60,
+          "slave": "/dev/pts/0",
+          "sessionId": 16
+        },
+        {
+          "type": "output",
+          "data": "eyJtYXJrZXIiOiAiY29udHJvbGxpbmctdGVybWluYWwiLCAiZm9yZWdyb3VuZEdyb3VwIjogMTYsICJwaWQiOiAxNn0NCg=="
+        },
+        {
+          "type": "output",
+          "data": "eyJtYXJrZXIiOiJkaW1lbnNpb25zIiwiY29sdW1ucyI6MTYwLCJyb3dzIjo2MH0NCg=="
+        },
+        {
+          "type": "output",
+          "data": "eyJtYXJrZXIiOiJwcm9iZS1zdGFydCIsInN0ZGluVFRZIjp0cnVlLCJzdGRvdXRUVFkiOnRydWUsInJhd0F2YWlsYWJsZSI6dHJ1ZSwibm9kZSI6InYyNC4yMS4wIn0NCg=="
+        },
+        {
+          "type": "output",
+          "data": "eyJtYXJrZXIiOiJyYXctcmVhZHkiLCJyYXciOnRydWV9DQo="
+        },
+        {
+          "type": "output",
+          "data": "eyJtYXJrZXIiOiJrZXkiLCJuYW1lIjoiYSIsInNlcXVlbmNlIjoiYSJ9DQo="
+        },
+        {
+          "type": "output",
+          "data": "eyJtYXJrZXIiOiJrZXkiLCJuYW1lIjoidXAiLCJzZXF1ZW5jZSI6Ilx1MDAxYltBIn0NCg=="
+        },
+        {
+          "type": "output",
+          "data": "eyJtYXJrZXIiOiJrZXkiLCJuYW1lIjoiYiIsInNlcXVlbmNlIjoiYiJ9DQo="
+        },
+        {
+          "type": "output",
+          "data": "eyJtYXJrZXIiOiJrZXkiLCJuYW1lIjoicSIsInNlcXVlbmNlIjoicSJ9DQo="
+        },
+        {
+          "type": "output",
+          "data": "eyJtYXJrZXIiOiJwcm9iZS1jb21wbGV0ZSIsInJhdyI6ZmFsc2V9DQo="
+        },
+        {
+          "type": "exit",
+          "exitCode": 0
+        },
+        {
+          "type": "cleanup",
+          "descriptorsClosed": true,
+          "childReaped": true,
+          "exitCode": 0,
+          "normalExit": true,
+          "outputDrained": true,
+          "terminalRestoredByChild": true,
+          "termiosInspection": "post-exit-termios-comparison"
+        }
+      ],
+      "input": [
+        {
+          "at": 1794053967664,
+          "text": "a"
+        },
+        {
+          "at": 1794053967715,
+          "text": "\u001b[A"
+        },
+        {
+          "at": 1794053967766,
+          "text": "b"
+        },
+        {
+          "at": 1794053967817,
+          "text": "q"
+        }
+      ],
+      "output": "{\"marker\": \"controlling-terminal\", \"foregroundGroup\": 16, \"pid\": 16}\r\n{\"marker\":\"dimensions\",\"columns\":160,\"rows\":60}\r\n{\"marker\":\"probe-start\",\"stdinTTY\":true,\"stdoutTTY\":true,\"rawAvailable\":true,\"node\":\"v24.21.0\"}\r\n{\"marker\":\"raw-ready\",\"raw\":true}\r\n{\"marker\":\"key\",\"name\":\"a\",\"sequence\":\"a\"}\r\n{\"marker\":\"key\",\"name\":\"up\",\"sequence\":\"\\u001b[A\"}\r\n{\"marker\":\"key\",\"name\":\"b\",\"sequence\":\"b\"}\r\n{\"marker\":\"key\",\"name\":\"q\",\"sequence\":\"q\"}\r\n{\"marker\":\"probe-complete\",\"raw\":false}\r\n",
+      "stderr": "",
+      "hostExit": {
+        "code": 0,
+        "signal": null
+      }
+    },
+    {
+      "name": "failure-abort",
+      "command": [
+        "python3",
+        "/home/kdawg/Development/CLI-Ports_Tool/scripts/unix-pty/host.py",
+        "/home/kdawg/.nvm/versions/node/v24.21.0/bin/node",
+        "--require",
+        "/home/kdawg/Development/CLI-Ports_Tool/scripts/unix-pty/lifetime.cjs",
+        "/home/kdawg/Development/CLI-Ports_Tool/scripts/unix-pty/keyboard-probe.cjs"
+      ],
+      "events": [
+        {
+          "type": "pty",
+          "api": "pty.openpty + setsid + TIOCSCTTY",
+          "pid": 25,
+          "command": [
+            "/home/kdawg/.nvm/versions/node/v24.21.0/bin/node",
+            "--require",
+            "/home/kdawg/Development/CLI-Ports_Tool/scripts/unix-pty/lifetime.cjs",
+            "/home/kdawg/Development/CLI-Ports_Tool/scripts/unix-pty/keyboard-probe.cjs"
+          ],
+          "python": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]",
+          "os": "Linux-7.0.0-42-generic-x86_64-with-glibc2.39",
+          "columns": 160,
+          "rows": 60,
+          "slave": "/dev/pts/0",
+          "sessionId": 25
+        },
+        {
+          "type": "output",
+          "data": "eyJtYXJrZXIiOiAiY29udHJvbGxpbmctdGVybWluYWwiLCAiZm9yZWdyb3VuZEdyb3VwIjogMjUsICJwaWQiOiAyNX0NCg=="
+        },
+        {
+          "type": "output",
+          "data": "eyJtYXJrZXIiOiJkaW1lbnNpb25zIiwiY29sdW1ucyI6MTYwLCJyb3dzIjo2MH0NCg=="
+        },
+        {
+          "type": "output",
+          "data": "eyJtYXJrZXIiOiJwcm9iZS1zdGFydCIsInN0ZGluVFRZIjp0cnVlLCJzdGRvdXRUVFkiOnRydWUsInJhd0F2YWlsYWJsZSI6dHJ1ZSwibm9kZSI6InYyNC4yMS4wIn0NCg=="
+        },
+        {
+          "type": "output",
+          "data": "eyJtYXJrZXIiOiJyYXctcmVhZHkiLCJyYXciOnRydWV9DQo="
+        },
+        {
+          "type": "error",
+          "error": "RuntimeError('Requested owned-session abort')"
+        },
+        {
+          "type": "cleanup",
+          "descriptorsClosed": true,
+          "childReaped": true,
+          "exitCode": -1,
+          "normalExit": false,
+          "outputDrained": false,
+          "terminalRestoredByChild": false,
+          "termiosInspection": "not-inspected-abnormal-exit"
+        }
+      ],
+      "input": [],
+      "output": "{\"marker\": \"controlling-terminal\", \"foregroundGroup\": 25, \"pid\": 25}\r\n{\"marker\":\"dimensions\",\"columns\":160,\"rows\":60}\r\n{\"marker\":\"probe-start\",\"stdinTTY\":true,\"stdoutTTY\":true,\"rawAvailable\":true,\"node\":\"v24.21.0\"}\r\n{\"marker\":\"raw-ready\",\"raw\":true}\r\n",
+      "stderr": "",
+      "hostExit": {
+        "code": 1,
+        "signal": null
+      }
+    },
+    {
+      "name": "failure-disconnect",
+      "command": [
+        "python3",
+        "/home/kdawg/Development/CLI-Ports_Tool/scripts/unix-pty/host.py",
+        "/home/kdawg/.nvm/versions/node/v24.21.0/bin/node",
+        "--require",
+        "/home/kdawg/Development/CLI-Ports_Tool/scripts/unix-pty/lifetime.cjs",
+        "/home/kdawg/Development/CLI-Ports_Tool/scripts/unix-pty/keyboard-probe.cjs"
+      ],
+      "events": [
+        {
+          "type": "pty",
+          "api": "pty.openpty + setsid + TIOCSCTTY",
+          "pid": 34,
+          "command": [
+            "/home/kdawg/.nvm/versions/node/v24.21.0/bin/node",
+            "--require",
+            "/home/kdawg/Development/CLI-Ports_Tool/scripts/unix-pty/lifetime.cjs",
+            "/home/kdawg/Development/CLI-Ports_Tool/scripts/unix-pty/keyboard-probe.cjs"
+          ],
+          "python": "3.12.3 (main, Aug 31 2026, 10:18:26) [GCC 13.3.0]",
+          "os": "Linux-7.0.0-42-generic-x86_64-with-glibc2.39",
+          "columns": 160,
+          "rows": 60,
+          "slave": "/dev/pts/0",
+          "sessionId": 34
+        },
+        {
+          "type": "output",
+          "data": "eyJtYXJrZXIiOiAiY29udHJvbGxpbmctdGVybWluYWwiLCAiZm9yZWdyb3VuZEdyb3VwIjogMzQsICJwaWQiOiAzNH0NCg=="
+        },
+        {
+          "type": "output",
+          "data": "eyJtYXJrZXIiOiJkaW1lbnNpb25zIiwiY29sdW1ucyI6MTYwLCJyb3dzIjo2MH0NCg=="
+        },
+        {
+          "type": "output",
+          "data": "eyJtYXJrZXIiOiJwcm9iZS1zdGFydCIsInN0ZGluVFRZIjp0cnVlLCJzdGRvdXRUVFkiOnRydWUsInJhd0F2YWlsYWJsZSI6dHJ1ZSwibm9kZSI6InYyNC4yMS4wIn0NCg=="
+        },
+        {
+          "type": "output",
+          "data": "eyJtYXJrZXIiOiJyYXctcmVhZHkiLCJyYXciOnRydWV9DQo="
+        },
+        {
+          "type": "error",
+          "error": "RuntimeError('Controller disconnected')"
+        },
+        {
+          "type": "cleanup",
+          "descriptorsClosed": true,
+          "childReaped": true,
+          "exitCode": -1,
+          "normalExit": false,
+          "outputDrained": false,
+          "terminalRestoredByChild": false,
+          "termiosInspection": "not-inspected-abnormal-exit"
+        }
+      ],
+      "input": [],
+      "output": "{\"marker\": \"controlling-terminal\", \"foregroundGroup\": 34, \"pid\": 34}\r\n{\"marker\":\"dimensions\",\"columns\":160,\"rows\":60}\r\n{\"marker\":\"probe-start\",\"stdinTTY\":true,\"stdoutTTY\":true,\"rawAvailable\":true,\"node\":\"v24.21.0\"}\r\n{\"marker\":\"raw-ready\",\"raw\":true}\r\n",
+      "stderr": "",
+      "hostExit": {
+        "code": 1,
+        "signal": null
+      }
+    }
+  ],
+  "cli": {
+    "frames": [],
+    "assertions": [],
+    "fixtures": [],
+    "environmentOverrides": {
+      "CI": "false"
+    },
+    "fixtureCleanup": [
+      {
+        "code": 1,
+        "signal": null,
+        "disconnected": true,
+        "stderr": "",
+        "stderrClosed": true
+      }
+    ]
+  },
+  "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\n1 !== 0\n\n    at verifyCli (file:///home/kdawg/Development/CLI-Ports_Tool/scripts/unix-pty/cli-stage.mjs:150:14)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async file:///home/kdawg/Development/CLI-Ports_Tool/scripts/unix-pty/experiment.mjs:83:5"
+}

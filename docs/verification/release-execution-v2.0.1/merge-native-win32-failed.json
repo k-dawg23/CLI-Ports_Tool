@@ -1,0 +1,21 @@
+{
+  "platform": "win32",
+  "os": "10.0.26100",
+  "node": "v24.22.2",
+  "github": {
+    "sha": "87a349e81f2151654056567c7a1ca3d900e1e83e",
+    "runId": "42238953525",
+    "attempt": "1",
+    "job": "verify",
+    "runner": "GitHub Actions 1000000045"
+  },
+  "terminationMechanism": "authenticated IPC request; fixture signals itself",
+  "checks": [
+    {
+      "name": "native smoke",
+      "status": "failed",
+      "error": "Command timed out after 15000 milliseconds: \"C:\\hostedtoolcache\\windows\\node\\24.22.2\\x64\\node.exe\" \"D:\\a\\CLI-Ports_Tool\\CLI-Ports_Tool\\dist\\cli.js\" list --json"
+    }
+  ],
+  "fixtures": []
+}

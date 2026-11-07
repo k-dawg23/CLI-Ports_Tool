@@ -4,13 +4,13 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { execa } from "execa";
+import { captureCli as execa } from "./helpers/cli-capture.js";
 
 const cli = fileURLToPath(new URL("../dist/cli.js", import.meta.url));
 const fixture = fileURLToPath(new URL("./fixtures/command.cjs", import.meta.url));
 const quote = (text: string) => `'${text.replaceAll("'", "'\\''")}'`;
 
-async function environment(mode: string) {
+async function environment(mode: string, inheritedEnv: NodeJS.ProcessEnv = process.env) {
   const directory = await fs.mkdtemp(path.join(os.tmpdir(), "ports cli fixture "));
   const calls = path.join(directory, "calls.jsonl");
   await fs.writeFile(path.join(directory, "package.json"), '{"name":"fixture-project"}');
@@ -22,11 +22,27 @@ async function environment(mode: string) {
       ? `@"${process.execPath}" "${fixture}" ${command} %*\r\n`
       : `#!/bin/sh\nexec ${quote(process.execPath)} ${quote(fixture)} ${quote(command)} "$@"\n`, { mode: 0o755 });
   }
-  const env = { ...process.env, PATH: directory, PORTS_TEST_MODE: mode, PORTS_TEST_CALLS: calls, PORTS_TEST_PROJECT: directory, NO_COLOR: "1" };
+  const env: NodeJS.ProcessEnv = { ...inheritedEnv, PATH: directory, PORTS_TEST_MODE: mode, PORTS_TEST_CALLS: calls, PORTS_TEST_PROJECT: directory, NO_COLOR: "1" };
+  // This fixture owns the child's color policy. Node warns on stderr if an
+  // inherited FORCE_COLOR conflicts with NO_COLOR, even when set to "0".
+  for (const key of Object.keys(env)) if (key.toUpperCase() === "FORCE_COLOR") delete env[key];
   // Windows environment keys are case insensitive; avoid keeping both Path/PATH.
   if (process.platform === "win32") for (const key of Object.keys(env)) if (key.toLowerCase() === "path" && key !== "PATH") delete (env as any)[key];
   return { directory, calls, env, close: () => fs.rm(directory, { recursive: true, force: true }) };
 }
+
+test("built CLI fixture isolates inherited color settings without mutating the parent", async () => {
+  const inherited = { ...process.env, FORCE_COLOR: "1", force_color: "1" };
+  const setup = await environment("success", inherited);
+  try {
+    assert.equal(inherited.FORCE_COLOR, "1");
+    assert.ok(!Object.keys(setup.env).some(key => key.toUpperCase() === "FORCE_COLOR"));
+    const result = await execa(process.execPath, [cli, "list", "--json"], { env: setup.env, reject: false });
+    assert.equal(result.exitCode, 0);
+    assert.equal(result.stderr, "");
+    assert.equal(JSON.parse(result.stdout).length, 1);
+  } finally { await setup.close(); }
+});
 
 test("built CLI preserves JSON schema, table/details output, and warning separation", async () => {
   for (const mode of ["success", "metadata-error", "empty"]) {
@@ -47,6 +63,16 @@ test("built CLI preserves JSON schema, table/details output, and warning separat
       assert.equal(check.exitCode, 0); assert.match(check.stdout, mode === "empty" ? /free/ : /987654321/);
       const table = await execa(process.execPath, [cli, "list"], { env: setup.env, reject: false });
       assert.equal(table.exitCode, 0); assert.match(table.stdout, mode === "empty" ? /No listening/ : /PORT/);
+      if (mode !== "empty") assert.doesNotMatch(table.stdout, /BINDINGS/);
+      const extended = await execa(process.execPath, [cli, "list", "--addresses", "--json"], { env: setup.env, reject: false });
+      assert.equal(extended.exitCode, 0);
+      if (mode !== "empty") assert.deepEqual(JSON.parse(extended.stdout)[0].addresses, [{ address: process.platform === "win32" ? "127.0.0.1" : "0.0.0.0", family: "IPv4" }]);
+      const filtered = await execa(process.execPath, [cli, "list", "--pid", "000987654321", "--project", " FIXTURE- ", "--json"], { env: setup.env, reject: false });
+      assert.equal(filtered.exitCode, 0);
+      assert.equal(JSON.parse(filtered.stdout).length, mode === "empty" || (process.platform === "win32" && mode === "metadata-error") ? 0 : 1);
+      const noMatch = await execa(process.execPath, [cli, "list", "--port", "3001"], { env: setup.env, reject: false });
+      assert.equal(noMatch.exitCode, 0); assert.match(noMatch.stdout, /No listening TCP ports match the supplied filters/);
+      if (mode === "metadata-error") assert.match(noMatch.stderr, /Warning:/);
       if (mode === "success") {
         // Positive built-CLI stop coverage uses only fake signal executables.
         const stopped = await execa(process.execPath, [cli, "kill", "3000"], { env: setup.env, reject: false });
@@ -80,7 +106,10 @@ test("built CLI help/version and rejected arguments never invoke platform tools"
   try {
     for (const args of [["--help"], ["--version"], ["list", "--help"]]) {
       const r = await execa(process.execPath, [cli, ...args], { env: setup.env, reject: false }); assert.equal(r.exitCode, 0); assert.ok(r.stdout.length);
-      if (args[0] === "--version") assert.equal(r.stdout, "2.0.1");
+      if (args[0] === "--version") assert.equal(r.stdout, "2.0.2");
+    }
+    for (const args of [["list", "--pid", "-1"], ["list", "--project", "  "], ["list", "--port", "3000", "--port", "3001"], ["list", "--unknown"]]) {
+      const r = await execa(process.execPath, [cli, ...args], { env: setup.env, reject: false }); assert.equal(r.exitCode, 1); assert.equal(r.stdout, "");
     }
     for (const command of ["check", "kill"]) {
       for (const value of ["3000abc", "3000.5", "3e3", "0", "65536", " 3000", "3000 ", "3000\n", "3000\r", "\t3000", "٣٠٠٠"]) {

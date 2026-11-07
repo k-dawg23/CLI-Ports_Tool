@@ -13,6 +13,8 @@ The project also includes a [user manual](USER_MANUAL.md) and a [single-page HTM
 - Cross-platform runtime support for macOS, Linux, and Windows
 - Static table output with `ports list`
 - Machine-readable output with `ports list --json`
+- Static list filters by exact port/PID or project-name substring
+- Optional numeric IPv4/IPv6 listener bindings with `ports list --addresses`
 - Port inspection with `ports check <port>`
 - Quick termination with `ports kill <port>`
 - Filter modes for all ports, dev ports, and node-focused processes
@@ -169,10 +171,18 @@ Discovery failures exit with status 1 and diagnostics on stderr; they never prod
 
 The TUI retains the last successful snapshot after a failed refresh, labels it `STALE`, and shows its refresh time and error. Initial failure shows unavailable data. Selection follows the PID/port across refreshes and sorting; filters and search can reset it. Refreshes and action validation are serialized, and active collection has a 15-second budget. Optional enrichment that exceeds the budget produces fallback details and a warning.
 
-PID/port validation cannot eliminate PID reuse or races between checking and signaling. Working-directory/project caches remain best effort and can retain stale metadata after undetected PID reuse. Browser opening still targets an HTTP endpoint and cannot select a particular process sharing it.
+`ports list` accepts exact `--port` and `--pid` filters plus a case-insensitive literal `--project` substring; multiple filters combine with AND and each may be used once. `--addresses` opts into a complete bindings column, or an extended JSON `addresses` field when used with `--json`. Bind addresses identify local interfaces and wildcards but do not prove external reachability. Metadata uses a 30-second TTL and refreshes on the first successful collection after expiry. PID/port validation still cannot eliminate PID reuse or races between checking and signaling. Browser opening still targets `http://localhost:PORT` and cannot select a particular process sharing it.
 
-Development checks: `npm ci`, `npm run typecheck`, `npm test`, `npm run build`, `npm run test:integration`, and `npm run test:native`. Native checks start and clean up only their own test servers. Windows/macOS verification remains pending until run on those platforms; see the v2.0.1 implementation and verification report in `docs/verification/`.
+Development checks: `npm ci`, `npm run typecheck`, `npm test`, `npm run build`, `npm run test:integration`, and `npm run test:native`. Native checks start and clean up only their own test servers. The completed v2.0.1 platform evidence is retained in the [v2.0.1 release execution report](docs/verification/v2.0.1-release-execution-report.md). v2.0.2 macOS and Windows checks remain pending; see the [v2.0.2 implementation and verification report](docs/verification/v2.0.2-implementation-verification-report.md).
 
 ## Version
 
-Current release: `v2.0.1`
+Current application version: `v2.0.2` (platform acceptance pending).
+
+## Local test output capture
+
+`npm test` checks command results and launcher environments using fixtures that write their diagnostics directly to file descriptors. `node scripts/stdio-preflight.mjs` separately verifies asynchronous Node stdout/stderr over pipes. The default `npm run test:integration` requires that preflight to pass.
+
+If a restricted local environment cannot capture piped Node output, run `npm run test:integration -- --file-capture` to verify the built CLI with stdout/stderr redirected to temporary files. This mode retains the integration assertions but does not verify pipes. It is explicit, is rejected in CI, and does not change application output handling.
+
+Windows and macOS checks run on GitHub Actions hosted runners. The existing four-job matrix retains normal piped integration capture, native discovery, and Node 24 Unix PTY/Windows ConPTY scenarios. Passing local file capture does not replace those checks.

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Box, Text, useApp, useInput } from "ink";
 import chalk from "chalk";
-import { colorFramework, colorMemory, formatMemory, isNodeLikeCommand, padAnsiEndVisible, padEndVisible, shouldDimProcess, TABLE_HEADERS, TABLE_WIDTHS, truncateVisible } from "./format.js";
+import { colorFramework, colorMemory, formatBindings, formatMemory, isNodeLikeCommand, padAnsiEndVisible, padEndVisible, shouldDimProcess, TABLE_HEADERS, TABLE_WIDTHS, truncateVisible } from "./format.js";
 import { portService, type PortService } from "./ports.js";
 import { RefreshController, selectedIndex as resolveSelection, type Selection } from "./tui-state.js";
 import type { ListenerTarget, PortProcess, PortSnapshot } from "./types.js";
@@ -131,6 +131,7 @@ export function PortsApp({ service = portService }: { service?: AppService } = {
         <Text>{chalk.bold("Selected")}</Text>
         {selected ? <>
           <Text>Port {selected.port} · {selected.projectName} · PID {selected.pid}</Text>
+          <Text>Bindings: {formatBindings(selected)}</Text>
           <Text>Framework {selected.framework} · Mem {formatMemory(selected.memoryKb)} · Uptime {selected.uptime ?? "-"}</Text>
           <Text dimColor>{selected.cwd ?? "No working directory detected"}</Text>
         </> : <Text dimColor>No process selected.</Text>}

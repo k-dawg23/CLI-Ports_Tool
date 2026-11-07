@@ -1,0 +1,16 @@
+
+> ports@2.0.2 test:integration
+> node scripts/test.mjs --integration
+
+✔ built CLI fixture isolates inherited color settings without mutating the parent (653.014121ms)
+✔ built CLI preserves JSON schema, table/details output, and warning separation (12128.815132ms)
+✔ built CLI fails discovery consistently without printing success data (5149.912035ms)
+✔ built CLI help/version and rejected arguments never invoke platform tools (13563.039812ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 31821.849448

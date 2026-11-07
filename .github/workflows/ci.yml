@@ -1,4 +1,4 @@
-name: v2.0.1 verification
+name: v2.0.2 verification
 
 on:
   push:
@@ -30,6 +30,8 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y lsof
       - run: npm ci
       - run: npm run typecheck
+      - name: Verify piped Node stdout and stderr
+        run: node scripts/stdio-preflight.mjs
       - run: npm test
       - run: npm run build
       - run: npm run test:integration

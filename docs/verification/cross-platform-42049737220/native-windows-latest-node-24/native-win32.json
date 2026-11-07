@@ -1,0 +1,25 @@
+{
+  "platform": "win32",
+  "os": "10.0.26100",
+  "node": "v24.22.2",
+  "terminationMechanism": "authenticated IPC request; fixture signals itself",
+  "checks": [
+    {
+      "name": "owned listener appears in JSON, table, and check",
+      "status": "passed"
+    },
+    {
+      "name": "native stop refuses unknown identity and a different process PID",
+      "status": "passed"
+    },
+    {
+      "name": "production stop flow requests a signal only from the authenticated owned fixture",
+      "status": "passed"
+    },
+    {
+      "name": "released port is free after successful discovery; owned sentinel survives",
+      "status": "passed"
+    }
+  ],
+  "fixtures": []
+}

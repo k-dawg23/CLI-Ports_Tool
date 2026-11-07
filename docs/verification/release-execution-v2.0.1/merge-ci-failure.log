@@ -1,0 +1,41 @@
+verify (windows-latest, 24)	Run npm run test:native	﻿2026-11-06T15:01:56.6719993Z ##[group]Run npm run test:native
+verify (windows-latest, 24)	Run npm run test:native	2026-11-06T15:01:56.6720373Z ^[[36;1mnpm run test:native^[[0m
+verify (windows-latest, 24)	Run npm run test:native	2026-11-06T15:01:56.6794270Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+verify (windows-latest, 24)	Run npm run test:native	2026-11-06T15:01:56.6794648Z env:
+verify (windows-latest, 24)	Run npm run test:native	2026-11-06T15:01:56.6794923Z   PORTS_NATIVE_OUTPUT_DIR: D:\a\_temp/ports-native-42238953525-1
+verify (windows-latest, 24)	Run npm run test:native	2026-11-06T15:01:56.6795263Z ##[endgroup]
+verify (windows-latest, 24)	Run npm run test:native	2026-11-06T15:01:57.4600422Z 
+verify (windows-latest, 24)	Run npm run test:native	2026-11-06T15:01:57.4601001Z > ports@2.0.1 test:native
+verify (windows-latest, 24)	Run npm run test:native	2026-11-06T15:01:57.4604577Z > node --import tsx scripts/native-smoke.mjs
+verify (windows-latest, 24)	Run npm run test:native	2026-11-06T15:01:57.4604951Z 
+verify (windows-latest, 24)	Run npm run test:native	2026-11-06T15:02:13.4603451Z ExecaError: Command timed out after 15000 milliseconds: "C:\hostedtoolcache\windows\node\24.22.2\x64\node.exe" "D:\a\CLI-Ports_Tool\CLI-Ports_Tool\dist\cli.js" list --json
+verify (windows-latest, 24)	Run npm run test:native	2026-11-06T15:02:13.4605475Z     at getFinalError (file:///D:/a/CLI-Ports_Tool/CLI-Ports_Tool/node_modules/execa/lib/return/final-error.js:6:9)
+verify (windows-latest, 24)	Run npm run test:native	2026-11-06T15:02:13.4607159Z     at makeError (file:///D:/a/CLI-Ports_Tool/CLI-Ports_Tool/node_modules/execa/lib/return/result.js:108:16)
+verify (windows-latest, 24)	Run npm run test:native	2026-11-06T15:02:13.4608059Z     at getAsyncResult (file:///D:/a/CLI-Ports_Tool/CLI-Ports_Tool/node_modules/execa/lib/methods/main-async.js:168:4)
+verify (windows-latest, 24)	Run npm run test:native	2026-11-06T15:02:13.4608884Z     at handlePromise (file:///D:/a/CLI-Ports_Tool/CLI-Ports_Tool/node_modules/execa/lib/methods/main-async.js:151:17)
+verify (windows-latest, 24)	Run npm run test:native	2026-11-06T15:02:13.4609587Z     at async command (file:///D:/a/CLI-Ports_Tool/CLI-Ports_Tool/scripts/native-smoke.mjs:33:13)
+verify (windows-latest, 24)	Run npm run test:native	2026-11-06T15:02:13.4610196Z     at async file:///D:/a/CLI-Ports_Tool/CLI-Ports_Tool/scripts/native-smoke.mjs:74:18
+verify (windows-latest, 24)	Run npm run test:native	2026-11-06T15:02:13.4611761Z     at async checked (file:///D:/a/CLI-Ports_Tool/CLI-Ports_Tool/scripts/native-smoke.mjs:31:41)
+verify (windows-latest, 24)	Run npm run test:native	2026-11-06T15:02:13.4615161Z     at async file:///D:/a/CLI-Ports_Tool/CLI-Ports_Tool/scripts/native-smoke.mjs:73:3 {
+verify (windows-latest, 24)	Run npm run test:native	2026-11-06T15:02:13.4616612Z   shortMessage: 'Command timed out after 15000 milliseconds: "C:\\hostedtoolcache\\windows\\node\\24.22.2\\x64\\node.exe" "D:\\a\\CLI-Ports_Tool\\CLI-Ports_Tool\\dist\\cli.js" list --json',
+verify (windows-latest, 24)	Run npm run test:native	2026-11-06T15:02:13.4618361Z   command: 'C:\\hostedtoolcache\\windows\\node\\24.22.2\\x64\\node.exe D:\\a\\CLI-Ports_Tool\\CLI-Ports_Tool\\dist\\cli.js list --json',
+verify (windows-latest, 24)	Run npm run test:native	2026-11-06T15:02:13.4619845Z   escapedCommand: '"C:\\hostedtoolcache\\windows\\node\\24.22.2\\x64\\node.exe" "D:\\a\\CLI-Ports_Tool\\CLI-Ports_Tool\\dist\\cli.js" list --json',
+verify (windows-latest, 24)	Run npm run test:native	2026-11-06T15:02:13.4620835Z   cwd: 'D:\\a\\CLI-Ports_Tool\\CLI-Ports_Tool',
+verify (windows-latest, 24)	Run npm run test:native	2026-11-06T15:02:13.4621277Z   durationMs: 15024.976,
+verify (windows-latest, 24)	Run npm run test:native	2026-11-06T15:02:13.4621617Z   failed: true,
+verify (windows-latest, 24)	Run npm run test:native	2026-11-06T15:02:13.4621908Z   timedOut: true,
+verify (windows-latest, 24)	Run npm run test:native	2026-11-06T15:02:13.4622197Z   isCanceled: false,
+verify (windows-latest, 24)	Run npm run test:native	2026-11-06T15:02:13.4622550Z   isGracefullyCanceled: false,
+verify (windows-latest, 24)	Run npm run test:native	2026-11-06T15:02:13.4623323Z   isTerminated: true,
+verify (windows-latest, 24)	Run npm run test:native	2026-11-06T15:02:13.4623627Z   isMaxBuffer: false,
+verify (windows-latest, 24)	Run npm run test:native	2026-11-06T15:02:13.4623994Z   isForcefullyTerminated: false,
+verify (windows-latest, 24)	Run npm run test:native	2026-11-06T15:02:13.4624348Z   signal: 'SIGTERM',
+verify (windows-latest, 24)	Run npm run test:native	2026-11-06T15:02:13.4624668Z   signalDescription: 'Termination',
+verify (windows-latest, 24)	Run npm run test:native	2026-11-06T15:02:13.4625334Z   stdout: '',
+verify (windows-latest, 24)	Run npm run test:native	2026-11-06T15:02:13.4625665Z   stderr: '',
+verify (windows-latest, 24)	Run npm run test:native	2026-11-06T15:02:13.4626000Z   stdio: [ undefined, '', '' ],
+verify (windows-latest, 24)	Run npm run test:native	2026-11-06T15:02:13.4626390Z   ipcOutput: [],
+verify (windows-latest, 24)	Run npm run test:native	2026-11-06T15:02:13.4626692Z   pipedFrom: []
+verify (windows-latest, 24)	Run npm run test:native	2026-11-06T15:02:13.4627015Z }
+verify (windows-latest, 24)	Run npm run test:native	2026-11-06T15:02:13.4770082Z Native verification recorded in D:\a\_temp\ports-native-42238953525-1\native-win32.json
+verify (windows-latest, 24)	Run npm run test:native	2026-11-06T15:02:13.5294742Z ##[error]Process completed with exit code 1.

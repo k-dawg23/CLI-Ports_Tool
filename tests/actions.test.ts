@@ -120,7 +120,7 @@ test("shared-port actions use the selected PID in either enumeration order and c
   for (const pids of [[11, 22], [22, 11]]) {
     const actions: string[] = [];
     const backend: PlatformPortBackend = {
-      getListeningPorts: async () => pids.map(pid => ({ pid, port: 3000 })),
+      getListeningPorts: async () => pids.map(pid => ({ pid, port: 3000, addresses: [{ address: "127.0.0.1", family: "IPv4" as const }] })),
       getProcessStats: async () => undefined,
       getWorkingDirectory: async pid => `/project ${pid}`,
       killProcess: async (pid, port, validate) => {

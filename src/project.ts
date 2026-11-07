@@ -4,9 +4,18 @@ import { detectFramework } from "./frameworks.js";
 import type { PackageContext } from "./types.js";
 import type { CollectionContext } from "./discovery.js";
 
-const packageCache = new Map<string, PackageContext>();
+interface PackageCacheEntry { context: PackageContext; acquiredAt: number }
+const packageCache = new Map<string, PackageCacheEntry>();
+const PACKAGE_TTL_MS = 30_000;
+const PACKAGE_CACHE_LIMIT = 256;
 
-export async function getPackageContext(cwd?: string, collection?: CollectionContext): Promise<PackageContext> {
+export async function getPackageContext(cwd?: string, collection?: CollectionContext, now: () => number = Date.now): Promise<PackageContext> {
+  const currentTime = now();
+  const expiredKeys = [...packageCache].filter(([, entry]) => currentTime - entry.acquiredAt >= PACKAGE_TTL_MS).map(([key]) => key);
+  if (expiredKeys.length) {
+    const prune = () => { for (const key of expiredKeys) packageCache.delete(key); };
+    if (collection) collection.stage(prune); else prune();
+  }
   if (!cwd) {
     return {
       projectName: "-",
@@ -23,9 +32,7 @@ export async function getPackageContext(cwd?: string, collection?: CollectionCon
   }
 
   const cached = packageCache.get(packageJsonPath);
-  if (cached) {
-    return cached;
-  }
+  if (cached && currentTime - cached.acquiredAt < PACKAGE_TTL_MS) return cached.context;
 
   try {
     const raw = await fs.readFile(packageJsonPath, "utf8");
@@ -35,8 +42,19 @@ export async function getPackageContext(cwd?: string, collection?: CollectionCon
       projectName: typeof parsed.name === "string" && parsed.name.trim() ? parsed.name : path.basename(path.dirname(packageJsonPath)),
       framework: detectFramework(parsed)
     };
-    if (collection) collection.stage(() => packageCache.set(packageJsonPath, context));
-    else packageCache.set(packageJsonPath, context);
+    const entry = { context, acquiredAt: now() };
+    const publish = () => {
+      packageCache.set(packageJsonPath, entry);
+      while (packageCache.size > PACKAGE_CACHE_LIMIT) {
+        let oldestKey: string | undefined;
+        let oldestTime = Infinity;
+        for (const [key, value] of packageCache) if (value.acquiredAt < oldestTime) { oldestKey = key; oldestTime = value.acquiredAt; }
+        if (oldestKey === undefined) break;
+        packageCache.delete(oldestKey);
+      }
+    };
+    if (collection) collection.stage(publish);
+    else publish();
     return context;
   } catch {
     return {

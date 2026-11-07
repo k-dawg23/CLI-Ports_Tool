@@ -1,0 +1,14 @@
+✔ ports require complete ASCII decimal integers (3.466339ms)
+✔ checked commands retain failures and stderr, and bound owned subprocesses (97.896439ms)
+✔ missing executables remain distinct from existing commands returning nonzero (113.071149ms)
+﹣ Windows PATH/PATHEXT lookup and explicit paths preserve arguments and nonzero statuses (0.223689ms) # SKIP
+✔ collection expires, returns optional fallback, and rejects late cache publication (4.397985ms)
+✔ discovery serializes collections, prioritizes fresh validation, and recovers after failure (1.517075ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 1
+ℹ todo 0
+ℹ duration_ms 228.650425

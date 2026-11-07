@@ -1,0 +1,28 @@
+
+> ports@2.0.2 test:native
+> node --import tsx scripts/native-smoke.mjs
+
+PASS: owned listener appears in JSON, table, and check
+AssertionError [ERR_ASSERTION]: lsof: WARNING: can't stat() hugetlbfs file system /dev/hugepages
+      Output information may be incomplete.
+lsof: WARNING: can't stat() mqueue file system /dev/mqueue
+      Output information may be incomplete.
+lsof: WARNING: can't stat() nsfs file system /run/docker/netns/4989bba89b84
+      Output information may be incomplete.
+lsof: WARNING: can't stat() nsfs file system /run/docker/netns/d4eb06239c08
+      Output information may be incomplete.
+lsof: WARNING: can't stat() overlay file system /var/lib/docker/rootfs/overlayfs/e7a0ca73a19fd4bd0d59e542066464bf537330728a335c615f60c39691a08d84
+      Output information may be incomplete.
+lsof: WARNING: can't stat() overlay file system /var/lib/docker/rootfs/overlayfs/749ee4804ccb16e52e6276ee03927777fbf1e2bdadd6abdb079e440e559c9534
+      Output information may be incomplete.
+    at file:///home/kdawg/Development/CLI-Ports_Tool/scripts/native-smoke.mjs:154:14
+    at checked (file:///home/kdawg/Development/CLI-Ports_Tool/scripts/native-smoke.mjs:31:47)
+    at file:///home/kdawg/Development/CLI-Ports_Tool/scripts/native-smoke.mjs:151:11 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+Native verification recorded in /home/kdawg/Development/CLI-Ports_Tool/docs/verification/v2.0.2-local-native-approved-2026-11-07-attempt-1/native/native-linux.json

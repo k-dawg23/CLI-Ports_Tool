@@ -1,0 +1,24 @@
+
+> ports@2.0.2 test
+> node scripts/test.mjs
+
+✔ /home/kdawg/Development/CLI-Ports_Tool/tests/actions.test.ts (589.554974ms)
+✔ /home/kdawg/Development/CLI-Ports_Tool/tests/backends.test.ts (771.444905ms)
+✔ /home/kdawg/Development/CLI-Ports_Tool/tests/cli.test.ts (1144.040402ms)
+✔ /home/kdawg/Development/CLI-Ports_Tool/tests/conpty-screen.test.ts (187.284135ms)
+✔ /home/kdawg/Development/CLI-Ports_Tool/tests/foundation.test.ts (920.973833ms)
+✔ /home/kdawg/Development/CLI-Ports_Tool/tests/launcher-environment.test.ts (1480.353423ms)
+✔ /home/kdawg/Development/CLI-Ports_Tool/tests/launcher-lifetime.test.ts (16628.215367ms)
+✔ /home/kdawg/Development/CLI-Ports_Tool/tests/native-ownership.test.ts (682.364771ms)
+✔ /home/kdawg/Development/CLI-Ports_Tool/tests/project-cache.test.ts (732.014283ms)
+✔ /home/kdawg/Development/CLI-Ports_Tool/tests/readiness.test.ts (237.316291ms)
+✔ /home/kdawg/Development/CLI-Ports_Tool/tests/tui.test.ts (2613.395583ms)
+✔ /home/kdawg/Development/CLI-Ports_Tool/tests/version.test.ts (1131.993815ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 16670.370961

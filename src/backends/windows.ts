@@ -1,10 +1,12 @@
 import path from "node:path";
+import { isIP } from "node:net";
 import { buildEditorErrorMessage, derivePathFromCommandLine, resolveEditorCommand, stopValidatedProcess } from "./common.js";
 import { findCheckedCommand, requireCommand, runCheckedCommand, type CommandRunner } from "../system.js";
 import { DiscoveryError, CollectionContext } from "../discovery.js";
 import type { BackendActionResult, PlatformPortBackend, ProcessStats, RawListener, ProcessLiveness, ValidateTarget } from "./types.js";
 
 interface WindowsListener {
+  LocalAddress?: string;
   LocalPort?: number | string;
   OwningProcess?: number | string;
 }
@@ -34,27 +36,43 @@ interface CachedWindowsProcess {
   startTime?: string;
   commandLine?: string;
   executablePath?: string;
+  metadataAcquiredAt?: number;
 }
+
+const PROCESS_METADATA_TTL_MS = 30_000;
 
 export class WindowsPortBackend implements PlatformPortBackend {
   private processCache = new Map<number, CachedWindowsProcess>();
   private readonly snapshots = new WeakMap<CollectionContext, Map<number, CachedWindowsProcess>>();
+  private readonly invalidations = new WeakMap<CollectionContext, Set<number>>();
 
-  constructor(private readonly run: CommandRunner = runCheckedCommand, private readonly wait?: (ms: number) => Promise<void>) {}
+  invalidatedProcessIds(context: CollectionContext): ReadonlySet<number> {
+    return this.invalidations.get(context) ?? new Set();
+  }
+
+  constructor(private readonly run: CommandRunner = runCheckedCommand, private readonly wait?: (ms: number) => Promise<void>, private readonly now: () => number = Date.now) {}
 
   async getListeningPorts(context: CollectionContext): Promise<RawListener[]> {
     const snapshot = await this.query<WindowsSnapshotPayload>(
-      "$ErrorActionPreference = 'Stop'; $listeners = @(Get-NetTCPConnection -State Listen -ErrorAction Stop | Select-Object LocalPort,OwningProcess); [pscustomobject]@{ Listeners = $listeners } | ConvertTo-Json -Depth 5", context);
+      "$ErrorActionPreference = 'Stop'; $listeners = @(Get-NetTCPConnection -State Listen -ErrorAction Stop | Select-Object LocalAddress,LocalPort,OwningProcess); [pscustomobject]@{ Listeners = $listeners } | ConvertTo-Json -Depth 5", context);
     if (!snapshot || !Array.isArray(snapshot.Listeners)) throw new DiscoveryError("invalid-output", "Windows", "PowerShell returned an invalid listener snapshot.");
     const records = new Map<string, RawListener>();
     for (const listener of snapshot.Listeners) {
       if (!listener || typeof listener !== "object") throw new DiscoveryError("invalid-output", "Windows", "Invalid listener record.");
       const port = listener.LocalPort;
       const pid = listener.OwningProcess;
+      const address = listener.LocalAddress;
+      const family = typeof address === "string" ? isIP(address) : 0;
       if (typeof port !== "number" || !Number.isInteger(port) || port < 1 || port > 65535 || typeof pid !== "number" || !Number.isInteger(pid) || pid < 0 || pid > 0xffffffff) {
         throw new DiscoveryError("invalid-output", "Windows", "Invalid listener PID or port.");
       }
-      records.set(`${pid}:${port}`, { pid, port });
+      if (typeof address !== "string" || !address || (family !== 4 && family !== 6) || (address.includes("%") && family !== 6)) throw new DiscoveryError("invalid-output", "Windows", "Invalid listener address.");
+      const key = `${pid}:${port}`;
+      const current = records.get(key);
+      const next = [...(current?.addresses ?? []), { address, family: family === 4 ? "IPv4" as const : "IPv6" as const }];
+      const unique = new Map(next.map(item => [`${item.family}\0${item.address}`, item]));
+      const addresses = [...unique.values()].sort((a, b) => (a.family === b.family ? 0 : a.family === "IPv4" ? -1 : 1) || (a.address < b.address ? -1 : a.address > b.address ? 1 : 0));
+      records.set(key, { pid, port, addresses });
     }
     return [...records.values()];
   }
@@ -63,6 +81,8 @@ export class WindowsPortBackend implements PlatformPortBackend {
     const pids = [...new Set(records.map(record => record.pid))];
     const cache = new Map<number, CachedWindowsProcess>();
     this.snapshots.set(context, cache);
+    const invalidated = new Set<number>();
+    this.invalidations.set(context, invalidated);
     if (pids.length === 0) {
       context.stage(() => { this.processCache = cache; });
       return;
@@ -74,9 +94,18 @@ export class WindowsPortBackend implements PlatformPortBackend {
       const pid = Number(process.Id);
       if (!Number.isSafeInteger(pid) || !pids.includes(pid)) continue;
       const previous = this.processCache.get(pid);
+      const oldStart = parseStartTime(previous?.startTime);
+      const newStart = parseStartTime(process.StartTime);
+      const knownDifferentStart = oldStart !== undefined && newStart !== undefined && oldStart !== newStart;
+      if (knownDifferentStart) {
+        invalidated.add(pid);
+        context.stage(() => this.processCache.delete(pid));
+      }
+      const metadataFresh = Boolean(previous && !knownDifferentStart && previous.metadataAcquiredAt !== undefined && this.now() - previous.metadataAcquiredAt < PROCESS_METADATA_TTL_MS);
       cache.set(pid, {
         pid, name: process.ProcessName?.trim(), workingSetSize: numberOrUndefined(process.WorkingSet64), startTime: process.StartTime,
-        commandLine: previous?.commandLine, executablePath: previous?.executablePath
+        commandLine: metadataFresh ? previous?.commandLine : undefined, executablePath: metadataFresh ? previous?.executablePath : undefined,
+        metadataAcquiredAt: metadataFresh ? previous?.metadataAcquiredAt : undefined
       });
     }
     const missing = pids.filter(pid => !cache.get(pid)?.commandLine && !cache.get(pid)?.executablePath);
@@ -87,7 +116,9 @@ export class WindowsPortBackend implements PlatformPortBackend {
       for (const item of Array.isArray(metadata) ? metadata : []) {
         const pid = Number(item.ProcessId);
         if (!pids.includes(pid)) continue;
-        cache.set(pid, { ...cache.get(pid), pid, commandLine: item.CommandLine?.trim(), executablePath: item.ExecutablePath?.trim() });
+        const commandLine = item.CommandLine?.trim();
+        const executablePath = item.ExecutablePath?.trim();
+        cache.set(pid, { ...cache.get(pid), pid, commandLine, executablePath, metadataAcquiredAt: commandLine || executablePath ? this.now() : undefined });
       }
     }
     const published = new Map(cache);
@@ -210,6 +241,12 @@ export class WindowsPortBackend implements PlatformPortBackend {
     finally { context.finish(false); }
   }
 
+}
+
+function parseStartTime(value?: string): number | undefined {
+  if (!value) return undefined;
+  const parsed = Date.parse(value);
+  return Number.isFinite(parsed) ? parsed : undefined;
 }
 
 function numberOrUndefined(value?: number | string): number | undefined {

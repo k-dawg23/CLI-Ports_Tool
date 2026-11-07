@@ -83,6 +83,18 @@ Each row includes:
 
 This is useful when you just want a quick snapshot. Results are sorted by port ascending. Each row represents a unique PID and port pair: IPv4/IPv6 listeners for the same PID and port are combined, while different processes on the same port have separate rows. UDP sockets are not included.
 
+Use the static filters to narrow a snapshot. Different filters combine with AND; each may appear once. Port and PID are exact decimal matches. Project is a trimmed, case-insensitive literal substring of the displayed project name.
+
+```bash
+ports list --port 3000
+ports list --pid 1234 --project vite
+ports list --port 3000 --pid 1234 --project my-app
+```
+
+Invalid or repeated filters fail before discovery. A valid filter with no matches exits successfully; table output says `No listening TCP ports match the supplied filters.` The no-filter empty result retains its existing message.
+
+Add `--addresses` to append the complete `BINDINGS` column. Endpoints include the same port, with IPv6 addresses in brackets, such as `127.0.0.1:3000, [::1]:3000`.
+
 ### `ports list --json`
 
 Prints the same listening-port data as a JSON array.
@@ -100,6 +112,8 @@ Each object includes:
 `port` and `pid` are numbers. `command`, `projectName`, and `framework` are strings. `memoryKB` is a number in KiB, or `null` when unavailable. `uptime` is an elapsed-time string, or `null` when unavailable. An undetected framework is `"-"`; project-name fallbacks are described under Project Detection.
 
 Results use the same PID/port deduplication and port ordering as `ports list`. An empty result is `[]`. This mode is meant for scripts and integrations.
+
+`ports list --json --addresses` explicitly opts into an extended JSON schema: each entry gains an `addresses` array containing `{ "address": "...", "family": "IPv4" | "IPv6" }` objects. Without this flag, the JSON fields remain unchanged. Numeric addresses are retained, including IPv6 scope identifiers. Wildcards appear as `0.0.0.0` or `::`; an IPv6 wildcard does not imply IPv4 coverage. A bind address describes the local bind only; it does not establish external reachability, which also depends on firewall, routing, and socket behavior.
 
 Example:
 
@@ -121,6 +135,7 @@ If something is listening on that port, it prints:
 - uptime
 - command
 - working directory
+- every binding address
 
 If nothing is listening, it says the port is free.
 
@@ -160,7 +175,7 @@ ports kill --help
 ports --version
 ```
 
-`--help` shows usage and available options. `--version` prints the current version, `2.0.1`.
+`--help` shows usage and available options. `--version` prints the current version, `2.0.2`.
 
 ## TUI Guide
 
@@ -326,7 +341,7 @@ The project name uses the nearest `package.json`'s non-empty `name`. Fallbacks a
 - if no `package.json` is found, the detected working directory's name is used
 - if no working directory is available, the project name is `-`
 
-The framework is `-` when no supported framework can be detected. Working-directory, project, and framework information is cached between refreshes. Restart `ports` after changing project metadata if the displayed information is stale.
+The framework is `-` when no supported framework can be detected. Working-directory, package, and Windows command/executable metadata use a 30-second cache TTL. The first successful collection after expiry refreshes the value; this is not an exact-time display refresh guarantee. Missing or malformed package files use the existing fallback and are retried. Windows cwd remains inferred from command-line or executable-path data. When valid process start times differ for the same PID, Windows metadata is discarded immediately. Missing identity data still depends on TTL and does not prove PID reuse. This improves freshness without providing atomic process identity or eliminating PID-reuse/signalling races.
 
 ### Framework Detection
 

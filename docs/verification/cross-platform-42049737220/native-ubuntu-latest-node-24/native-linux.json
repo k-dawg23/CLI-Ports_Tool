@@ -1,0 +1,81 @@
+{
+  "platform": "linux",
+  "os": "7.0.0-1019-azure",
+  "node": "v24.22.2",
+  "terminationMechanism": "authenticated IPC request; fixture signals itself",
+  "checks": [
+    {
+      "name": "owned listener appears in JSON, table, and check",
+      "status": "passed"
+    },
+    {
+      "name": "native lsof no-match and error signatures",
+      "status": "passed"
+    },
+    {
+      "name": "native stop refuses unknown identity and a different process PID",
+      "status": "passed"
+    },
+    {
+      "name": "production stop flow requests a signal only from the authenticated owned fixture",
+      "status": "passed"
+    },
+    {
+      "name": "released port is free after successful discovery; owned sentinel survives",
+      "status": "passed"
+    }
+  ],
+  "fixtures": [
+    {
+      "name": "owned-ipv4-ipv6",
+      "command": [
+        "lsof",
+        "-iTCP",
+        "-sTCP:LISTEN",
+        "-P",
+        "-n",
+        "-a",
+        "-p",
+        "3776"
+      ],
+      "stdout": "COMMAND    PID   USER FD   TYPE DEVICE SIZE/OFF NODE NAME\nMainThrea 3776 runner 22u  IPv4  23687      0t0  TCP 127.0.0.1:39115 (LISTEN)\nMainThrea 3776 runner 23u  IPv6  23688      0t0  TCP [::1]:42533 (LISTEN)",
+      "stderr": "",
+      "exitCode": 0
+    },
+    {
+      "name": "controlled-no-match",
+      "command": [
+        "lsof",
+        "-iTCP",
+        "-sTCP:LISTEN",
+        "-P",
+        "-n",
+        "-a",
+        "-p",
+        "3768"
+      ],
+      "stdout": "",
+      "stderr": "",
+      "exitCode": 1
+    },
+    {
+      "name": "invalid-option",
+      "command": [
+        "lsof",
+        "--ports-invalid-option"
+      ],
+      "stdout": "",
+      "stderr": "lsof: illegal option character: -\nlsof: illegal process ID: orts-invalid-option\nlsof 4.99.4\n latest revision: https://github.com/lsof-org/lsof\n latest FAQ: https://github.com/lsof-org/lsof/blob/master/00FAQ\n latest (non-formatted) man page: https://github.com/lsof-org/lsof/blob/master/Lsof.8\n usage: [-?abhHKlnNoOPRtUvVX] [+|-c c] [+|-d s] [+D D] [+|-E] [+|-e s] [+|-f[gG]]\n [-F [f]] [-g [s]] [-i [i]] [+|-L [l]] [+m [m]] [+|-M] [-o [o]] [-p s]\n [+|-r [t]] [-s [p:s]] [-S [t]] [-T [t]] [-u s] [+|-w] [-x [fl]] [--] [names]\nUse the ``-h'' option to get more help information.",
+      "exitCode": 1
+    }
+  ],
+  "tool": {
+    "command": [
+      "lsof",
+      "-v"
+    ],
+    "stdout": "",
+    "stderr": "lsof version information:\n    revision: 4.99.4\n    copyright notice: Copyright 1998 Purdue Research Foundation. All rights reserved.\n    latest revision: https://github.com/lsof-org/lsof\n    latest FAQ: https://github.com/lsof-org/lsof/blob/master/00FAQ\n    latest (non-formatted) man page: https://github.com/lsof-org/lsof/blob/master/Lsof.8\n    constructed on: x86_64-pc-linux-gnu\n    compiler: gcc\n    compiler flags: -g -O2 -Werror=implicit-function-declaration -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer -ffile-prefix-map=/build/lsof-1YUBRm/lsof-4.99.4+dfsg=. -flto=auto -ffat-lto-objects -fstack-protector-strong -fstack-clash-protection -Wformat -Werror=format-security -fcf-protection -march=x86-64-v3 -fdebug-prefix-map=/build/lsof-1YUBRm/lsof-4.99.4+dfsg=/usr/src/lsof-4.99.4+dfsg-2build2 -D_FILE_OFFSET_BITS=64 -I/usr/include/tirpc\n    loader flags: -Wl,-Bsymbolic-functions -Wl,--package-metadata=%7B%22type%22:%22deb%22%2C%22os%22:%22ubuntu%22%2C%22name%22:%22lsof%22%2C%22version%22:%224.99.4+dfsg-2build2%22%2C%22architecture%22:%22amd64%22%2C%22architectureVariant%22:%22amd64v3%22%7D -flto=auto -ffat-lto-objects -Wl,-z,relro -Wl,-z,now -march=x86-64-v3 -ltirpc -lselinux\n    features enabled: ipv6 ptyept rpc selinux soopt sostate tasks uxsockept\n    Anyone can list all files.\n    /dev warnings are disabled.\n    Kernel ID check is disabled.",
+    "exitCode": 0
+  }
+}
