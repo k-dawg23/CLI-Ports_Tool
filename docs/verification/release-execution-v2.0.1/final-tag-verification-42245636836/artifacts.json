@@ -1,0 +1,137 @@
+{
+  "artifacts": [
+    {
+      "id": 13519020298,
+      "name": "native-ubuntu-latest-node-24",
+      "size_in_bytes": 2315,
+      "url": "https://api.github.com/repos/k-dawg23/CLI-Ports_Tool/actions/artifacts/13519020298",
+      "archive_download_url": "https://api.github.com/repos/k-dawg23/CLI-Ports_Tool/actions/artifacts/13519020298/zip",
+      "expired": false,
+      "created_at": "2026-11-06T15:44:38Z",
+      "expires_at": "2027-02-04T15:43:09Z",
+      "updated_at": "2026-11-06T15:44:38Z",
+      "digest": "sha256:8be36887f25606b2f2fd9d3a2d4ca05e03d9f74d05b39c2d47adc6bace95e633",
+      "workflow_run": {
+        "id": 42245636836,
+        "repository_id": 1197061189,
+        "head_repository_id": 1197061189,
+        "head_branch": "v2.0.1",
+        "head_sha": "9ccdd9a6ec7daf13ff763071208cd1555cc5dfeb"
+      }
+    },
+    {
+      "id": 13519000181,
+      "name": "native-macos-latest-node-24",
+      "size_in_bytes": 1829,
+      "url": "https://api.github.com/repos/k-dawg23/CLI-Ports_Tool/actions/artifacts/13519000181",
+      "archive_download_url": "https://api.github.com/repos/k-dawg23/CLI-Ports_Tool/actions/artifacts/13519000181/zip",
+      "expired": false,
+      "created_at": "2026-11-06T15:44:48Z",
+      "expires_at": "2027-02-04T15:43:09Z",
+      "updated_at": "2026-11-06T15:44:48Z",
+      "digest": "sha256:cae11370d6e294796baae2a1b0f2660e050ffcd3bb1c90849793bfdcc598f9c5",
+      "workflow_run": {
+        "id": 42245636836,
+        "repository_id": 1197061189,
+        "head_repository_id": 1197061189,
+        "head_branch": "v2.0.1",
+        "head_sha": "9ccdd9a6ec7daf13ff763071208cd1555cc5dfeb"
+      }
+    },
+    {
+      "id": 13518280576,
+      "name": "native-ubuntu-latest-node-22.18.0",
+      "size_in_bytes": 2304,
+      "url": "https://api.github.com/repos/k-dawg23/CLI-Ports_Tool/actions/artifacts/13518280576",
+      "archive_download_url": "https://api.github.com/repos/k-dawg23/CLI-Ports_Tool/actions/artifacts/13518280576/zip",
+      "expired": false,
+      "created_at": "2026-11-06T15:44:13Z",
+      "expires_at": "2027-02-04T15:43:09Z",
+      "updated_at": "2026-11-06T15:44:13Z",
+      "digest": "sha256:a91926b2eb051c1e3ef4ec0ff231be6221cdb800a6b859ed8b2355949d68c00e",
+      "workflow_run": {
+        "id": 42245636836,
+        "repository_id": 1197061189,
+        "head_repository_id": 1197061189,
+        "head_branch": "v2.0.1",
+        "head_sha": "9ccdd9a6ec7daf13ff763071208cd1555cc5dfeb"
+      }
+    },
+    {
+      "id": 13518275652,
+      "name": "unix-pty-ubuntu-latest-node-24",
+      "size_in_bytes": 15426,
+      "url": "https://api.github.com/repos/k-dawg23/CLI-Ports_Tool/actions/artifacts/13518275652",
+      "archive_download_url": "https://api.github.com/repos/k-dawg23/CLI-Ports_Tool/actions/artifacts/13518275652/zip",
+      "expired": false,
+      "created_at": "2026-11-06T15:44:37Z",
+      "expires_at": "2027-02-04T15:43:09Z",
+      "updated_at": "2026-11-06T15:44:37Z",
+      "digest": "sha256:3b8b69f2d6eaa60bdd3e9fb21f3a9ce17e3dd4baf7d9a0c2208f97b4f5623a63",
+      "workflow_run": {
+        "id": 42245636836,
+        "repository_id": 1197061189,
+        "head_repository_id": 1197061189,
+        "head_branch": "v2.0.1",
+        "head_sha": "9ccdd9a6ec7daf13ff763071208cd1555cc5dfeb"
+      }
+    },
+    {
+      "id": 13517748474,
+      "name": "unix-pty-macos-latest-node-24",
+      "size_in_bytes": 15926,
+      "url": "https://api.github.com/repos/k-dawg23/CLI-Ports_Tool/actions/artifacts/13517748474",
+      "archive_download_url": "https://api.github.com/repos/k-dawg23/CLI-Ports_Tool/actions/artifacts/13517748474/zip",
+      "expired": false,
+      "created_at": "2026-11-06T15:44:47Z",
+      "expires_at": "2027-02-04T15:43:09Z",
+      "updated_at": "2026-11-06T15:44:47Z",
+      "digest": "sha256:7c7421dc2bcbd38b0333f349cca1e38473d1294335f65685321455d72cb86c27",
+      "workflow_run": {
+        "id": 42245636836,
+        "repository_id": 1197061189,
+        "head_repository_id": 1197061189,
+        "head_branch": "v2.0.1",
+        "head_sha": "9ccdd9a6ec7daf13ff763071208cd1555cc5dfeb"
+      }
+    },
+    {
+      "id": 13517389719,
+      "name": "native-windows-latest-node-24",
+      "size_in_bytes": 3048,
+      "url": "https://api.github.com/repos/k-dawg23/CLI-Ports_Tool/actions/artifacts/13517389719",
+      "archive_download_url": "https://api.github.com/repos/k-dawg23/CLI-Ports_Tool/actions/artifacts/13517389719/zip",
+      "expired": false,
+      "created_at": "2026-11-06T15:45:29Z",
+      "expires_at": "2027-02-04T15:43:09Z",
+      "updated_at": "2026-11-06T15:45:29Z",
+      "digest": "sha256:45474a871562027e3ddc4ebccd4c2263a81475d976172dc8bed7174a70e28abb",
+      "workflow_run": {
+        "id": 42245636836,
+        "repository_id": 1197061189,
+        "head_repository_id": 1197061189,
+        "head_branch": "v2.0.1",
+        "head_sha": "9ccdd9a6ec7daf13ff763071208cd1555cc5dfeb"
+      }
+    },
+    {
+      "id": 13516324867,
+      "name": "conpty-windows-node-24",
+      "size_in_bytes": 36165615,
+      "url": "https://api.github.com/repos/k-dawg23/CLI-Ports_Tool/actions/artifacts/13516324867",
+      "archive_download_url": "https://api.github.com/repos/k-dawg23/CLI-Ports_Tool/actions/artifacts/13516324867/zip",
+      "expired": false,
+      "created_at": "2026-11-06T15:45:28Z",
+      "expires_at": "2027-02-04T15:43:09Z",
+      "updated_at": "2026-11-06T15:45:28Z",
+      "digest": "sha256:1f7bf96a69ade69f7d53d0e6f5a97af4675e85a72d92658afa13b2025d46cadf",
+      "workflow_run": {
+        "id": 42245636836,
+        "repository_id": 1197061189,
+        "head_repository_id": 1197061189,
+        "head_branch": "v2.0.1",
+        "head_sha": "9ccdd9a6ec7daf13ff763071208cd1555cc5dfeb"
+      }
+    }
+  ]
+}

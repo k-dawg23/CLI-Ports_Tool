@@ -1,0 +1,9 @@
+{"marker": "controlling-terminal", "foregroundGroup": 3747, "pid": 3747}
+{"marker":"dimensions","columns":160,"rows":60}
+{"marker":"probe-start","stdinTTY":true,"stdoutTTY":true,"rawAvailable":true,"node":"v24.22.2"}
+{"marker":"raw-ready","raw":true}
+{"marker":"key","name":"a","sequence":"a"}
+{"marker":"key","name":"up","sequence":"\u001b[A"}
+{"marker":"key","name":"b","sequence":"b"}
+{"marker":"key","name":"q","sequence":"q"}
+{"marker":"probe-complete","raw":false}

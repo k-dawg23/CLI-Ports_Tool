@@ -9,7 +9,7 @@ import { WindowsPortBackend } from "../src/backends/windows.js";
 import { runCheckedCommand, type CommandOptions, type CommandRunner } from "../src/system.js";
 
 const keys = ["LC_ALL", "LANG", "LC_MESSAGES", "LANGUAGE", "PORTS_LAUNCHER_TEST_MARKER"] as const;
-const probe = `process.stdout.write(JSON.stringify(Object.fromEntries(${JSON.stringify(keys)}.map(key => [key, process.env[key] ?? null]))))`;
+const probe = `require('node:fs').writeSync(1, JSON.stringify(Object.fromEntries(${JSON.stringify(keys)}.map(key => [key, process.env[key] ?? null]))))`;
 const environment = { LANG: "fr_FR.UTF-8", LC_MESSAGES: "de_DE.UTF-8", LANGUAGE: "fr:en", PORTS_LAUNCHER_TEST_MARKER: "inherited unchanged" };
 
 async function withEnvironment(values: Record<string, string | undefined>, work: () => Promise<void>) {

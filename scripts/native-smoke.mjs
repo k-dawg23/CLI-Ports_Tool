@@ -18,7 +18,7 @@ import { CollectionContext } from "../src/discovery.ts";
 const linuxMountWarnings = text => {
   const lines = text.trimEnd().split("\n");
   return lines.length % 2 === 0 && lines.every((line, index) => index % 2 === 0
-    ? /^lsof: WARNING: can't stat\(\) (overlay|nsfs) file system .+$/.test(line)
+    ? /^lsof: WARNING: can't stat\(\) (overlay|nsfs|hugetlbfs|mqueue) file system .+$/.test(line)
     : /^\s+Output information may be incomplete\.$/.test(line));
 };
 
@@ -53,7 +53,7 @@ async function server(hosts) {
     process.on('message',message=>{
       if(message?.type==='ports-native-stop' && message.token===token && message.pid===process.pid && ['SIGTERM','SIGKILL'].includes(message.signal)) process.kill(process.pid,message.signal);
     });
-    Promise.all(${JSON.stringify(hosts)}.map(host=>new Promise((resolve,reject)=>{const server=net.createServer();server.once('error',reject);server.listen({port:0,host,exclusive:true},()=>resolve({host,port:server.address().port}));}))).then(ports=>process.send({type:'ports-native-ready',token,pid:process.pid,ports}),error=>{console.error(error.message);process.exit(1);});`;
+    Promise.all(${JSON.stringify(hosts)}.map(host=>new Promise(resolve=>{const server=net.createServer();server.once('error',error=>resolve({host,error:error.code||error.message}));server.listen({port:0,host,exclusive:true},()=>resolve({host,port:server.address().port}));}))).then(results=>process.send({type:'ports-native-ready',token,pid:process.pid,attemptedHosts:${JSON.stringify(hosts)},ports:results.filter(item=>item.port),unavailableHosts:results.filter(item=>item.error)}));`;
   const child = spawn(process.execPath, ["-e", code], { stdio: ["ignore", "ignore", "pipe", "ipc"] });
   const owner = createOwnedStopGuard(child, token);
   let stderr = "";
@@ -72,8 +72,10 @@ async function server(hosts) {
 
 try {
   await fs.mkdir(directory, { recursive: true });
-  const target = await server(process.platform === "win32" ? ["127.0.0.1"] : ["127.0.0.1", "::1"]);
+  const target = await server(["127.0.0.1", "::1"]);
   const sentinel = await server(["127.0.0.1"]);
+  capture.bindCapabilities = { attemptedHosts: target.attemptedHosts, available: target.ports.map(item => item.host), unavailable: target.unavailableHosts };
+  if (!target.ports.some(item => item.host === "127.0.0.1")) throw new Error(`Native IPv4 loopback bind unavailable: ${JSON.stringify(target.unavailableHosts)}`);
   const port = target.ports[0].port;
   await checked("owned listener appears in JSON, table, and check", async () => {
     const json = await run(["list", "--json"]);
@@ -82,6 +84,14 @@ try {
     assert.ok(rows.length > 0);
     // Refuse the port-based stop if any listener on the port is not ours.
     assert.ok(rows.every(row => row.pid === target.pid), "Port is shared with a process the test does not own; refusing termination.");
+    const extended = await run(["list", "--json", "--addresses"]);
+    assert.equal(extended.exitCode, 0, extended.stderr);
+    const extendedRows = JSON.parse(extended.stdout).filter(row => row.pid === target.pid);
+    for (const binding of target.ports) {
+      const family = binding.host.includes(":") ? "IPv6" : "IPv4";
+      assert.ok(extendedRows.some(row => row.port === binding.port && row.addresses.some(address => address.family === family && address.address === binding.host)), `Missing native ${family} binding ${binding.host}:${binding.port}`);
+    }
+    capture.bindings = target.ports.map(binding => ({ pid: target.pid, ...binding, family: binding.host.includes(":") ? "IPv6" : "IPv4", verified: true }));
     for (const args of [["list"], ["check", String(port)]]) {
       const r = await run(args); assert.equal(r.exitCode, 0, r.stderr); assert.match(r.stdout, new RegExp(String(target.pid)));
     }

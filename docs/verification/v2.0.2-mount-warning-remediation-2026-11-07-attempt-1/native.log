@@ -1,0 +1,10 @@
+
+> ports@2.0.2 test:native
+> node --import tsx scripts/native-smoke.mjs
+
+PASS: owned listener appears in JSON, table, and check
+PASS: native lsof no-match and error signatures
+PASS: native stop refuses unknown identity and a different process PID
+PASS: production stop flow requests a signal only from the authenticated owned fixture
+PASS: released port is free after successful discovery; owned sentinel survives
+Native verification recorded in /home/kdawg/Development/CLI-Ports_Tool/docs/verification/v2.0.2-mount-warning-remediation-2026-11-07-attempt-1/native/native-linux.json

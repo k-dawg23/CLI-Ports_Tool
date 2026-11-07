@@ -1,0 +1,18 @@
+verify (windows-latest, 24)	Windows ConPTY feasibility experiment	﻿2026-11-06T10:16:32.2318641Z ##[group]Run node scripts/conpty/experiment.mjs
+verify (windows-latest, 24)	Windows ConPTY feasibility experiment	2026-11-06T10:16:32.2319102Z ^[[36;1mnode scripts/conpty/experiment.mjs^[[0m
+verify (windows-latest, 24)	Windows ConPTY feasibility experiment	2026-11-06T10:16:32.2406221Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+verify (windows-latest, 24)	Windows ConPTY feasibility experiment	2026-11-06T10:16:32.2406824Z env:
+verify (windows-latest, 24)	Windows ConPTY feasibility experiment	2026-11-06T10:16:32.2407246Z   PORTS_NATIVE_OUTPUT_DIR: D:\a\_temp/ports-native-42201118393-1
+verify (windows-latest, 24)	Windows ConPTY feasibility experiment	2026-11-06T10:16:32.2407975Z   PORTS_CONPTY_OUTPUT_DIR: D:\a\_temp\ports-native-42201118393-1\conpty
+verify (windows-latest, 24)	Windows ConPTY feasibility experiment	2026-11-06T10:16:32.2408549Z ##[endgroup]
+verify (windows-latest, 24)	Windows ConPTY feasibility experiment	2026-11-06T10:17:02.6329965Z AssertionError [ERR_ASSERTION]: Timed out: feasibility: raw-ready
+verify (windows-latest, 24)	Windows ConPTY feasibility experiment	2026-11-06T10:17:02.6331069Z     at Object.wait (file:///D:/a/CLI-Ports_Tool/CLI-Ports_Tool/scripts/conpty/experiment.mjs:39:14)
+verify (windows-latest, 24)	Windows ConPTY feasibility experiment	2026-11-06T10:17:02.6332129Z     at async file:///D:/a/CLI-Ports_Tool/CLI-Ports_Tool/scripts/conpty/experiment.mjs:62:3 {
+verify (windows-latest, 24)	Windows ConPTY feasibility experiment	2026-11-06T10:17:02.6333051Z   generatedMessage: false,
+verify (windows-latest, 24)	Windows ConPTY feasibility experiment	2026-11-06T10:17:02.6333410Z   code: 'ERR_ASSERTION',
+verify (windows-latest, 24)	Windows ConPTY feasibility experiment	2026-11-06T10:17:02.6333678Z   actual: false,
+verify (windows-latest, 24)	Windows ConPTY feasibility experiment	2026-11-06T10:17:02.6334025Z   expected: true,
+verify (windows-latest, 24)	Windows ConPTY feasibility experiment	2026-11-06T10:17:02.6334307Z   operator: '==',
+verify (windows-latest, 24)	Windows ConPTY feasibility experiment	2026-11-06T10:17:02.6334584Z   diff: 'simple'
+verify (windows-latest, 24)	Windows ConPTY feasibility experiment	2026-11-06T10:17:02.6334824Z }
+verify (windows-latest, 24)	Windows ConPTY feasibility experiment	2026-11-06T10:17:02.7593059Z ##[error]Process completed with exit code 1.

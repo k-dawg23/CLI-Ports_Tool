@@ -69,7 +69,7 @@ function isReadOnlyPowerShell(script) {
   // Match whole production query forms: a known prefix alone must not permit
   // an appended mutating command to bypass the test's stop boundary.
   if (typeof script !== "string") return false;
-  if (script === "$ErrorActionPreference = 'Stop'; $listeners = @(Get-NetTCPConnection -State Listen -ErrorAction Stop | Select-Object LocalPort,OwningProcess); [pscustomobject]@{ Listeners = $listeners } | ConvertTo-Json -Depth 5") return true;
+  if (script === "$ErrorActionPreference = 'Stop'; $listeners = @(Get-NetTCPConnection -State Listen -ErrorAction Stop | Select-Object LocalAddress,LocalPort,OwningProcess); [pscustomobject]@{ Listeners = $listeners } | ConvertTo-Json -Depth 5") return true;
   const pids = /Get-Process -Id @\(([0-9]+(?:,[0-9]+)*)\)/.exec(script)?.[1];
   if (pids && script === `$ErrorActionPreference = 'Stop'; $items = @(Get-Process -Id @(${pids}) -ErrorAction SilentlyContinue | Select-Object Id,ProcessName,WorkingSet64,@{Name='StartTime';Expression={try {$_.StartTime.ToUniversalTime().ToString('o')} catch {$null}}}); ConvertTo-Json -InputObject $items -Depth 4`) return true;
   const filter = /Get-CimInstance Win32_Process -Filter "(ProcessId = [0-9]+(?: OR ProcessId = [0-9]+)*)"/.exec(script)?.[1];

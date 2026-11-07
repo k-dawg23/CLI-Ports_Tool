@@ -1,0 +1,33 @@
+{
+  "platform": "linux",
+  "os": "7.0.0-42-generic",
+  "node": "v24.21.0",
+  "github": {},
+  "terminationMechanism": "authenticated IPC request; fixture signals itself",
+  "checks": [
+    {
+      "name": "native smoke",
+      "status": "failed",
+      "error": "Native IPv4 loopback bind unavailable: [{\"host\":\"127.0.0.1\",\"error\":\"EPERM\"},{\"host\":\"::1\",\"error\":\"EPERM\"}]"
+    }
+  ],
+  "fixtures": [],
+  "commands": [],
+  "bindCapabilities": {
+    "attemptedHosts": [
+      "127.0.0.1",
+      "::1"
+    ],
+    "available": [],
+    "unavailable": [
+      {
+        "host": "127.0.0.1",
+        "error": "EPERM"
+      },
+      {
+        "host": "::1",
+        "error": "EPERM"
+      }
+    ]
+  }
+}

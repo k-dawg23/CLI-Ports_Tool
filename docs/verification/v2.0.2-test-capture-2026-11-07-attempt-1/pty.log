@@ -1,0 +1,30 @@
+PTY waiting: raw-ready
+PTY observed: raw-ready
+PTY waiting: key a
+PTY observed: key a
+PTY waiting: key up
+PTY observed: key up
+PTY waiting: key b
+PTY observed: key b
+PTY waiting: key q
+PTY observed: key q
+PTY waiting: raw-ready
+PTY observed: raw-ready
+PTY waiting: raw-ready
+PTY observed: raw-ready
+Stage 1 PASS: actual Unix PTY, TTY/raw input, keyboard, output, dimensions, normal exit and abort/disconnect cleanup
+PTY cleaning owned fixtures
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+1 !== 0
+
+    at verifyCli (file:///home/kdawg/Development/CLI-Ports_Tool/scripts/unix-pty/cli-stage.mjs:150:14)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async file:///home/kdawg/Development/CLI-Ports_Tool/scripts/unix-pty/experiment.mjs:83:5 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: 1,
+  expected: 0,
+  operator: 'strictEqual',
+  diff: 'simple'
+}

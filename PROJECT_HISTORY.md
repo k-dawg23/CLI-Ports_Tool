@@ -1,5 +1,13 @@
 # Project History
 
+## v2.0.2
+
+- Wait for observed raw-mode readiness before terminal harness input, while retaining bounded waits and cleanup checks.
+- Preserve numeric IPv4/IPv6 listener bindings, aggregate them by PID/port, and expose them through opt-in static output and detail views.
+- Add exact port/PID and literal project-substring filters to `ports list`.
+- Bound package, service cwd, and Windows process metadata freshness with a shared 30-second TTL and bounded package cache.
+- Updated version metadata and current documentation. v2.0.2 cross-platform verification is pending; see the implementation and verification report.
+
 ## v2.0.1 - 2026-11-06
 
 - Captured the selected PID/port for TUI actions and preserved selection through refreshes and sorting.

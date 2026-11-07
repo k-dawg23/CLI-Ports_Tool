@@ -1,0 +1,13 @@
+
+> ports@2.0.2 test:integration
+> node scripts/test.mjs --integration
+
+file:///home/kdawg/Development/CLI-Ports_Tool/scripts/stdio-preflight.mjs:10
+    throw new Error(`Piped Node output is unavailable or incorrect: ${JSON.stringify({ exitCode: probe.exitCode, stdout: probe.stdout, stderr: probe.stderr })}. This blocks pipe verification. For local redirected-output integration checks, use npm run test:integration -- --file-capture. CI must pass piped capture.`);
+          ^
+
+Error: Piped Node output is unavailable or incorrect: {"exitCode":0,"stdout":"descriptor;","stderr":""}. This blocks pipe verification. For local redirected-output integration checks, use npm run test:integration -- --file-capture. CI must pass piped capture.
+    at assertPipeCapture (file:///home/kdawg/Development/CLI-Ports_Tool/scripts/stdio-preflight.mjs:10:11)
+    at async file:///home/kdawg/Development/CLI-Ports_Tool/scripts/test.mjs:9:34
+
+Node.js v24.21.0

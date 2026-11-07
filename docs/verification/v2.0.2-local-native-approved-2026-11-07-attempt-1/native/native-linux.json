@@ -1,0 +1,216 @@
+{
+  "platform": "linux",
+  "os": "7.0.0-42-generic",
+  "node": "v24.21.0",
+  "github": {},
+  "terminationMechanism": "authenticated IPC request; fixture signals itself",
+  "checks": [
+    {
+      "name": "owned listener appears in JSON, table, and check",
+      "status": "passed"
+    },
+    {
+      "name": "native smoke",
+      "status": "failed",
+      "error": "lsof: WARNING: can't stat() hugetlbfs file system /dev/hugepages\n      Output information may be incomplete.\nlsof: WARNING: can't stat() mqueue file system /dev/mqueue\n      Output information may be incomplete.\nlsof: WARNING: can't stat() nsfs file system /run/docker/netns/4989bba89b84\n      Output information may be incomplete.\nlsof: WARNING: can't stat() nsfs file system /run/docker/netns/d4eb06239c08\n      Output information may be incomplete.\nlsof: WARNING: can't stat() overlay file system /var/lib/docker/rootfs/overlayfs/e7a0ca73a19fd4bd0d59e542066464bf537330728a335c615f60c39691a08d84\n      Output information may be incomplete.\nlsof: WARNING: can't stat() overlay file system /var/lib/docker/rootfs/overlayfs/749ee4804ccb16e52e6276ee03927777fbf1e2bdadd6abdb079e440e559c9534\n      Output information may be incomplete."
+    }
+  ],
+  "fixtures": [
+    {
+      "name": "owned-ipv4-ipv6",
+      "command": [
+        "lsof",
+        "-iTCP",
+        "-sTCP:LISTEN",
+        "-P",
+        "-n",
+        "-a",
+        "-p",
+        "28"
+      ],
+      "stdout": "COMMAND   PID  USER   FD   TYPE DEVICE SIZE/OFF NODE NAME\nMainThrea  28 kdawg   19u  IPv4 257477      0t0  TCP 127.0.0.1:41859 (LISTEN)\nMainThrea  28 kdawg   20u  IPv6 257478      0t0  TCP [::1]:36879 (LISTEN)",
+      "stderr": "lsof: WARNING: can't stat() hugetlbfs file system /dev/hugepages\n      Output information may be incomplete.\nlsof: WARNING: can't stat() mqueue file system /dev/mqueue\n      Output information may be incomplete.\nlsof: WARNING: can't stat() nsfs file system /run/docker/netns/4989bba89b84\n      Output information may be incomplete.\nlsof: WARNING: can't stat() nsfs file system /run/docker/netns/d4eb06239c08\n      Output information may be incomplete.\nlsof: WARNING: can't stat() overlay file system /var/lib/docker/rootfs/overlayfs/e7a0ca73a19fd4bd0d59e542066464bf537330728a335c615f60c39691a08d84\n      Output information may be incomplete.\nlsof: WARNING: can't stat() overlay file system /var/lib/docker/rootfs/overlayfs/749ee4804ccb16e52e6276ee03927777fbf1e2bdadd6abdb079e440e559c9534\n      Output information may be incomplete.",
+      "exitCode": 0
+    },
+    {
+      "name": "controlled-no-match",
+      "command": [
+        "lsof",
+        "-iTCP",
+        "-sTCP:LISTEN",
+        "-P",
+        "-n",
+        "-a",
+        "-p",
+        "16"
+      ],
+      "stdout": "",
+      "stderr": "lsof: WARNING: can't stat() hugetlbfs file system /dev/hugepages\n      Output information may be incomplete.\nlsof: WARNING: can't stat() mqueue file system /dev/mqueue\n      Output information may be incomplete.\nlsof: WARNING: can't stat() nsfs file system /run/docker/netns/4989bba89b84\n      Output information may be incomplete.\nlsof: WARNING: can't stat() nsfs file system /run/docker/netns/d4eb06239c08\n      Output information may be incomplete.\nlsof: WARNING: can't stat() overlay file system /var/lib/docker/rootfs/overlayfs/e7a0ca73a19fd4bd0d59e542066464bf537330728a335c615f60c39691a08d84\n      Output information may be incomplete.\nlsof: WARNING: can't stat() overlay file system /var/lib/docker/rootfs/overlayfs/749ee4804ccb16e52e6276ee03927777fbf1e2bdadd6abdb079e440e559c9534\n      Output information may be incomplete.",
+      "exitCode": 1
+    },
+    {
+      "name": "invalid-option",
+      "command": [
+        "lsof",
+        "--ports-invalid-option"
+      ],
+      "stdout": "",
+      "stderr": "lsof: illegal option character: -\nlsof: illegal process ID: orts-invalid-option\nlsof 4.95.0\n latest revision: https://github.com/lsof-org/lsof\n latest FAQ: https://github.com/lsof-org/lsof/blob/master/00FAQ\n latest (non-formatted) man page: https://github.com/lsof-org/lsof/blob/master/Lsof.8\n usage: [-?abhKlnNoOPRtUvVX] [+|-c c] [+|-d s] [+D D] [+|-E] [+|-e s] [+|-f[gG]]\n [-F [f]] [-g [s]] [-i [i]] [+|-L [l]] [+m [m]] [+|-M] [-o [o]] [-p s]\n [+|-r [t]] [-s [p:s]] [-S [t]] [-T [t]] [-u s] [+|-w] [-x [fl]] [--] [names]\nUse the ``-h'' option to get more help information.",
+      "exitCode": 1
+    }
+  ],
+  "commands": [
+    {
+      "command": [
+        "/home/kdawg/.nvm/versions/node/v24.21.0/bin/node",
+        "/home/kdawg/Development/CLI-Ports_Tool/dist/cli.js",
+        "list",
+        "--json"
+      ],
+      "timeoutMs": 30000,
+      "durationMs": 1087,
+      "exitCode": 0,
+      "timedOut": false,
+      "stdout": "[\n  {\n    \"port\": 36879,\n    \"pid\": 28,\n    \"command\": \"n\",\n    \"projectName\": \"ports\",\n    \"framework\": \"-\",\n    \"memoryKB\": 47016,\n    \"uptime\": \"00:00\"\n  },\n  {\n    \"port\": 41859,\n    \"pid\": 28,\n    \"command\": \"n\",\n    \"projectName\": \"ports\",\n    \"framework\": \"-\",\n    \"memoryKB\": 47016,\n    \"uptime\": \"00:00\"\n  },\n  {\n    \"port\": 45595,\n    \"pid\": 35,\n    \"command\": \"n\",\n    \"projectName\": \"ports\",\n    \"framework\": \"-\",\n    \"memoryKB\": 46592,\n    \"uptime\": \"00:00\"\n  }\n]",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/home/kdawg/.nvm/versions/node/v24.21.0/bin/node",
+        "/home/kdawg/Development/CLI-Ports_Tool/dist/cli.js",
+        "list",
+        "--json",
+        "--addresses"
+      ],
+      "timeoutMs": 30000,
+      "durationMs": 1040,
+      "exitCode": 0,
+      "timedOut": false,
+      "stdout": "[\n  {\n    \"port\": 36879,\n    \"pid\": 28,\n    \"command\": \"n\",\n    \"projectName\": \"ports\",\n    \"framework\": \"-\",\n    \"memoryKB\": 47016,\n    \"uptime\": \"00:01\",\n    \"addresses\": [\n      {\n        \"address\": \"::1\",\n        \"family\": \"IPv6\"\n      }\n    ]\n  },\n  {\n    \"port\": 41859,\n    \"pid\": 28,\n    \"command\": \"n\",\n    \"projectName\": \"ports\",\n    \"framework\": \"-\",\n    \"memoryKB\": 47016,\n    \"uptime\": \"00:01\",\n    \"addresses\": [\n      {\n        \"address\": \"127.0.0.1\",\n        \"family\": \"IPv4\"\n      }\n    ]\n  },\n  {\n    \"port\": 45595,\n    \"pid\": 35,\n    \"command\": \"n\",\n    \"projectName\": \"ports\",\n    \"framework\": \"-\",\n    \"memoryKB\": 46592,\n    \"uptime\": \"00:01\",\n    \"addresses\": [\n      {\n        \"address\": \"127.0.0.1\",\n        \"family\": \"IPv4\"\n      }\n    ]\n  }\n]",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/home/kdawg/.nvm/versions/node/v24.21.0/bin/node",
+        "/home/kdawg/Development/CLI-Ports_Tool/dist/cli.js",
+        "list"
+      ],
+      "timeoutMs": 30000,
+      "durationMs": 1047,
+      "exitCode": 0,
+      "timedOut": false,
+      "stdout": "PORT    PROJECT                 FRAMEWORK     PID       MEM         UPTIME        COMMAND             \n36879   ports                   -             28        45.9 MB     00:02         n                   \n41859   ports                   -             28        45.9 MB     00:02         n                   \n45595   ports                   -             35        45.5 MB     00:02         n                   ",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/home/kdawg/.nvm/versions/node/v24.21.0/bin/node",
+        "/home/kdawg/Development/CLI-Ports_Tool/dist/cli.js",
+        "check",
+        "41859"
+      ],
+      "timeoutMs": 30000,
+      "durationMs": 1063,
+      "exitCode": 0,
+      "timedOut": false,
+      "stdout": "Port: 41859\nProject: ports\nFramework: -\nPID: 28\nBindings: 127.0.0.1:41859\nMemory: 45.9 MB\nUptime: 00:03\nCommand: n\nWorking Dir: /home/kdawg/Development/CLI-Ports_Tool",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "lsof",
+        "-v"
+      ],
+      "timeoutMs": 15000,
+      "durationMs": 9,
+      "exitCode": 0,
+      "timedOut": false,
+      "stdout": "",
+      "stderr": "lsof version information:\n    revision: 4.95.0\n    latest revision: https://github.com/lsof-org/lsof\n    latest FAQ: https://github.com/lsof-org/lsof/blob/master/00FAQ\n    latest (non-formatted) man page: https://github.com/lsof-org/lsof/blob/master/Lsof.8\n    compiler: cc\n    compiler version: 13.2.0 (Ubuntu 13.2.0-23ubuntu3) \n    compiler flags: -g -O2 -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer -ffile-prefix-map=/build/lsof-8bfuv2/lsof-4.95.0=. -flto=auto -ffat-lto-objects -fstack-protector-strong -fstack-clash-protection -Wformat -Werror=format-security -fcf-protection -fdebug-prefix-map=/build/lsof-8bfuv2/lsof-4.95.0=/usr/src/lsof-4.95.0-1build3 -Wdate-time -D_FORTIFY_SOURCE=3 -DLINUXV=68000 -DGLIBCV=239 -DHASIPv6 -DNEEDS_NETINET_TCPH -DHASSELINUX -DHASUXSOCKEPT -DHASPTYEPT -DHASSOSTATE -DHASSOOPT -D_FILE_OFFSET_BITS=64 -D_LARGEFILE64_SOURCE -DHAS_STRFTIME -DLSOF_VSTR=\"6.8.0\" -I/usr/include/tirpc -O\n    loader flags: -L./lib -llsof -Wl,-Bsymbolic-functions -flto=auto -ffat-lto-objects -Wl,-z,relro -Wl,-z,now -ltirpc -lselinux\n    Anyone can list all files.\n    /dev warnings are disabled.\n    Kernel ID check is disabled."
+    },
+    {
+      "command": [
+        "lsof",
+        "-iTCP",
+        "-sTCP:LISTEN",
+        "-P",
+        "-n",
+        "-a",
+        "-p",
+        "28"
+      ],
+      "timeoutMs": 15000,
+      "durationMs": 556,
+      "exitCode": 0,
+      "timedOut": false,
+      "stdout": "COMMAND   PID  USER   FD   TYPE DEVICE SIZE/OFF NODE NAME\nMainThrea  28 kdawg   19u  IPv4 257477      0t0  TCP 127.0.0.1:41859 (LISTEN)\nMainThrea  28 kdawg   20u  IPv6 257478      0t0  TCP [::1]:36879 (LISTEN)",
+      "stderr": "lsof: WARNING: can't stat() hugetlbfs file system /dev/hugepages\n      Output information may be incomplete.\nlsof: WARNING: can't stat() mqueue file system /dev/mqueue\n      Output information may be incomplete.\nlsof: WARNING: can't stat() nsfs file system /run/docker/netns/4989bba89b84\n      Output information may be incomplete.\nlsof: WARNING: can't stat() nsfs file system /run/docker/netns/d4eb06239c08\n      Output information may be incomplete.\nlsof: WARNING: can't stat() overlay file system /var/lib/docker/rootfs/overlayfs/e7a0ca73a19fd4bd0d59e542066464bf537330728a335c615f60c39691a08d84\n      Output information may be incomplete.\nlsof: WARNING: can't stat() overlay file system /var/lib/docker/rootfs/overlayfs/749ee4804ccb16e52e6276ee03927777fbf1e2bdadd6abdb079e440e559c9534\n      Output information may be incomplete."
+    },
+    {
+      "command": [
+        "lsof",
+        "-iTCP",
+        "-sTCP:LISTEN",
+        "-P",
+        "-n",
+        "-a",
+        "-p",
+        "16"
+      ],
+      "timeoutMs": 15000,
+      "durationMs": 527,
+      "exitCode": 1,
+      "timedOut": false,
+      "stdout": "",
+      "stderr": "lsof: WARNING: can't stat() hugetlbfs file system /dev/hugepages\n      Output information may be incomplete.\nlsof: WARNING: can't stat() mqueue file system /dev/mqueue\n      Output information may be incomplete.\nlsof: WARNING: can't stat() nsfs file system /run/docker/netns/4989bba89b84\n      Output information may be incomplete.\nlsof: WARNING: can't stat() nsfs file system /run/docker/netns/d4eb06239c08\n      Output information may be incomplete.\nlsof: WARNING: can't stat() overlay file system /var/lib/docker/rootfs/overlayfs/e7a0ca73a19fd4bd0d59e542066464bf537330728a335c615f60c39691a08d84\n      Output information may be incomplete.\nlsof: WARNING: can't stat() overlay file system /var/lib/docker/rootfs/overlayfs/749ee4804ccb16e52e6276ee03927777fbf1e2bdadd6abdb079e440e559c9534\n      Output information may be incomplete."
+    },
+    {
+      "command": [
+        "lsof",
+        "--ports-invalid-option"
+      ],
+      "timeoutMs": 15000,
+      "durationMs": 8,
+      "exitCode": 1,
+      "timedOut": false,
+      "stdout": "",
+      "stderr": "lsof: illegal option character: -\nlsof: illegal process ID: orts-invalid-option\nlsof 4.95.0\n latest revision: https://github.com/lsof-org/lsof\n latest FAQ: https://github.com/lsof-org/lsof/blob/master/00FAQ\n latest (non-formatted) man page: https://github.com/lsof-org/lsof/blob/master/Lsof.8\n usage: [-?abhKlnNoOPRtUvVX] [+|-c c] [+|-d s] [+D D] [+|-E] [+|-e s] [+|-f[gG]]\n [-F [f]] [-g [s]] [-i [i]] [+|-L [l]] [+m [m]] [+|-M] [-o [o]] [-p s]\n [+|-r [t]] [-s [p:s]] [-S [t]] [-T [t]] [-u s] [+|-w] [-x [fl]] [--] [names]\nUse the ``-h'' option to get more help information."
+    }
+  ],
+  "bindCapabilities": {
+    "attemptedHosts": [
+      "127.0.0.1",
+      "::1"
+    ],
+    "available": [
+      "127.0.0.1",
+      "::1"
+    ],
+    "unavailable": []
+  },
+  "bindings": [
+    {
+      "pid": 28,
+      "host": "127.0.0.1",
+      "port": 41859,
+      "family": "IPv4",
+      "verified": true
+    },
+    {
+      "pid": 28,
+      "host": "::1",
+      "port": 36879,
+      "family": "IPv6",
+      "verified": true
+    }
+  ],
+  "tool": {
+    "command": [
+      "lsof",
+      "-v"
+    ],
+    "stdout": "",
+    "stderr": "lsof version information:\n    revision: 4.95.0\n    latest revision: https://github.com/lsof-org/lsof\n    latest FAQ: https://github.com/lsof-org/lsof/blob/master/00FAQ\n    latest (non-formatted) man page: https://github.com/lsof-org/lsof/blob/master/Lsof.8\n    compiler: cc\n    compiler version: 13.2.0 (Ubuntu 13.2.0-23ubuntu3) \n    compiler flags: -g -O2 -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer -ffile-prefix-map=/build/lsof-8bfuv2/lsof-4.95.0=. -flto=auto -ffat-lto-objects -fstack-protector-strong -fstack-clash-protection -Wformat -Werror=format-security -fcf-protection -fdebug-prefix-map=/build/lsof-8bfuv2/lsof-4.95.0=/usr/src/lsof-4.95.0-1build3 -Wdate-time -D_FORTIFY_SOURCE=3 -DLINUXV=68000 -DGLIBCV=239 -DHASIPv6 -DNEEDS_NETINET_TCPH -DHASSELINUX -DHASUXSOCKEPT -DHASPTYEPT -DHASSOSTATE -DHASSOOPT -D_FILE_OFFSET_BITS=64 -D_LARGEFILE64_SOURCE -DHAS_STRFTIME -DLSOF_VSTR=\"6.8.0\" -I/usr/include/tirpc -O\n    loader flags: -L./lib -llsof -Wl,-Bsymbolic-functions -flto=auto -ffat-lto-objects -Wl,-z,relro -Wl,-z,now -ltirpc -lselinux\n    Anyone can list all files.\n    /dev warnings are disabled.\n    Kernel ID check is disabled.",
+    "exitCode": 0
+  }
+}

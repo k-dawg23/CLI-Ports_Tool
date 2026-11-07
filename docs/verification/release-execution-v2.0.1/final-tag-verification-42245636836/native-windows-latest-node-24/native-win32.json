@@ -1,0 +1,183 @@
+{
+  "platform": "win32",
+  "os": "10.0.26100",
+  "node": "v24.22.2",
+  "github": {
+    "sha": "9ccdd9a6ec7daf13ff763071208cd1555cc5dfeb",
+    "runId": "42245636836",
+    "attempt": "1",
+    "job": "verify",
+    "runner": "GitHub Actions 1000000061"
+  },
+  "terminationMechanism": "authenticated IPC request; fixture signals itself",
+  "checks": [
+    {
+      "name": "owned listener appears in JSON, table, and check",
+      "status": "passed"
+    },
+    {
+      "name": "production backend-selected PowerShell executable and version verified with native discovery",
+      "status": "passed"
+    },
+    {
+      "name": "native stop refuses unknown identity and a different process PID",
+      "status": "passed"
+    },
+    {
+      "name": "production stop flow requests a signal only from the authenticated owned fixture",
+      "status": "passed"
+    },
+    {
+      "name": "released port is free after successful discovery; owned sentinel survives",
+      "status": "passed"
+    }
+  ],
+  "fixtures": [],
+  "commands": [
+    {
+      "command": [
+        "C:\\hostedtoolcache\\windows\\node\\24.22.2\\x64\\node.exe",
+        "D:\\a\\CLI-Ports_Tool\\CLI-Ports_Tool\\dist\\cli.js",
+        "list",
+        "--json"
+      ],
+      "timeoutMs": 30000,
+      "durationMs": 6954,
+      "exitCode": 0,
+      "timedOut": false,
+      "stdout": "[\n  {\n    \"port\": 22,\n    \"pid\": 4072,\n    \"command\": \"sshd\",\n    \"projectName\": \"OpenSSH\",\n    \"framework\": \"-\",\n    \"memoryKB\": 9720,\n    \"uptime\": \"00:03:07\"\n  },\n  {\n    \"port\": 53,\n    \"pid\": 1000,\n    \"command\": \"dockerd\",\n    \"projectName\": \"system32\",\n    \"framework\": \"-\",\n    \"memoryKB\": 47404,\n    \"uptime\": \"00:03:07\"\n  },\n  {\n    \"port\": 80,\n    \"pid\": 4,\n    \"command\": \"System\",\n    \"projectName\": \"-\",\n    \"framework\": \"-\",\n    \"memoryKB\": 168,\n    \"uptime\": \"00:03:18\"\n  },\n  {\n    \"port\": 135,\n    \"pid\": 1060,\n    \"command\": \"svchost\",\n    \"projectName\": \"system32\",\n    \"framework\": \"-\",\n    \"memoryKB\": 16236,\n    \"uptime\": \"00:03:09\"\n  },\n  {\n    \"port\": 139,\n    \"pid\": 4,\n    \"command\": \"System\",\n    \"projectName\": \"-\",\n    \"framework\": \"-\",\n    \"memoryKB\": 168,\n    \"uptime\": \"00:03:18\"\n  },\n  {\n    \"port\": 445,\n    \"pid\": 4,\n    \"command\": \"System\",\n    \"projectName\": \"-\",\n    \"framework\": \"-\",\n    \"memoryKB\": 168,\n    \"uptime\": \"00:03:18\"\n  },\n  {\n    \"port\": 1801,\n    \"pid\": 4236,\n    \"command\": \"mqsvc\",\n    \"projectName\": \"system32\",\n    \"framework\": \"-\",\n    \"memoryKB\": 19580,\n    \"uptime\": \"00:03:07\"\n  },\n  {\n    \"port\": 2103,\n    \"pid\": 4236,\n    \"command\": \"mqsvc\",\n    \"projectName\": \"system32\",\n    \"framework\": \"-\",\n    \"memoryKB\": 19580,\n    \"uptime\": \"00:03:07\"\n  },\n  {\n    \"port\": 2105,\n    \"pid\": 4236,\n    \"command\": \"mqsvc\",\n    \"projectName\": \"system32\",\n    \"framework\": \"-\",\n    \"memoryKB\": 19580,\n    \"uptime\": \"00:03:07\"\n  },\n  {\n    \"port\": 2107,\n    \"pid\": 4236,\n    \"command\": \"mqsvc\",\n    \"projectName\": \"system32\",\n    \"framework\": \"-\",\n    \"memoryKB\": 19580,\n    \"uptime\": \"00:03:07\"\n  },\n  {\n    \"port\": 2179,\n    \"pid\": 1968,\n    \"command\": \"vmms\",\n    \"projectName\": \"system32\",\n    \"framework\": \"-\",\n    \"memoryKB\": 34372,\n    \"uptime\": \"00:03:08\"\n  },\n  {\n    \"port\": 3389,\n    \"pid\": 1292,\n    \"command\": \"svchost\",\n    \"projectName\": \"System32\",\n    \"framework\": \"-\",\n    \"memoryKB\": 16800,\n    \"uptime\": \"00:03:08\"\n  },\n  {\n    \"port\": 5985,\n    \"pid\": 4,\n    \"command\": \"System\",\n    \"projectName\": \"-\",\n    \"framework\": \"-\",\n    \"memoryKB\": 168,\n    \"uptime\": \"00:03:18\"\n  },\n  {\n    \"port\": 5986,\n    \"pid\": 4,\n    \"command\": \"System\",\n    \"projectName\": \"-\",\n    \"framework\": \"-\",\n    \"memoryKB\": 168,\n    \"uptime\": \"00:03:18\"\n  },\n  {\n    \"port\": 47001,\n    \"pid\": 4,\n    \"command\": \"System\",\n    \"projectName\": \"-\",\n    \"framework\": \"-\",\n    \"memoryKB\": 168,\n    \"uptime\": \"00:03:18\"\n  },\n  {\n    \"port\": 49664,\n    \"pid\": 968,\n    \"command\": \"lsass\",\n    \"projectName\": \"system32\",\n    \"framework\": \"-\",\n    \"memoryKB\": 32168,\n    \"uptime\": \"00:03:12\"\n  },\n  {\n    \"port\": 49665,\n    \"pid\": 848,\n    \"command\": \"wininit\",\n    \"projectName\": \"-\",\n    \"framework\": \"-\",\n    \"memoryKB\": 8880,\n    \"uptime\": \"00:03:13\"\n  },\n  {\n    \"port\": 49666,\n    \"pid\": 2704,\n    \"command\": \"svchost\",\n    \"projectName\": \"System32\",\n    \"framework\": \"-\",\n    \"memoryKB\": 11868,\n    \"uptime\": \"00:03:07\"\n  },\n  {\n    \"port\": 49667,\n    \"pid\": 2656,\n    \"command\": \"svchost\",\n    \"projectName\": \"system32\",\n    \"framework\": \"-\",\n    \"memoryKB\": 16244,\n    \"uptime\": \"00:03:07\"\n  },\n  {\n    \"port\": 49668,\n    \"pid\": 2512,\n    \"command\": \"svchost\",\n    \"projectName\": \"System32\",\n    \"framework\": \"-\",\n    \"memoryKB\": 26712,\n    \"uptime\": \"00:03:07\"\n  },\n  {\n    \"port\": 49670,\n    \"pid\": 3392,\n    \"command\": \"spoolsv\",\n    \"projectName\": \"System32\",\n    \"framework\": \"-\",\n    \"memoryKB\": 22400,\n    \"uptime\": \"00:03:07\"\n  },\n  {\n    \"port\": 49672,\n    \"pid\": 4236,\n    \"command\": \"mqsvc\",\n    \"projectName\": \"system32\",\n    \"framework\": \"-\",\n    \"memoryKB\": 19580,\n    \"uptime\": \"00:03:07\"\n  },\n  {\n    \"port\": 49693,\n    \"pid\": 940,\n    \"command\": \"services\",\n    \"projectName\": \"-\",\n    \"framework\": \"-\",\n    \"memoryKB\": 11480,\n    \"uptime\": \"00:03:12\"\n  },\n  {\n    \"port\": 58563,\n    \"pid\": 992,\n    \"command\": \"node\",\n    \"projectName\": \"x64\",\n    \"framework\": \"-\",\n    \"memoryKB\": 49176,\n    \"uptime\": \"00:00:07\"\n  },\n  {\n    \"port\": 58564,\n    \"pid\": 7892,\n    \"command\": \"node\",\n    \"projectName\": \"x64\",\n    \"framework\": \"-\",\n    \"memoryKB\": 49188,\n    \"uptime\": \"00:00:06\"\n  }\n]",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "C:\\hostedtoolcache\\windows\\node\\24.22.2\\x64\\node.exe",
+        "D:\\a\\CLI-Ports_Tool\\CLI-Ports_Tool\\dist\\cli.js",
+        "list"
+      ],
+      "timeoutMs": 30000,
+      "durationMs": 1708,
+      "exitCode": 0,
+      "timedOut": false,
+      "stdout": "PORT    PROJECT                 FRAMEWORK     PID       MEM         UPTIME        COMMAND             \n22      OpenSSH                 -             4072      9.5 MB      00:03:08      sshd                \n53      system32                -             1000      46.3 MB     00:03:08      dockerd             \n80      -                       -             4         0.2 MB      00:03:20      System              \n135     system32                -             1060      15.9 MB     00:03:11      svchost             \n139     -                       -             4         0.2 MB      00:03:20      System              \n445     -                       -             4         0.2 MB      00:03:20      System              \n1801    system32                -             4236      19.1 MB     00:03:08      mqsvc               \n2103    system32                -             4236      19.1 MB     00:03:08      mqsvc               \n2105    system32                -             4236      19.1 MB     00:03:08      mqsvc               \n2107    system32                -             4236      19.1 MB     00:03:08      mqsvc               \n2179    system32                -             1968      33.6 MB     00:03:09      vmms                \n3389    System32                -             1292      16.4 MB     00:03:10      svchost             \n5985    -                       -             4         0.2 MB      00:03:20      System              \n5986    -                       -             4         0.2 MB      00:03:20      System              \n47001   -                       -             4         0.2 MB      00:03:20      System              \n49664   system32                -             968       31.4 MB     00:03:13      lsass               \n49665   -                       -             848       8.7 MB      00:03:14      wininit             \n49666   System32                -             2704      11.6 MB     00:03:09      svchost             \n49667   system32                -             2656      15.9 MB     00:03:09      svchost             \n49668   System32                -             2512      26.1 MB     00:03:09      svchost             \n49670   System32                -             3392      21.9 MB     00:03:09      spoolsv             \n49672   system32                -             4236      19.1 MB     00:03:08      mqsvc               \n49693   -                       -             940       11.2 MB     00:03:14      services            \n58563   x64                     -             992       48.0 MB     00:00:08      node                \n58564   x64                     -             7892      48.0 MB     00:00:08      node                ",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "C:\\hostedtoolcache\\windows\\node\\24.22.2\\x64\\node.exe",
+        "D:\\a\\CLI-Ports_Tool\\CLI-Ports_Tool\\dist\\cli.js",
+        "check",
+        "58563"
+      ],
+      "timeoutMs": 30000,
+      "durationMs": 1672,
+      "exitCode": 0,
+      "timedOut": false,
+      "stdout": "Port: 58563\nProject: x64\nFramework: -\nPID: 992\nMemory: 48.0 MB\nUptime: 00:00:10\nCommand: node\nWorking Dir: C:\\hostedtoolcache\\windows\\node\\24.22.2\\x64",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "-NoProfile",
+        "-NonInteractive",
+        "-Command",
+        "[pscustomobject]@{Executable=[System.Diagnostics.Process]::GetCurrentProcess().MainModule.FileName; Version=$PSVersionTable.PSVersion.ToString(); Edition=$PSVersionTable.PSEdition; ProcessId=$PID} | ConvertTo-Json -Compress"
+      ],
+      "timeoutMs": 15000,
+      "durationMs": 202,
+      "exitCode": 0,
+      "timedOut": false,
+      "stdout": "{\"Executable\":\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\",\"Version\":\"5.1.26100.33648\",\"Edition\":\"Desktop\",\"ProcessId\":8472}",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "C:\\hostedtoolcache\\windows\\node\\24.22.2\\x64\\node.exe",
+        "D:\\a\\CLI-Ports_Tool\\CLI-Ports_Tool\\dist\\cli.js",
+        "check",
+        "58563"
+      ],
+      "timeoutMs": 30000,
+      "durationMs": 1738,
+      "exitCode": 0,
+      "timedOut": false,
+      "stdout": "That port is free.",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "C:\\hostedtoolcache\\windows\\node\\24.22.2\\x64\\node.exe",
+        "D:\\a\\CLI-Ports_Tool\\CLI-Ports_Tool\\dist\\cli.js",
+        "list",
+        "--json"
+      ],
+      "timeoutMs": 30000,
+      "durationMs": 1719,
+      "exitCode": 0,
+      "timedOut": false,
+      "stdout": "[\n  {\n    \"port\": 22,\n    \"pid\": 4072,\n    \"command\": \"sshd\",\n    \"projectName\": \"OpenSSH\",\n    \"framework\": \"-\",\n    \"memoryKB\": 9720,\n    \"uptime\": \"00:03:19\"\n  },\n  {\n    \"port\": 53,\n    \"pid\": 1000,\n    \"command\": \"dockerd\",\n    \"projectName\": \"system32\",\n    \"framework\": \"-\",\n    \"memoryKB\": 47404,\n    \"uptime\": \"00:03:19\"\n  },\n  {\n    \"port\": 80,\n    \"pid\": 4,\n    \"command\": \"System\",\n    \"projectName\": \"-\",\n    \"framework\": \"-\",\n    \"memoryKB\": 168,\n    \"uptime\": \"00:03:30\"\n  },\n  {\n    \"port\": 135,\n    \"pid\": 1060,\n    \"command\": \"svchost\",\n    \"projectName\": \"system32\",\n    \"framework\": \"-\",\n    \"memoryKB\": 16248,\n    \"uptime\": \"00:03:21\"\n  },\n  {\n    \"port\": 139,\n    \"pid\": 4,\n    \"command\": \"System\",\n    \"projectName\": \"-\",\n    \"framework\": \"-\",\n    \"memoryKB\": 168,\n    \"uptime\": \"00:03:30\"\n  },\n  {\n    \"port\": 445,\n    \"pid\": 4,\n    \"command\": \"System\",\n    \"projectName\": \"-\",\n    \"framework\": \"-\",\n    \"memoryKB\": 168,\n    \"uptime\": \"00:03:30\"\n  },\n  {\n    \"port\": 1801,\n    \"pid\": 4236,\n    \"command\": \"mqsvc\",\n    \"projectName\": \"system32\",\n    \"framework\": \"-\",\n    \"memoryKB\": 19572,\n    \"uptime\": \"00:03:18\"\n  },\n  {\n    \"port\": 2103,\n    \"pid\": 4236,\n    \"command\": \"mqsvc\",\n    \"projectName\": \"system32\",\n    \"framework\": \"-\",\n    \"memoryKB\": 19572,\n    \"uptime\": \"00:03:18\"\n  },\n  {\n    \"port\": 2105,\n    \"pid\": 4236,\n    \"command\": \"mqsvc\",\n    \"projectName\": \"system32\",\n    \"framework\": \"-\",\n    \"memoryKB\": 19572,\n    \"uptime\": \"00:03:18\"\n  },\n  {\n    \"port\": 2107,\n    \"pid\": 4236,\n    \"command\": \"mqsvc\",\n    \"projectName\": \"system32\",\n    \"framework\": \"-\",\n    \"memoryKB\": 19572,\n    \"uptime\": \"00:03:18\"\n  },\n  {\n    \"port\": 2179,\n    \"pid\": 1968,\n    \"command\": \"vmms\",\n    \"projectName\": \"system32\",\n    \"framework\": \"-\",\n    \"memoryKB\": 34372,\n    \"uptime\": \"00:03:20\"\n  },\n  {\n    \"port\": 3389,\n    \"pid\": 1292,\n    \"command\": \"svchost\",\n    \"projectName\": \"System32\",\n    \"framework\": \"-\",\n    \"memoryKB\": 16800,\n    \"uptime\": \"00:03:20\"\n  },\n  {\n    \"port\": 5985,\n    \"pid\": 4,\n    \"command\": \"System\",\n    \"projectName\": \"-\",\n    \"framework\": \"-\",\n    \"memoryKB\": 168,\n    \"uptime\": \"00:03:30\"\n  },\n  {\n    \"port\": 5986,\n    \"pid\": 4,\n    \"command\": \"System\",\n    \"projectName\": \"-\",\n    \"framework\": \"-\",\n    \"memoryKB\": 168,\n    \"uptime\": \"00:03:30\"\n  },\n  {\n    \"port\": 47001,\n    \"pid\": 4,\n    \"command\": \"System\",\n    \"projectName\": \"-\",\n    \"framework\": \"-\",\n    \"memoryKB\": 168,\n    \"uptime\": \"00:03:30\"\n  },\n  {\n    \"port\": 49664,\n    \"pid\": 968,\n    \"command\": \"lsass\",\n    \"projectName\": \"system32\",\n    \"framework\": \"-\",\n    \"memoryKB\": 32024,\n    \"uptime\": \"00:03:24\"\n  },\n  {\n    \"port\": 49665,\n    \"pid\": 848,\n    \"command\": \"wininit\",\n    \"projectName\": \"-\",\n    \"framework\": \"-\",\n    \"memoryKB\": 8880,\n    \"uptime\": \"00:03:24\"\n  },\n  {\n    \"port\": 49666,\n    \"pid\": 2704,\n    \"command\": \"svchost\",\n    \"projectName\": \"System32\",\n    \"framework\": \"-\",\n    \"memoryKB\": 11868,\n    \"uptime\": \"00:03:19\"\n  },\n  {\n    \"port\": 49667,\n    \"pid\": 2656,\n    \"command\": \"svchost\",\n    \"projectName\": \"system32\",\n    \"framework\": \"-\",\n    \"memoryKB\": 16244,\n    \"uptime\": \"00:03:19\"\n  },\n  {\n    \"port\": 49668,\n    \"pid\": 2512,\n    \"command\": \"svchost\",\n    \"projectName\": \"System32\",\n    \"framework\": \"-\",\n    \"memoryKB\": 26884,\n    \"uptime\": \"00:03:19\"\n  },\n  {\n    \"port\": 49670,\n    \"pid\": 3392,\n    \"command\": \"spoolsv\",\n    \"projectName\": \"System32\",\n    \"framework\": \"-\",\n    \"memoryKB\": 22400,\n    \"uptime\": \"00:03:19\"\n  },\n  {\n    \"port\": 49672,\n    \"pid\": 4236,\n    \"command\": \"mqsvc\",\n    \"projectName\": \"system32\",\n    \"framework\": \"-\",\n    \"memoryKB\": 19572,\n    \"uptime\": \"00:03:18\"\n  },\n  {\n    \"port\": 49693,\n    \"pid\": 940,\n    \"command\": \"services\",\n    \"projectName\": \"-\",\n    \"framework\": \"-\",\n    \"memoryKB\": 11460,\n    \"uptime\": \"00:03:24\"\n  },\n  {\n    \"port\": 58564,\n    \"pid\": 7892,\n    \"command\": \"node\",\n    \"projectName\": \"x64\",\n    \"framework\": \"-\",\n    \"memoryKB\": 49188,\n    \"uptime\": \"00:00:18\"\n  }\n]",
+      "stderr": ""
+    }
+  ],
+  "windowsShell": {
+    "lookup": [
+      {
+        "command": [
+          "where",
+          "powershell"
+        ],
+        "result": {
+          "stdout": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+          "stderr": "",
+          "exitCode": 0
+        }
+      }
+    ],
+    "discovery": {
+      "selectedCommand": "powershell",
+      "originalCommand": [
+        "powershell",
+        "-NoProfile",
+        "-NonInteractive",
+        "-Command",
+        "$ErrorActionPreference = 'Stop'; $listeners = @(Get-NetTCPConnection -State Listen -ErrorAction Stop | Select-Object LocalPort,OwningProcess); [pscustomobject]@{ Listeners = $listeners } | ConvertTo-Json -Depth 5"
+      ],
+      "observedCommand": [
+        "powershell",
+        "-NoProfile",
+        "-NonInteractive",
+        "-Command",
+        "$ErrorActionPreference = 'Stop'; $listeners = @(Get-NetTCPConnection -State Listen -ErrorAction Stop | Select-Object LocalPort,OwningProcess); [pscustomobject]@{ Listeners = $listeners } | ConvertTo-Json -Depth 5; [pscustomobject]@{Executable=[System.Diagnostics.Process]::GetCurrentProcess().MainModule.FileName; Version=$PSVersionTable.PSVersion.ToString(); Edition=$PSVersionTable.PSEdition; ProcessId=$PID} | Add-Member -NotePropertyName Nonce -NotePropertyValue 'fd08852d-413d-470b-a5cf-a826892856c5' -PassThru | ConvertTo-Json -Compress | Set-Content -LiteralPath 'D:\\a\\_temp\\ports-native-42245636836-1\\powershell-observed-fd08852d-413d-470b-a5cf-a826892856c5.json' -Encoding UTF8"
+      ],
+      "result": {
+        "stdout": "{\r\n    \"Listeners\":  [\r\n                      {\r\n                          \"LocalPort\":  49693,\r\n                          \"OwningProcess\":  940\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  49672,\r\n                          \"OwningProcess\":  4236\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  49670,\r\n                          \"OwningProcess\":  3392\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  49668,\r\n                          \"OwningProcess\":  2512\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  49667,\r\n                          \"OwningProcess\":  2656\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  49666,\r\n                          \"OwningProcess\":  2704\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  49665,\r\n                          \"OwningProcess\":  848\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  49664,\r\n                          \"OwningProcess\":  968\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  47001,\r\n                          \"OwningProcess\":  4\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  5986,\r\n                          \"OwningProcess\":  4\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  5985,\r\n                          \"OwningProcess\":  4\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  3389,\r\n                          \"OwningProcess\":  1292\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  2179,\r\n                          \"OwningProcess\":  1968\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  2107,\r\n                          \"OwningProcess\":  4236\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  2105,\r\n                          \"OwningProcess\":  4236\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  2103,\r\n                          \"OwningProcess\":  4236\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  1801,\r\n                          \"OwningProcess\":  4236\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  445,\r\n                          \"OwningProcess\":  4\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  135,\r\n                          \"OwningProcess\":  1060\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  80,\r\n                          \"OwningProcess\":  4\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  22,\r\n                          \"OwningProcess\":  4072\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  58564,\r\n                          \"OwningProcess\":  7892\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  58563,\r\n                          \"OwningProcess\":  992\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  49693,\r\n                          \"OwningProcess\":  940\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  49672,\r\n                          \"OwningProcess\":  4236\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  49670,\r\n                          \"OwningProcess\":  3392\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  49668,\r\n                          \"OwningProcess\":  2512\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  49667,\r\n                          \"OwningProcess\":  2656\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  49666,\r\n                          \"OwningProcess\":  2704\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  49665,\r\n                          \"OwningProcess\":  848\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  49664,\r\n                          \"OwningProcess\":  968\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  3389,\r\n                          \"OwningProcess\":  1292\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  2179,\r\n                          \"OwningProcess\":  1968\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  2107,\r\n                          \"OwningProcess\":  4236\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  2105,\r\n                          \"OwningProcess\":  4236\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  2103,\r\n                          \"OwningProcess\":  4236\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  1801,\r\n                          \"OwningProcess\":  4236\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  139,\r\n                          \"OwningProcess\":  4\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  139,\r\n                          \"OwningProcess\":  4\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  135,\r\n                          \"OwningProcess\":  1060\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  53,\r\n                          \"OwningProcess\":  1000\r\n                      },\r\n                      {\r\n                          \"LocalPort\":  22,\r\n                          \"OwningProcess\":  4072\r\n                      }\r\n                  ]\r\n}",
+        "stderr": "",
+        "exitCode": 0
+      }
+    },
+    "identity": {
+      "Executable": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+      "Version": "5.1.26100.33648",
+      "Edition": "Desktop",
+      "ProcessId": 5192,
+      "Nonce": "fd08852d-413d-470b-a5cf-a826892856c5"
+    },
+    "versionQuery": {
+      "command": [
+        "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "-NoProfile",
+        "-NonInteractive",
+        "-Command",
+        "[pscustomobject]@{Executable=[System.Diagnostics.Process]::GetCurrentProcess().MainModule.FileName; Version=$PSVersionTable.PSVersion.ToString(); Edition=$PSVersionTable.PSEdition; ProcessId=$PID} | ConvertTo-Json -Compress"
+      ],
+      "stdout": "{\"Executable\":\"C:\\\\Windows\\\\System32\\\\WindowsPowerShell\\\\v1.0\\\\powershell.exe\",\"Version\":\"5.1.26100.33648\",\"Edition\":\"Desktop\",\"ProcessId\":8472}",
+      "stderr": "",
+      "exitCode": 0
+    },
+    "ownedListener": {
+      "pid": 992,
+      "port": 58563,
+      "found": true
+    }
+  }
+}

@@ -1,4 +1,5 @@
 import path from "node:path";
+import { isIP } from "node:net";
 import { buildEditorErrorMessage, resolveEditorCommand, stopValidatedProcess } from "./common.js";
 import { requireCommand, runCheckedCommand, type CommandRunner } from "../system.js";
 import { DiscoveryError, type CollectionContext } from "../discovery.js";
@@ -31,24 +32,25 @@ export class UnixPortBackend implements PlatformPortBackend {
     const records = new Map<string, RawListener>();
 
     for (const line of lines.slice(1)) {
-      const match = line.match(/^(\S+)\s+(\d+)\s+.+\sTCP\s+.+:(\d+)\s+\(LISTEN\)$/);
+      const match = line.match(/^(\S+)\s+(\d+)\s+.+\s(TCP)\s+(.+):(\d+)\s+\(LISTEN\)$/);
       if (!match) {
         throw new DiscoveryError("invalid-output", "Unix", "Unrecognized lsof listener record; collection may be incomplete.");
       }
 
-      const [, command, pidText, portText] = match;
+      const [, command, pidText, , endpointHost, portText] = match;
+      const familyMatch = line.match(/^\S+\s+\d+\s+\S+\s+\S+\s+(IPv[46])\s+/);
+      const family: "IPv4" | "IPv6" | undefined = familyMatch?.[1] === "IPv4" ? "IPv4" : familyMatch?.[1] === "IPv6" ? "IPv6" : undefined;
+      if (!family) throw new DiscoveryError("invalid-output", "Unix", "Unrecognized lsof listener address family.");
+      const address = parseEndpointAddress(endpointHost!, family);
+      if (!address) throw new DiscoveryError("invalid-output", "Unix", "Unrecognized lsof listener address.");
       const pid = Number(pidText);
       const port = Number(portText);
       if (!Number.isSafeInteger(pid) || pid < 0 || !Number.isInteger(port) || port < 1 || port > 65535) throw new DiscoveryError("invalid-output", "Unix", "Invalid lsof listener PID or port.");
       const key = `${pid}:${port}`;
 
-      if (!records.has(key)) {
-        records.set(key, {
-          command,
-          pid,
-          port
-        });
-      }
+      const current = records.get(key);
+      const addresses = [...(current?.addresses ?? []), { address, family }];
+      records.set(key, { command: current?.command ?? command, pid, port, addresses: sortAddresses(addresses) });
     }
 
     return [...records.values()];
@@ -147,6 +149,18 @@ export class UnixPortBackend implements PlatformPortBackend {
   }
 }
 
+function parseEndpointAddress(host: string, family: "IPv4" | "IPv6"): string | undefined {
+  const value = host.startsWith("[") && host.endsWith("]") ? host.slice(1, -1) : host;
+  if (value === "*") return family === "IPv4" ? "0.0.0.0" : "::";
+  if ((family === "IPv4" && isIP(value) === 4) || (family === "IPv6" && isIP(value) === 6)) return value;
+  return undefined;
+}
+
+function sortAddresses(addresses: Array<{ address: string; family: "IPv4" | "IPv6" }>) {
+  const unique = new Map(addresses.map(item => [`${item.family}\0${item.address}`, item]));
+  return [...unique.values()].sort((a, b) => (a.family === b.family ? 0 : a.family === "IPv4" ? -1 : 1) || (a.address < b.address ? -1 : a.address > b.address ? 1 : 0));
+}
+
 export function unixProcessLiveness(pid: number): ProcessLiveness {
   if (!Number.isSafeInteger(pid) || pid <= 0) return { state: "unknown", reason: "Invalid process PID." };
   try {
@@ -165,7 +179,7 @@ export function unixProcessLiveness(pid: number): ProcessLiveness {
 export function isLinuxMountWarning(stderr: string): boolean {
   const lines = stderr.trimEnd().split("\n");
   return lines.length > 0 && lines.length % 2 === 0 && lines.every((line, index) => index % 2 === 0
-    ? /^lsof: WARNING: can't stat\(\) (overlay|nsfs) file system .+$/.test(line)
+    ? /^lsof: WARNING: can't stat\(\) (overlay|nsfs|hugetlbfs|mqueue) file system .+$/.test(line)
     : /^\s+Output information may be incomplete\.$/.test(line));
 }
 

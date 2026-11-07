@@ -1,0 +1,18 @@
+--- a/scripts/native-smoke.mjs
++++ b/scripts/native-smoke.mjs
+@@ -29,12 +29,12 @@
+   terminationMechanism: "authenticated IPC request; fixture signals itself", checks: [], fixtures: [] };
+ const children = [];
+ const checked = async (name, work) => { await work(); capture.checks.push({ name, status: "passed" }); console.log(`PASS: ${name}`); };
+-const command = async (executable, args) => {
+-  const r = await execa(executable, args, { reject: false, timeout: 15000, env: { LC_ALL: "C", NO_COLOR: "1" } });
++const command = async (executable, args, timeoutMs = 15000) => {
++  const r = await execa(executable, args, { reject: false, timeout: timeoutMs, env: { LC_ALL: "C", NO_COLOR: "1" } });
+   if (r.failed && r.exitCode === undefined) throw r;
+   return { command: [executable, ...args], stdout: r.stdout, stderr: r.stderr, exitCode: r.exitCode };
+ };
+-const run = args => command(process.execPath, [cli, ...args]);
++const run = args => command(process.execPath, [cli, ...args], 30000);
+ const assertOwnedAlive = child => {
+   assert.equal(child.exitCode, null);
+   assert.equal(child.signalCode, null);

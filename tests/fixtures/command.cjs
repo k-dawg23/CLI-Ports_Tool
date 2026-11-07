@@ -23,7 +23,7 @@ else if (command === "lsof") {
   if (script.includes("Get-NetTCPConnection")) {
     if (mode === "error") emit("", 1, "fixture required query failed\n");
     else if (mode === "malformed") emit("unexpected output\n");
-    else emit(JSON.stringify({ Listeners: mode === "empty" ? [] : [{ LocalPort: 3000, OwningProcess: pid }] }));
+    else emit(JSON.stringify({ Listeners: mode === "empty" ? [] : [{ LocalAddress: "127.0.0.1", LocalPort: 3000, OwningProcess: pid }] }));
   } else if (mode === "metadata-error") emit("", 1, "fixture optional metadata failed\n");
   else if (script.includes("Stop-Process")) emit("");
   else if (script.includes("$ids")) emit(JSON.stringify({ State: "exited" }));

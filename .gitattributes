@@ -1,0 +1,2 @@
+# Preserve retained terminal transcripts and raw verification artifacts byte-for-byte.
+docs/verification/** -text

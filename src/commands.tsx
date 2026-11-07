@@ -5,7 +5,8 @@ import chalk from "chalk";
 import { renderPortDetails, renderTable } from "./format.js";
 import { PortService } from "./ports.js";
 import { PortsApp } from "./tui.js";
-import { parsePort } from "./validation.js";
+import { parsePid, parsePort, parseProjectQuery } from "./validation.js";
+import { filterListRows } from "./list-filter.js";
 import type { PortProcess } from "./types.js";
 
 import { APP_VERSION } from "./version.js";
@@ -28,9 +29,16 @@ export async function runCli(argv = process.argv, options: CliOptions = {}): Pro
     .configureOutput({ writeOut: out, writeErr: err }).exitOverride();
   program.command("list").description("Print a static table of all listening ports.")
     .option("--json", "Output listening ports as a JSON array.")
-    .action(async (args: { json?: boolean }) => {
+    .option("--addresses", "Include listener addresses (extends JSON entries when --json is used).")
+    .option("--port <port>", "Filter to an exact TCP port.", uniqueOption(parsePort))
+    .option("--pid <pid>", "Filter to an exact process ID.", uniqueOption(parsePid))
+    .option("--project <text>", "Filter by a literal project name substring.", uniqueOption(parseProjectQuery))
+    .action(async (args: { json?: boolean; addresses?: boolean; port?: number; pid?: number; project?: string }) => {
       const snapshot = await serviceFactory().snapshot();
-      out(`${args.json ? JSON.stringify(snapshot.processes.map(toJsonEntry), null, 2) : renderTable([...snapshot.processes])}\n`);
+      const rows = filterListRows(snapshot.processes, { port: args.port, pid: args.pid, project: args.project });
+      const filtered = args.port !== undefined || args.pid !== undefined || args.project !== undefined;
+      if (!args.json && filtered && rows.length === 0) out("No listening TCP ports match the supplied filters.\n");
+      else out(`${args.json ? JSON.stringify(rows.map(row => toJsonEntry(row, args.addresses)), null, 2) : renderTable(rows, args.addresses)}\n`);
     });
   program.command("check").description("Show detailed info about what is on a port.")
     .argument("<port>", "TCP port to inspect (1–65535)", parsePort)
@@ -66,6 +74,13 @@ export async function runCli(argv = process.argv, options: CliOptions = {}): Pro
   }
 }
 
-function toJsonEntry(row: PortProcess) {
-  return { port: row.port, pid: row.pid, command: row.command, projectName: row.projectName, framework: row.framework, memoryKB: row.memoryKb ?? null, uptime: row.uptime ?? null };
+function toJsonEntry(row: PortProcess, addresses = false) {
+  return { port: row.port, pid: row.pid, command: row.command, projectName: row.projectName, framework: row.framework, memoryKB: row.memoryKb ?? null, uptime: row.uptime ?? null, ...(addresses ? { addresses: row.addresses.map(item => ({ ...item })) } : {}) };
+}
+
+function uniqueOption<T>(parser: (value: string) => T): (value: string, previous?: T) => T {
+  return (value, previous) => {
+    if (previous !== undefined) throw new Error("Each list filter option may be specified only once.");
+    return parser(value);
+  };
 }

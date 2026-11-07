@@ -1,0 +1,12 @@
+Usage: ports list [options]
+
+Print a static table of all listening ports.
+
+Options:
+  --json            Output listening ports as a JSON array.
+  --addresses       Include listener addresses (extends JSON entries when --json
+                    is used).
+  --port <port>     Filter to an exact TCP port.
+  --pid <pid>       Filter to an exact process ID.
+  --project <text>  Filter by a literal project name substring.
+  -h, --help        display help for command

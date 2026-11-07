@@ -1,0 +1,230 @@
+{
+  "stage1": "PASS",
+  "stage2": "NOT ATTEMPTED",
+  "sha": "16e295db97dd5c8ec8ee4e645e66439ad8d3422f",
+  "run": "42206794811",
+  "attempt": "1",
+  "platform": "darwin",
+  "os": "25.6.0",
+  "node": "v24.22.2",
+  "dimensions": {
+    "columns": 160,
+    "rows": 60
+  },
+  "sessions": [
+    {
+      "name": "feasibility",
+      "command": [
+        "python3",
+        "/Users/runner/work/CLI-Ports_Tool/CLI-Ports_Tool/scripts/unix-pty/host.py",
+        "/Users/runner/hostedtoolcache/node/24.22.2/arm64/bin/node",
+        "--require",
+        "/Users/runner/work/CLI-Ports_Tool/CLI-Ports_Tool/scripts/unix-pty/lifetime.cjs",
+        "/Users/runner/work/CLI-Ports_Tool/CLI-Ports_Tool/scripts/unix-pty/keyboard-probe.cjs"
+      ],
+      "events": [
+        {
+          "type": "pty",
+          "api": "pty.openpty + setsid + TIOCSCTTY",
+          "pid": 4240,
+          "command": [
+            "/Users/runner/hostedtoolcache/node/24.22.2/arm64/bin/node",
+            "--require",
+            "/Users/runner/work/CLI-Ports_Tool/CLI-Ports_Tool/scripts/unix-pty/lifetime.cjs",
+            "/Users/runner/work/CLI-Ports_Tool/CLI-Ports_Tool/scripts/unix-pty/keyboard-probe.cjs"
+          ],
+          "python": "3.15.2 (main, Oct 25 2026, 16:57:51) [Clang 21.0.0 (clang-2100.3.34.2)]",
+          "os": "macOS-26.7.2-arm64-arm-64bit-Mach-O",
+          "columns": 160,
+          "rows": 60,
+          "slave": "/dev/ttys000",
+          "sessionId": 4240
+        },
+        {
+          "type": "output",
+          "data": "eyJtYXJrZXIiOiAiY29udHJvbGxpbmctdGVybWluYWwiLCAiZm9yZWdyb3VuZEdyb3VwIjogNDI0MCwgInBpZCI6IDQyNDB9DQp7Im1hcmtlciI6ImRpbWVuc2lvbnMiLCJjb2x1bW5zIjoxNjAsInJvd3MiOjYwfQ0KeyJtYXJrZXIiOiJwcm9iZS1zdGFydCIsInN0ZGluVFRZIjp0cnVlLCJzdGRvdXRUVFkiOnRydWUsInJhd0F2YWlsYWJsZSI6dHJ1ZSwibm9kZSI6InYyNC4yMi4yIn0NCg=="
+        },
+        {
+          "type": "output",
+          "data": "eyJtYXJrZXIiOiJyYXctcmVhZHkiLCJyYXciOnRydWV9DQo="
+        },
+        {
+          "type": "output",
+          "data": "eyJtYXJrZXIiOiJrZXkiLCJuYW1lIjoiYSIsInNlcXVlbmNlIjoiYSJ9DQo="
+        },
+        {
+          "type": "output",
+          "data": "eyJtYXJrZXIiOiJrZXkiLCJuYW1lIjoidXAiLCJzZXF1ZW5jZSI6Ilx1MDAxYltBIn0NCg=="
+        },
+        {
+          "type": "output",
+          "data": "eyJtYXJrZXIiOiJrZXkiLCJuYW1lIjoiYiIsInNlcXVlbmNlIjoiYiJ9DQo="
+        },
+        {
+          "type": "output",
+          "data": "eyJtYXJrZXIiOiJrZXkiLCJuYW1lIjoicSIsInNlcXVlbmNlIjoicSJ9DQo="
+        },
+        {
+          "type": "output",
+          "data": "eyJtYXJrZXIiOiJwcm9iZS1jb21wbGV0ZSIsInJhdyI6ZmFsc2V9DQo="
+        },
+        {
+          "type": "exit",
+          "exitCode": 0
+        },
+        {
+          "type": "cleanup",
+          "descriptorsClosed": true,
+          "childReaped": true,
+          "exitCode": 0,
+          "normalExit": true,
+          "outputDrained": true,
+          "terminalRestoredByChild": null,
+          "termiosInspection": "unavailable-after-exit: error(25, 'Inappropriate ioctl for device')"
+        }
+      ],
+      "input": [
+        {
+          "at": 1793962825978,
+          "text": "a"
+        },
+        {
+          "at": 1793962826029,
+          "text": "\u001b[A"
+        },
+        {
+          "at": 1793962826081,
+          "text": "b"
+        },
+        {
+          "at": 1793962826133,
+          "text": "q"
+        }
+      ],
+      "output": "{\"marker\": \"controlling-terminal\", \"foregroundGroup\": 4240, \"pid\": 4240}\r\n{\"marker\":\"dimensions\",\"columns\":160,\"rows\":60}\r\n{\"marker\":\"probe-start\",\"stdinTTY\":true,\"stdoutTTY\":true,\"rawAvailable\":true,\"node\":\"v24.22.2\"}\r\n{\"marker\":\"raw-ready\",\"raw\":true}\r\n{\"marker\":\"key\",\"name\":\"a\",\"sequence\":\"a\"}\r\n{\"marker\":\"key\",\"name\":\"up\",\"sequence\":\"\\u001b[A\"}\r\n{\"marker\":\"key\",\"name\":\"b\",\"sequence\":\"b\"}\r\n{\"marker\":\"key\",\"name\":\"q\",\"sequence\":\"q\"}\r\n{\"marker\":\"probe-complete\",\"raw\":false}\r\n",
+      "stderr": "",
+      "hostExit": {
+        "code": 0,
+        "signal": null
+      }
+    },
+    {
+      "name": "failure-abort",
+      "command": [
+        "python3",
+        "/Users/runner/work/CLI-Ports_Tool/CLI-Ports_Tool/scripts/unix-pty/host.py",
+        "/Users/runner/hostedtoolcache/node/24.22.2/arm64/bin/node",
+        "--require",
+        "/Users/runner/work/CLI-Ports_Tool/CLI-Ports_Tool/scripts/unix-pty/lifetime.cjs",
+        "/Users/runner/work/CLI-Ports_Tool/CLI-Ports_Tool/scripts/unix-pty/keyboard-probe.cjs"
+      ],
+      "events": [
+        {
+          "type": "pty",
+          "api": "pty.openpty + setsid + TIOCSCTTY",
+          "pid": 4249,
+          "command": [
+            "/Users/runner/hostedtoolcache/node/24.22.2/arm64/bin/node",
+            "--require",
+            "/Users/runner/work/CLI-Ports_Tool/CLI-Ports_Tool/scripts/unix-pty/lifetime.cjs",
+            "/Users/runner/work/CLI-Ports_Tool/CLI-Ports_Tool/scripts/unix-pty/keyboard-probe.cjs"
+          ],
+          "python": "3.15.2 (main, Oct 25 2026, 16:57:51) [Clang 21.0.0 (clang-2100.3.34.2)]",
+          "os": "macOS-26.7.2-arm64-arm-64bit-Mach-O",
+          "columns": 160,
+          "rows": 60,
+          "slave": "/dev/ttys000",
+          "sessionId": 4249
+        },
+        {
+          "type": "output",
+          "data": "eyJtYXJrZXIiOiAiY29udHJvbGxpbmctdGVybWluYWwiLCAiZm9yZWdyb3VuZEdyb3VwIjogNDI0OSwgInBpZCI6IDQyNDl9DQp7Im1hcmtlciI6ImRpbWVuc2lvbnMiLCJjb2x1bW5zIjoxNjAsInJvd3MiOjYwfQ0KeyJtYXJrZXIiOiJwcm9iZS1zdGFydCIsInN0ZGluVFRZIjp0cnVlLCJzdGRvdXRUVFkiOnRydWUsInJhd0F2YWlsYWJsZSI6dHJ1ZSwibm9kZSI6InYyNC4yMi4yIn0NCg=="
+        },
+        {
+          "type": "output",
+          "data": "eyJtYXJrZXIiOiJyYXctcmVhZHkiLCJyYXciOnRydWV9DQo="
+        },
+        {
+          "type": "error",
+          "error": "RuntimeError('Requested owned-session abort')"
+        },
+        {
+          "type": "cleanup",
+          "descriptorsClosed": true,
+          "childReaped": true,
+          "exitCode": -1,
+          "normalExit": false,
+          "outputDrained": false,
+          "terminalRestoredByChild": false,
+          "termiosInspection": "not-inspected-abnormal-exit"
+        }
+      ],
+      "input": [],
+      "output": "{\"marker\": \"controlling-terminal\", \"foregroundGroup\": 4249, \"pid\": 4249}\r\n{\"marker\":\"dimensions\",\"columns\":160,\"rows\":60}\r\n{\"marker\":\"probe-start\",\"stdinTTY\":true,\"stdoutTTY\":true,\"rawAvailable\":true,\"node\":\"v24.22.2\"}\r\n{\"marker\":\"raw-ready\",\"raw\":true}\r\n",
+      "stderr": "",
+      "hostExit": {
+        "code": 1,
+        "signal": null
+      }
+    },
+    {
+      "name": "failure-disconnect",
+      "command": [
+        "python3",
+        "/Users/runner/work/CLI-Ports_Tool/CLI-Ports_Tool/scripts/unix-pty/host.py",
+        "/Users/runner/hostedtoolcache/node/24.22.2/arm64/bin/node",
+        "--require",
+        "/Users/runner/work/CLI-Ports_Tool/CLI-Ports_Tool/scripts/unix-pty/lifetime.cjs",
+        "/Users/runner/work/CLI-Ports_Tool/CLI-Ports_Tool/scripts/unix-pty/keyboard-probe.cjs"
+      ],
+      "events": [
+        {
+          "type": "pty",
+          "api": "pty.openpty + setsid + TIOCSCTTY",
+          "pid": 4258,
+          "command": [
+            "/Users/runner/hostedtoolcache/node/24.22.2/arm64/bin/node",
+            "--require",
+            "/Users/runner/work/CLI-Ports_Tool/CLI-Ports_Tool/scripts/unix-pty/lifetime.cjs",
+            "/Users/runner/work/CLI-Ports_Tool/CLI-Ports_Tool/scripts/unix-pty/keyboard-probe.cjs"
+          ],
+          "python": "3.15.2 (main, Oct 25 2026, 16:57:51) [Clang 21.0.0 (clang-2100.3.34.2)]",
+          "os": "macOS-26.7.2-arm64-arm-64bit-Mach-O",
+          "columns": 160,
+          "rows": 60,
+          "slave": "/dev/ttys000",
+          "sessionId": 4258
+        },
+        {
+          "type": "output",
+          "data": "eyJtYXJrZXIiOiAiY29udHJvbGxpbmctdGVybWluYWwiLCAiZm9yZWdyb3VuZEdyb3VwIjogNDI1OCwgInBpZCI6IDQyNTh9DQp7Im1hcmtlciI6ImRpbWVuc2lvbnMiLCJjb2x1bW5zIjoxNjAsInJvd3MiOjYwfQ0KeyJtYXJrZXIiOiJwcm9iZS1zdGFydCIsInN0ZGluVFRZIjp0cnVlLCJzdGRvdXRUVFkiOnRydWUsInJhd0F2YWlsYWJsZSI6dHJ1ZSwibm9kZSI6InYyNC4yMi4yIn0NCg=="
+        },
+        {
+          "type": "output",
+          "data": "eyJtYXJrZXIiOiJyYXctcmVhZHkiLCJyYXciOnRydWV9DQo="
+        },
+        {
+          "type": "error",
+          "error": "RuntimeError('Controller disconnected')"
+        },
+        {
+          "type": "cleanup",
+          "descriptorsClosed": true,
+          "childReaped": true,
+          "exitCode": -1,
+          "normalExit": false,
+          "outputDrained": false,
+          "terminalRestoredByChild": false,
+          "termiosInspection": "not-inspected-abnormal-exit"
+        }
+      ],
+      "input": [],
+      "output": "{\"marker\": \"controlling-terminal\", \"foregroundGroup\": 4258, \"pid\": 4258}\r\n{\"marker\":\"dimensions\",\"columns\":160,\"rows\":60}\r\n{\"marker\":\"probe-start\",\"stdinTTY\":true,\"stdoutTTY\":true,\"rawAvailable\":true,\"node\":\"v24.22.2\"}\r\n{\"marker\":\"raw-ready\",\"raw\":true}\r\n",
+      "stderr": "",
+      "hostExit": {
+        "code": 1,
+        "signal": null
+      }
+    }
+  ]
+}

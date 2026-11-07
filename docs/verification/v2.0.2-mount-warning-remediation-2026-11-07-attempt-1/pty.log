@@ -1,0 +1,54 @@
+PTY waiting: raw-ready
+PTY observed: raw-ready
+PTY waiting: key a
+PTY observed: key a
+PTY waiting: key up
+PTY observed: key up
+PTY waiting: key b
+PTY observed: key b
+PTY waiting: key q
+PTY observed: key q
+PTY waiting: raw-ready
+PTY observed: raw-ready
+PTY waiting: raw-ready
+PTY observed: raw-ready
+Stage 1 PASS: actual Unix PTY, TTY/raw input, keyboard, output, dimensions, normal exit and abort/disconnect cleanup
+PTY waiting: native TUI header
+PTY observed: native TUI header
+PTY waiting: raw-mode readiness
+PTY observed: raw-mode readiness
+PTY waiting: search mode
+PTY observed: search mode
+PTY waiting: owned rows
+PTY observed: owned rows
+PTY waiting: locked search
+PTY observed: locked search
+PTY waiting: owned row selected
+PTY observed: owned row selected
+PTY waiting: target arrow selection
+PTY observed: target arrow selection
+PTY checkpoint: selected target
+PTY waiting: manual refresh query
+PTY observed: manual refresh query
+PTY checkpoint: manual refresh
+PTY waiting: two automatic refresh opportunities and successful native queries
+PTY observed: two automatic refresh opportunities and successful native queries
+PTY checkpoint: automatic refreshes
+PTY waiting: new separate owned listener rendered
+PTY observed: new separate owned listener rendered
+PTY checkpoint: separate listener added
+PTY waiting: removed separate listener disappears
+PTY observed: removed separate listener disappears
+PTY checkpoint: separate listener removed
+PTY waiting: sort changed
+PTY observed: sort changed
+PTY checkpoint: sort changed
+PTY waiting: editor starts
+PTY observed: editor starts
+PTY waiting: foreground editor survives former 15-second deadline
+PTY observed: foreground editor survives former 15-second deadline
+PTY waiting: browser probe
+PTY observed: browser probe
+PTY checkpoint: shortcuts completed
+PTY cleaning owned fixtures
+Stage 2 PASS: compiled CLI native terminal interaction, refresh/selection, harmless launchers and cleanup

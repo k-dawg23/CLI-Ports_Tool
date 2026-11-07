@@ -4,11 +4,13 @@ import type { PortProcess } from "./types.js";
 export const TABLE_HEADERS = ["PORT", "PROJECT", "FRAMEWORK", "PID", "MEM", "UPTIME", "COMMAND"] as const;
 export const TABLE_WIDTHS = [6, 22, 12, 8, 10, 12, 20] as const;
 
-export function renderTable(processes: PortProcess[]): string {
+export function renderTable(processes: PortProcess[], includeAddresses = false): string {
   if (processes.length === 0) {
     return chalk.yellow("No listening TCP ports found.");
   }
 
+  const headers = includeAddresses ? [...TABLE_HEADERS, "BINDINGS"] : TABLE_HEADERS;
+  const widths = includeAddresses ? [...TABLE_WIDTHS, 0] : TABLE_WIDTHS;
   const rows = processes.map((process) => {
     const isDimmed = shouldDimProcess(process);
     const dim = isDimmed ? chalk.dim : identity;
@@ -20,16 +22,17 @@ export function renderTable(processes: PortProcess[]): string {
       dim(padEndVisible(String(process.pid), TABLE_WIDTHS[3])),
       colorMemory(process.memoryKb),
       dim(padEndVisible(process.uptime ?? "-", TABLE_WIDTHS[5])),
-      dim(padEndVisible(process.command, TABLE_WIDTHS[6]))
+      dim(padEndVisible(process.command, TABLE_WIDTHS[6])),
+      ...(includeAddresses ? [formatBindings(process)] : [])
     ];
   });
 
-  const headerLine = TABLE_HEADERS
-    .map((header, index) => chalk.bold(padEndVisible(header, TABLE_WIDTHS[index]!)))
+  const headerLine = headers
+    .map((header, index) => chalk.bold(widths[index] ? padEndVisible(header, widths[index]!) : header))
     .join("  ");
 
   const body = rows
-    .map((row) => row.map((value, index) => padAnsiCell(value, TABLE_WIDTHS[index]!)).join("  "))
+    .map((row) => row.map((value, index) => widths[index] ? padAnsiCell(value, widths[index]!) : value).join("  "))
     .join("\n");
 
   return `${headerLine}\n${body}`;
@@ -45,11 +48,16 @@ export function renderPortDetails(process?: PortProcess): string {
     `${chalk.bold("Project")}: ${process.projectName}`,
     `${chalk.bold("Framework")}: ${process.framework}`,
     `${chalk.bold("PID")}: ${process.pid}`,
+    `${chalk.bold("Bindings")}: ${formatBindings(process)}`,
     `${chalk.bold("Memory")}: ${formatMemory(process.memoryKb)}`,
     `${chalk.bold("Uptime")}: ${process.uptime ?? "-"}`,
     `${chalk.bold("Command")}: ${process.command}`,
     `${chalk.bold("Working Dir")}: ${process.cwd ?? "-"}`
   ].join("\n");
+}
+
+export function formatBindings(process: Pick<PortProcess, "addresses" | "port">): string {
+  return process.addresses.map(({ address, family }) => `${family === "IPv6" ? `[${address}]` : address}:${process.port}`).join(", ");
 }
 
 export function formatMemory(memoryKb?: number): string {

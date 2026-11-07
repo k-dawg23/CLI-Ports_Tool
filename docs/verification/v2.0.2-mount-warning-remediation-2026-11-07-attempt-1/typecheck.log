@@ -1,0 +1,4 @@
+
+> ports@2.0.2 typecheck
+> tsc --noEmit
+

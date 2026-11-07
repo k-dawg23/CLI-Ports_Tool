@@ -1,0 +1,16 @@
+{
+  "platform": "linux",
+  "os": "7.0.0-42-generic",
+  "node": "v24.21.0",
+  "github": {},
+  "terminationMechanism": "authenticated IPC request; fixture signals itself",
+  "checks": [
+    {
+      "name": "native smoke",
+      "status": "failed",
+      "error": "Owned server exited before readiness (1): "
+    }
+  ],
+  "fixtures": [],
+  "commands": []
+}

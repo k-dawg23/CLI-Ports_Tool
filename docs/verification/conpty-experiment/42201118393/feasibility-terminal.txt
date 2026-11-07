@@ -1,0 +1,1 @@
+[?9001h[?1004h[?25l[?9001l[?1004l[2J[m[H]0;C:\hostedtoolcache\windows\node\24.22.2\x64\node.exe[?25h

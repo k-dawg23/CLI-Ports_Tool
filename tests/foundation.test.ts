@@ -13,7 +13,7 @@ test("ports require complete ASCII decimal integers", () => {
 });
 
 test("checked commands retain failures and stderr, and bound owned subprocesses", async () => {
-  const failed = await runCheckedCommand([process.execPath, "-e", "console.error('diagnostic'); process.exitCode = 7"]);
+  const failed = await runCheckedCommand([process.execPath, "-e", "require('node:fs').writeSync(2, 'diagnostic'); process.exitCode = 7"]);
   assert.equal(failed.exitCode, 7);
   assert.equal(failed.stderr, "diagnostic");
   assert.equal((await runCheckedCommand(["ports-nonexistent-test-executable"])).failure, "missing");
@@ -28,7 +28,7 @@ test("missing executables remain distinct from existing commands returning nonze
   assert.equal(missing.failure, "missing");
   assert.notEqual(missing.exitCode, 0);
   for (const status of [1, 7, 9009]) {
-    const result = await runCheckedCommand([process.execPath, "-e", `console.error('existing command'); process.exitCode = ${status}`]);
+    const result = await runCheckedCommand([process.execPath, "-e", `require('node:fs').writeSync(2, 'existing command'); process.exitCode = ${status}`]);
     assert.equal(result.failure, undefined);
     assert.equal(result.exitCode, process.platform === "win32" ? status : status % 256);
     assert.equal(result.stderr, "existing command");

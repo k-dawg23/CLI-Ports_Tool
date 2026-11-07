@@ -1,0 +1,25 @@
+{
+  "status": "PUBLISHED_POST_PUBLICATION_VERIFIED",
+  "date": "2026-11-06",
+  "candidate": "4b5bdf39a7ec8268d0bad938deba154690adb7c6",
+  "pr": 13,
+  "merge": "87a349e81f2151654056567c7a1ca3d900e1e83e",
+  "historyCommit": "76ed2effb206fa923ff7bc70f9e93b43da4b6efc",
+  "releaseCommit": "9ccdd9a6ec7daf13ff763071208cd1555cc5dfeb",
+  "tag": "v2.0.1",
+  "tagObject": "f208c223e25fd97dc14d52f499a0001efcf8cb3a",
+  "failedRuns": [
+    42238953525,
+    42239114375
+  ],
+  "correctedMainRun": 42240885258,
+  "correctedMainStatus": "success",
+  "tagRun": 42241835709,
+  "tagRunStatus": "failure",
+  "releaseUrl": "https://github.com/k-dawg23/CLI-Ports_Tool/releases/tag/v2.0.1",
+  "freshTagVerificationRun": 42245636836,
+  "freshTagVerificationStatus": "success",
+  "releaseId": 436691224,
+  "publishedAt": "2026-11-06T15:47:45Z",
+  "postPublicationVerified": true
+}

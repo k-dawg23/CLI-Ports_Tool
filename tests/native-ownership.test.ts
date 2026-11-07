@@ -114,7 +114,7 @@ test("port replacement after the initial snapshot refuses the replacement PID at
     throw new Error("Unexpected query");
   });
   const backend = new UnixPortBackend(runner, () => ({ state: "alive" }), async () => {});
-  backend.getListeningPorts = async () => [{ pid, port: 3000 }];
+  backend.getListeningPorts = async () => [{ pid, port: 3000, addresses: [{ address: "127.0.0.1", family: "IPv4" }] }];
   backend.getProcessStats = async () => undefined;
   backend.getWorkingDirectory = async () => undefined;
   const service = new PortService(() => backend);
@@ -135,7 +135,7 @@ test("the native PowerShell allowlist admits actual read-only backend queries an
     queries.push(args);
     if (args[0] === "where") return { stdout: "powershell", stderr: "", exitCode: 0 };
     const script = args.at(-1)!;
-    const payload = script.includes("Get-NetTCPConnection") ? { Listeners: [{ LocalPort: 3000, OwningProcess: 11 }] }
+    const payload = script.includes("Get-NetTCPConnection") ? { Listeners: [{ LocalAddress: "127.0.0.1", LocalPort: 3000, OwningProcess: 11 }] }
       : script.includes("Get-CimInstance") ? [{ ProcessId: 11, CommandLine: "C:/app/server.js" }]
       : script.includes("$ids") ? { State: "alive" } : [{ Id: 11, ProcessName: "node" }];
     return { stdout: JSON.stringify(payload), stderr: "", exitCode: 0 };

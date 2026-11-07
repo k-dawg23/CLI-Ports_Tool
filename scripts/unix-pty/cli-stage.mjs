@@ -7,6 +7,7 @@ import { randomUUID } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { createOwnedStopGuard } from '../native-ownership.mjs';
 import { terminalScreen } from '../conpty/terminal-screen.mjs';
+import { waitForRawModeReady } from '../terminal-readiness.mjs';
 
 export async function verifyCli({ session, report, directory, here }) {
   report.stage2 = 'FAIL';
@@ -14,6 +15,7 @@ export async function verifyCli({ session, report, directory, here }) {
   // Ink otherwise suppresses interactive frame updates under its CI renderer.
   // isTTY/raw-mode values still come exclusively from the native console.
   report.cli = { frames: [], assertions: [], fixtures: [], environmentOverrides: { CI: 'false' } };
+  report.cli.removedEnvironmentKeys = ['NO_COLOR'];
   const project = path.join(directory, 'owned project with spaces');
   const projectName = `unix-pty-owned-${randomUUID().slice(0, 8)}`;
   await fs.mkdir(project);
@@ -23,9 +25,11 @@ export async function verifyCli({ session, report, directory, here }) {
   const listener = async () => {
     const token = randomUUID();
     const child = spawn(executable, [path.join(project, 'listener.cjs')], { cwd: project, env: { ...process.env, PORTS_FIXTURE_TOKEN: token }, stdio: ['ignore', 'ignore', 'pipe', 'ipc'] });
+    let fixtureStderr = '';
+    child.stderr.on('data', chunk => { fixtureStderr += chunk; });
     const owner = createOwnedStopGuard(child, token);
     const exited = once(child, 'exit');
-    const record = { child, owner, exited, identity: null };
+    const record = { child, owner, exited, identity: null, fixtureStderr: () => fixtureStderr };
     fixtures.push(record);
     let timer;
     const [message] = await Promise.race([
@@ -57,7 +61,7 @@ export async function verifyCli({ session, report, directory, here }) {
       ...report.cli.environmentOverrides, ...environment,
       PORTS_OBSERVE_LOG: observeLog, PORTS_LAUNCH_LOG: launchLog, PORTS_LAUNCH_PROBE: launcher,
       PORTS_EDITOR: `"${process.execPath}" "${launcher}" editor "editor argument with spaces"`,
-      FORCE_COLOR: '1', TERM: 'xterm-256color'
+      FORCE_COLOR: '1', NO_COLOR: undefined, TERM: 'xterm-256color'
     });
     const frame = label => {
       const text = terminalScreen(cli.data.output);
@@ -69,19 +73,21 @@ export async function verifyCli({ session, report, directory, here }) {
       return match ? { pid: Number(match[2]), port: Number(match[1]) } : undefined;
     };
     const isTarget = text => selected(text)?.pid === target.identity.pid && selected(text)?.port === target.identity.port;
-    await cli.wait('native TUI header', () => frame().includes('ports v2.0.1'));
-    await refreshRecords();
+    await cli.wait('native TUI header', () => frame().includes('ports v2.0.2'));
+    await waitForRawModeReady(cli.wait, refreshRecords, observed);
     assert.ok(observed.some(e => e.type === 'terminal' && e.stdinTTY && e.stdoutTTY && e.rawAvailable && e.columns === 160 && e.rows === 60));
     assert.ok(observed.some(e => e.type === 'raw' && e.actual === true));
     assert.ok(!cli.data.output.includes('Falling back to a static port list'));
+    assert.ok(!cli.data.output.includes("'NO_COLOR' env is ignored"));
     report.cli.assertions.push('native TTY and actual raw mode, compiled TUI header');
     cli.input('/'); await cli.wait('search mode', () => frame().includes('Enter lock'));
     cli.input(projectName); await cli.wait('owned rows', () => frame().includes(projectName) && frame().includes(String(first.identity.port)) && frame().includes(String(second.identity.port)), 60000);
     cli.input('\r'); await cli.wait('locked search', () => !frame().includes('Enter lock'));
     await cli.wait('owned row selected', () => [first.identity.pid, second.identity.pid].includes(selected(frame())?.pid));
     if (!isTarget(frame())) { cli.input('\x1b[B'); await cli.wait('target arrow selection', () => isTarget(frame())); }
-    frame('selected target');
-    report.cli.assertions.push('known PID/port selected using native arrow input');
+    const selectedFrame = frame('selected target');
+    assert.ok(selectedFrame.includes(`Bindings: 127.0.0.1:${target.identity.port}`));
+    report.cli.assertions.push('known PID/port selected using native arrow input; selected-row binding details rendered');
 
     await refreshRecords();
     let count = observed.filter(e => e.type === 'discovery-start').length;
@@ -142,7 +148,7 @@ export async function verifyCli({ session, report, directory, here }) {
     for (const record of fixtures) {
       const [code, signal] = await record.exited;
       record.child.stderr.destroy();
-      (report.cli.fixtureCleanup ??= []).push({ pid: record.identity?.pid, code, signal, disconnected: !record.child.connected, stderrClosed: record.child.stderr.destroyed });
+      (report.cli.fixtureCleanup ??= []).push({ pid: record.identity?.pid, code, signal, disconnected: !record.child.connected, stderr: record.fixtureStderr(), stderrClosed: record.child.stderr.destroyed });
       assert.equal(code, 0); assert.equal(signal, null);
       report.cli.assertions.push(`fixture ${record.identity?.pid ?? 'unknown'} exited normally on owned IPC disconnect`);
     }

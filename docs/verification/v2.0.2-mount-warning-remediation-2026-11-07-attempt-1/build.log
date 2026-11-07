@@ -1,0 +1,15 @@
+
+> ports@2.0.2 build
+> tsup src/cli.tsx --format esm --dts --clean
+
+CLI Building entry: src/cli.tsx
+CLI Using tsconfig: tsconfig.json
+CLI tsup v9.0.0
+CLI Target: es2022
+CLI Cleaning output folder
+ESM Build start
+ESM dist/cli.js 62.34 KB
+ESM ⚡️ Build success in 120ms
+DTS Build start
+DTS ⚡️ Build success in 1303ms
+DTS dist/cli.d.ts 20.00 B

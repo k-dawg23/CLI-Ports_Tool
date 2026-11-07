@@ -1,0 +1,103 @@
+{
+  "stage1": "FAIL",
+  "stage2": "NOT ATTEMPTED",
+  "sha": "8e718073cbbf2a8991c827363dcc2f6127144afe",
+  "run": "42206515576",
+  "attempt": "1",
+  "platform": "darwin",
+  "os": "25.6.0",
+  "node": "v24.22.1",
+  "dimensions": {
+    "columns": 160,
+    "rows": 60
+  },
+  "sessions": [
+    {
+      "name": "feasibility",
+      "command": [
+        "python3",
+        "/Users/runner/work/CLI-Ports_Tool/CLI-Ports_Tool/scripts/unix-pty/host.py",
+        "/Users/runner/hostedtoolcache/node/24.22.1/arm64/bin/node",
+        "--require",
+        "/Users/runner/work/CLI-Ports_Tool/CLI-Ports_Tool/scripts/unix-pty/lifetime.cjs",
+        "/Users/runner/work/CLI-Ports_Tool/CLI-Ports_Tool/scripts/unix-pty/keyboard-probe.cjs"
+      ],
+      "events": [
+        {
+          "type": "pty",
+          "api": "pty.openpty + setsid + TIOCSCTTY",
+          "pid": 3044,
+          "command": [
+            "/Users/runner/hostedtoolcache/node/24.22.1/arm64/bin/node",
+            "--require",
+            "/Users/runner/work/CLI-Ports_Tool/CLI-Ports_Tool/scripts/unix-pty/lifetime.cjs",
+            "/Users/runner/work/CLI-Ports_Tool/CLI-Ports_Tool/scripts/unix-pty/keyboard-probe.cjs"
+          ],
+          "python": "3.15.1 (main, Oct 21 2026, 05:55:12) [Clang 21.0.0 (clang-2100.3.34.2)]",
+          "os": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+          "columns": 160,
+          "rows": 60,
+          "slave": "/dev/ttys000",
+          "sessionId": 3044
+        },
+        {
+          "type": "output",
+          "data": "eyJtYXJrZXIiOiAiY29udHJvbGxpbmctdGVybWluYWwiLCAiZm9yZWdyb3VuZEdyb3VwIjogMzA0NCwgInBpZCI6IDMwNDR9DQp7Im1hcmtlciI6ImRpbWVuc2lvbnMiLCJjb2x1bW5zIjoxNjAsInJvd3MiOjYwfQ0KeyJtYXJrZXIiOiJwcm9iZS1zdGFydCIsInN0ZGluVFRZIjp0cnVlLCJzdGRvdXRUVFkiOnRydWUsInJhd0F2YWlsYWJsZSI6dHJ1ZSwibm9kZSI6InYyNC4yMi4xIn0NCg=="
+        },
+        {
+          "type": "output",
+          "data": "eyJtYXJrZXIiOiJyYXctcmVhZHkiLCJyYXciOnRydWV9DQo="
+        },
+        {
+          "type": "output",
+          "data": "eyJtYXJrZXIiOiJrZXkiLCJuYW1lIjoiYSIsInNlcXVlbmNlIjoiYSJ9DQo="
+        },
+        {
+          "type": "output",
+          "data": "eyJtYXJrZXIiOiJrZXkiLCJuYW1lIjoidXAiLCJzZXF1ZW5jZSI6Ilx1MDAxYltBIn0NCg=="
+        },
+        {
+          "type": "output",
+          "data": "eyJtYXJrZXIiOiJrZXkiLCJuYW1lIjoiYiIsInNlcXVlbmNlIjoiYiJ9DQo="
+        },
+        {
+          "type": "output",
+          "data": "eyJtYXJrZXIiOiJrZXkiLCJuYW1lIjoicSIsInNlcXVlbmNlIjoicSJ9DQo="
+        },
+        {
+          "type": "output",
+          "data": "eyJtYXJrZXIiOiJwcm9iZS1jb21wbGV0ZSIsInJhdyI6ZmFsc2V9DQo="
+        },
+        {
+          "type": "exit",
+          "exitCode": 0
+        }
+      ],
+      "input": [
+        {
+          "at": 1793962666933,
+          "text": "a"
+        },
+        {
+          "at": 1793962666983,
+          "text": "\u001b[A"
+        },
+        {
+          "at": 1793962667034,
+          "text": "b"
+        },
+        {
+          "at": 1793962667085,
+          "text": "q"
+        }
+      ],
+      "output": "{\"marker\": \"controlling-terminal\", \"foregroundGroup\": 3044, \"pid\": 3044}\r\n{\"marker\":\"dimensions\",\"columns\":160,\"rows\":60}\r\n{\"marker\":\"probe-start\",\"stdinTTY\":true,\"stdoutTTY\":true,\"rawAvailable\":true,\"node\":\"v24.22.1\"}\r\n{\"marker\":\"raw-ready\",\"raw\":true}\r\n{\"marker\":\"key\",\"name\":\"a\",\"sequence\":\"a\"}\r\n{\"marker\":\"key\",\"name\":\"up\",\"sequence\":\"\\u001b[A\"}\r\n{\"marker\":\"key\",\"name\":\"b\",\"sequence\":\"b\"}\r\n{\"marker\":\"key\",\"name\":\"q\",\"sequence\":\"q\"}\r\n{\"marker\":\"probe-complete\",\"raw\":false}\r\n",
+      "stderr": "Traceback (most recent call last):\n  File \"/Users/runner/work/CLI-Ports_Tool/CLI-Ports_Tool/scripts/unix-pty/host.py\", line 110, in <module>\n    current = termios.tcgetattr(slave)\ntermios.error: (25, 'Inappropriate ioctl for device')\n",
+      "hostExit": {
+        "code": 1,
+        "signal": null
+      }
+    }
+  ],
+  "error": "AssertionError [ERR_ASSERTION]: {\"name\":\"feasibility\",\"command\":[\"python3\",\"/Users/runner/work/CLI-Ports_Tool/CLI-Ports_Tool/scripts/unix-pty/host.py\",\"/Users/runner/hostedtoolcache/node/24.22.1/arm64/bin/node\",\"--require\",\"/Users/runner/work/CLI-Ports_Tool/CLI-Ports_Tool/scripts/unix-pty/lifetime.cjs\",\"/Users/runner/work/CLI-Ports_Tool/CLI-Ports_Tool/scripts/unix-pty/keyboard-probe.cjs\"],\"events\":[{\"type\":\"pty\",\"api\":\"pty.openpty + setsid + TIOCSCTTY\",\"pid\":3044,\"command\":[\"/Users/runner/hostedtoolcache/node/24.22.1/arm64/bin/node\",\"--require\",\"/Users/runner/work/CLI-Ports_Tool/CLI-Ports_Tool/scripts/unix-pty/lifetime.cjs\",\"/Users/runner/work/CLI-Ports_Tool/CLI-Ports_Tool/scripts/unix-pty/keyboard-probe.cjs\"],\"python\":\"3.15.1 (main, Oct 21 2026, 05:55:12) [Clang 21.0.0 (clang-2100.3.34.2)]\",\"os\":\"macOS-26.6.2-arm64-arm-64bit-Mach-O\",\"columns\":160,\"rows\":60,\"slave\":\"/dev/ttys000\",\"sessionId\":3044},{\"type\":\"output\",\"data\":\"eyJtYXJrZXIiOiAiY29udHJvbGxpbmctdGVybWluYWwiLCAiZm9yZWdyb3VuZEdyb3VwIjogMzA0NCwgInBpZCI6IDMwNDR9DQp7Im1hcmtlciI6ImRpbWVuc2lvbnMiLCJjb2x1bW5zIjoxNjAsInJvd3MiOjYwfQ0KeyJtYXJrZXIiOiJwcm9iZS1zdGFydCIsInN0ZGluVFRZIjp0cnVlLCJzdGRvdXRUVFkiOnRydWUsInJhd0F2YWlsYWJsZSI6dHJ1ZSwibm9kZSI6InYyNC4yMi4xIn0NCg==\"},{\"type\":\"output\",\"data\":\"eyJtYXJrZXIiOiJyYXctcmVhZHkiLCJyYXciOnRydWV9DQo=\"},{\"type\":\"output\",\"data\":\"eyJtYXJrZXIiOiJrZXkiLCJuYW1lIjoiYSIsInNlcXVlbmNlIjoiYSJ9DQo=\"},{\"type\":\"output\",\"data\":\"eyJtYXJrZXIiOiJrZXkiLCJuYW1lIjoidXAiLCJzZXF1ZW5jZSI6Ilx1MDAxYltBIn0NCg==\"},{\"type\":\"output\",\"data\":\"eyJtYXJrZXIiOiJrZXkiLCJuYW1lIjoiYiIsInNlcXVlbmNlIjoiYiJ9DQo=\"},{\"type\":\"output\",\"data\":\"eyJtYXJrZXIiOiJrZXkiLCJuYW1lIjoicSIsInNlcXVlbmNlIjoicSJ9DQo=\"},{\"type\":\"output\",\"data\":\"eyJtYXJrZXIiOiJwcm9iZS1jb21wbGV0ZSIsInJhdyI6ZmFsc2V9DQo=\"},{\"type\":\"exit\",\"exitCode\":0}],\"input\":[{\"at\":1793962666933,\"text\":\"a\"},{\"at\":1793962666983,\"text\":\"\\u001b[A\"},{\"at\":1793962667034,\"text\":\"b\"},{\"at\":1793962667085,\"text\":\"q\"}],\"output\":\"{\\\"marker\\\": \\\"controlling-terminal\\\", \\\"foregroundGroup\\\": 3044, \\\"pid\\\": 3044}\\r\\n{\\\"marker\\\":\\\"dimensions\\\",\\\"columns\\\":160,\\\"rows\\\":60}\\r\\n{\\\"marker\\\":\\\"probe-start\\\",\\\"stdinTTY\\\":true,\\\"stdoutTTY\\\":true,\\\"rawAvailable\\\":true,\\\"node\\\":\\\"v24.22.1\\\"}\\r\\n{\\\"marker\\\":\\\"raw-ready\\\",\\\"raw\\\":true}\\r\\n{\\\"marker\\\":\\\"key\\\",\\\"name\\\":\\\"a\\\",\\\"sequence\\\":\\\"a\\\"}\\r\\n{\\\"marker\\\":\\\"key\\\",\\\"name\\\":\\\"up\\\",\\\"sequence\\\":\\\"\\\\u001b[A\\\"}\\r\\n{\\\"marker\\\":\\\"key\\\",\\\"name\\\":\\\"b\\\",\\\"sequence\\\":\\\"b\\\"}\\r\\n{\\\"marker\\\":\\\"key\\\",\\\"name\\\":\\\"q\\\",\\\"sequence\\\":\\\"q\\\"}\\r\\n{\\\"marker\\\":\\\"probe-complete\\\",\\\"raw\\\":false}\\r\\n\",\"stderr\":\"Traceback (most recent call last):\\n  File \\\"/Users/runner/work/CLI-Ports_Tool/CLI-Ports_Tool/scripts/unix-pty/host.py\\\", line 110, in <module>\\n    current = termios.tcgetattr(slave)\\ntermios.error: (25, 'Inappropriate ioctl for device')\\n\",\"hostExit\":{\"code\":1,\"signal\":null}}\n\n1 !== 0\n\n    at Object.finish (file:///Users/runner/work/CLI-Ports_Tool/CLI-Ports_Tool/scripts/unix-pty/experiment.mjs:49:56)\n    at async file:///Users/runner/work/CLI-Ports_Tool/CLI-Ports_Tool/scripts/unix-pty/experiment.mjs:70:3"
+}
